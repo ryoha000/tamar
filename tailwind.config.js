@@ -14,7 +14,11 @@ module.exports = {
       error: 'var(--color-error)',
       white: 'var(--color-white)',
       text: 'var(--color-text)',
-    }
+    },
+    zIndex: {
+      'entire-overlay': 100,
+      'popup': 105,
+    },
   },
   plugins: [],
 };

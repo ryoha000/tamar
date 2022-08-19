@@ -33,19 +33,18 @@ const ListBox: ParentComponent<Props> = (props) => {
     let topLeft = "";
     const _rect = rect();
     if (_rect) {
+      // TODO: 下にはみ出ることがある
       topLeft = `top: ${_rect.y + _rect.height}px; left: ${_rect.x}px`;
     }
     return widthStyle() + topLeft;
   };
 
-  onMount(() => {
-    if (!target) {
+  createEffect(() => {
+    if (!target || !props.isOpen) {
       return;
     }
     const _rect = target.getBoundingClientRect();
-    if (_rect) {
-      setRect(_rect);
-    }
+    setRect(_rect);
   });
 
   const selectOption = (option: string) => {
@@ -61,7 +60,7 @@ const ListBox: ParentComponent<Props> = (props) => {
       <Show when={props.isOpen}>
         <Portal>
           <div
-            class="absolute flex flex-col items-center justify-center z-list-box bg-white rounded shadow"
+            class="absolute flex flex-col items-center justify-center z-list-box bg-white rounded shadow max-h-40 overflow-y-auto"
             style={portalStyle()}
             onclick={(e) => e.stopPropagation()}
           >

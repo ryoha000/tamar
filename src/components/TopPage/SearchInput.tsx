@@ -3,7 +3,7 @@ import { AiOutlineSearch } from "solid-icons/ai";
 
 const SearchInput: Component = () => {
   return (
-    <div class="flex items-center border-solid border-text border rounded-full px-3 py-1 gap-2 transition-all focus-within:border-accent">
+    <div class="flex items-center border-solid border-text border rounded-full px-3 py-1 gap-2 transition-all focus-within:border-accent flex-1">
       <AiOutlineSearch />
       <div>tag</div>
       <input class="w-full focus:outline-none"></input>

@@ -3,6 +3,7 @@ import { FaSolidArrowDownWideShort } from "solid-icons/fa";
 import ListBox from "../UI/ListBox";
 import ToggleIconButton from "../UI/ToggleIconButton";
 import { AiOutlineCaretDown } from "solid-icons/ai";
+import TooltipWrapper from "../UI/TooltipWrapper";
 
 const INITIAL_SELECT_OPTION = "追加日時";
 const SortSelect: Component = () => {
@@ -44,11 +45,13 @@ const SortSelect: Component = () => {
           />
         </div>
       </ListBox>
-      <ToggleIconButton
-        onclick={() => setIsDesc((prev) => !prev)}
-        icon={FaSolidArrowDownWideShort}
-        state={isDesc()}
-      />
+      <TooltipWrapper label="降順で表示">
+        <ToggleIconButton
+          onclick={() => setIsDesc((prev) => !prev)}
+          icon={FaSolidArrowDownWideShort}
+          state={isDesc()}
+        />
+      </TooltipWrapper>
     </div>
   );
 };

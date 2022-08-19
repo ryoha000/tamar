@@ -2,6 +2,7 @@ import { Component, createSignal } from "solid-js";
 import { FaSolidArrowDownWideShort } from "solid-icons/fa";
 import ListBox from "../UI/ListBox";
 import ToggleIconButton from "../UI/ToggleIconButton";
+import { AiOutlineCaretDown } from "solid-icons/ai";
 
 const INITIAL_SELECT_OPTION = "追加日時";
 const SortSelect: Component = () => {
@@ -30,13 +31,17 @@ const SortSelect: Component = () => {
             {option}
           </div>
         )}
-        width="6rem"
+        width="7rem"
       >
         <div
           onclick={() => setIsOpenOptionList(true)}
-          class="w-full px-3 py-1 cursor-pointer hover:bg-background rounded transition-all"
+          class="w-full px-3 py-1 cursor-pointer hover:bg-background rounded transition-all flex items-center gap-2"
         >
           {selectedOption()}
+          <AiOutlineCaretDown
+            classList={{ "rotate-180": isOpenOptionList() }}
+            class="transition-all"
+          />
         </div>
       </ListBox>
       <ToggleIconButton

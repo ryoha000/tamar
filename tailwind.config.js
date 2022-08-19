@@ -5,7 +5,7 @@ module.exports = {
   ],
   darkMode: 'class',
   theme: {
-    extend: {},
+    extend: {
     colors: {
       background: 'var(--color-background)',
       primary: 'var(--color-primary)',
@@ -18,7 +18,7 @@ module.exports = {
     zIndex: {
       'entire-overlay': 100,
       'popup': 105,
-    },
+    },},
   },
   plugins: [],
 };

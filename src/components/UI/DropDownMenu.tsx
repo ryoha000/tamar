@@ -9,6 +9,7 @@ interface Props {
   initialValue: string;
   options: string[];
   selectedOption: string;
+  width?: string;
   onChange: (option: string) => void;
 }
 
@@ -32,7 +33,7 @@ const DropDownMenu: Component<Props> = (props) => {
           {option}
         </div>
       )}
-      width="7rem"
+      width={props.width ?? "7rem"}
     >
       <div
         onclick={() => setIsOpenOptionList(true)}

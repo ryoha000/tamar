@@ -1,4 +1,4 @@
-import { Component, createSignal, For } from "solid-js";
+import { Component, createEffect, createSignal, For } from "solid-js";
 import Dialog from "../UI/Dialog";
 import DropDownMenu from "../UI/DropDownMenu";
 import FileImportEachDeps from "./FileImportEachDeps";
@@ -12,8 +12,24 @@ interface Props {
 }
 
 const FileImportDialog: Component<Props> = (props) => {
+  const [selectedDirDeps, setSelectedDirDeps] = createSignal("");
+  createEffect(() => {
+    const options = dirDepsLengthKindOnlyDeps();
+    if (options.length > 0) {
+      setSelectedDirDeps(options[0]);
+    }
+  });
+  const selectedDirDepsNumber = () => +selectedDirDeps();
+
   const { paths } = useExplorDir(props);
-  const { eachDepsSample, getUsage, setUsage, sampleSrc } = useDirUsage(paths);
+
+  const {
+    eachDepsSample,
+    getUsage,
+    setUsage,
+    sampleSrc,
+    dirDepsLengthKindOnlyDeps,
+  } = useDirUsage(paths, selectedDirDepsNumber);
 
   return (
     <Dialog isOpen={props.isOpen} close={props.close}>
@@ -25,7 +41,16 @@ const FileImportDialog: Component<Props> = (props) => {
             <code class="text-sm">{props.dir}</code>
           </div>
           <div class="flex flex-col">
-            <div>階層による設定</div>
+            <div class="flex items-center gap-2">
+              <DropDownMenu
+                options={dirDepsLengthKindOnlyDeps()}
+                initialValue={selectedDirDeps()}
+                selectedOption={selectedDirDeps()}
+                onChange={(opt) => setSelectedDirDeps(opt)}
+                width="3rem"
+              />
+              <div>階層ある場合の設定</div>
+            </div>
             <div class="flex flex-col gap-2">
               <For each={eachDepsSample()}>
                 {(deps, i) => (

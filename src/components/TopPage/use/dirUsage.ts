@@ -13,17 +13,35 @@ export type DepsUsageKind = typeof DEPS_USAGE[number];
 
 const IMAGE_EXTENTION = ["gif", "jpg", "jpeg", "jpe", "jfif", "png", "webp"];
 
-const useDirUsage = (paths: Accessor<DirPathInfo[]>) => {
-  const [usages, setUsages] = createSignal<DepsUsage[]>([]);
+interface DirDepsLengthKind {
+  deps: number;
+  index: number;
+}
+
+const useDirUsage = (
+  paths: Accessor<DirPathInfo[]>,
+  targetMaxDeps: Accessor<number>
+) => {
+  const [usages, setUsages] = createSignal<
+    {
+      maxDirDeps: number;
+      usage: DepsUsage[];
+    }[]
+  >([]);
   const [sampleSrc, setSampleSrc] = createSignal("");
 
   createEffect(async () => {
     if (paths().length === 0) {
       return;
     }
-    const maxIndex = maxDirDepsLengthIndex();
+    const index = dirDepsLengthKind().find(
+      (v) => v.deps === targetMaxDeps()
+    )?.index;
+    if (index === undefined) {
+      return;
+    }
 
-    const entries = await fs.readDir(paths()[maxIndex].path);
+    const entries = await fs.readDir(paths()[index].path);
     for (const entry of entries) {
       const ext = await path.extname(entry.path);
       if (IMAGE_EXTENTION.includes(ext.toLowerCase())) {
@@ -33,52 +51,98 @@ const useDirUsage = (paths: Accessor<DirPathInfo[]>) => {
     return;
   });
 
-  const maxDirDepsLengthIndex = () => {
-    let maxIndex = 0;
+  const dirDepsLengthKind = () => {
+    if (paths().length === 0) {
+      return [];
+    }
+    const existDeps = new Set<number>();
+
+    const res: DirDepsLengthKind[] = [];
     for (let i = 0; i < paths().length; i++) {
-      if (paths()[maxIndex].dirDeps.length < paths()[i].dirDeps.length) {
-        maxIndex = i;
+      const len = paths()[i].dirDeps.length;
+      if (!existDeps.has(len)) {
+        res.push({ deps: len, index: i });
+        existDeps.add(len);
       }
     }
-    return maxIndex;
+    res.sort((a, b) => a.deps - b.deps);
+    return res;
   };
+
+  const dirDepsLengthKindOnlyDeps = () => {
+    return dirDepsLengthKind().map((v) => `${v.deps}`);
+  };
+
+  createEffect(() => {
+    const initialUsage = dirDepsLengthKind().map((v) => {
+      // TODO: いい感じにinitialを決定する
+      return {
+        maxDirDeps: v.deps,
+        usage: paths()[v.index].dirDeps.map(
+          (v) =>
+            ({
+              deps: v.deps,
+              usage: "無視する",
+            } as DepsUsage)
+        ),
+      };
+    });
+
+    setUsages(initialUsage);
+  });
 
   const eachDepsSample = () => {
     if (paths().length === 0) {
       return [];
     }
-    const maxIndex = maxDirDepsLengthIndex();
+    const index = dirDepsLengthKind().find(
+      (v) => v.deps === targetMaxDeps()
+    )?.index;
+    if (index === undefined) {
+      return [];
+    }
+    console.log({
+      dirDepsLengthKind: dirDepsLengthKind(),
+      deps: targetMaxDeps(),
+      paths: paths(),
+      index,
+    });
 
-    // TODO: いい感じにinitialを決定する
-    setUsages(
-      paths()[maxIndex].dirDeps.map(
-        (v) =>
-          ({
-            deps: v.deps,
-            usage: "無視する",
-          } as DepsUsage)
-      )
-    );
-
-    return paths()[maxIndex].dirDeps;
+    return paths()[index].dirDeps;
   };
 
   const getUsage = (deps: number) => {
-    return usages().find((v) => v.deps === deps)!.usage;
+    return usages()
+      .find((v) => v.maxDirDeps === targetMaxDeps())!
+      .usage.find((v) => v.deps === deps)!.usage;
   };
 
   const setUsage = (deps: number, usage: DepsUsageKind) => {
     setUsages(
       usages().map((v) => {
-        if (v.deps !== deps) {
+        if (v.maxDirDeps !== targetMaxDeps()) {
           return v;
         }
-        return { deps, usage };
+        return {
+          maxDirDeps: v.maxDirDeps,
+          usage: v.usage.map((u) => {
+            if (u.deps !== deps) {
+              return u;
+            }
+            return { deps, usage };
+          }),
+        };
       })
     );
   };
 
-  return { eachDepsSample, getUsage, setUsage, sampleSrc };
+  return {
+    eachDepsSample,
+    getUsage,
+    setUsage,
+    sampleSrc,
+    dirDepsLengthKindOnlyDeps,
+  };
 };
 
 export default useDirUsage;

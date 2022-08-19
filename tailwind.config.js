@@ -21,6 +21,9 @@ module.exports = {
         "list-box-overlay": 109,
         "list-box": 110,
       },
+      minWidth: {
+        "3/5": "60%",
+      },
     },
   },
   plugins: [],

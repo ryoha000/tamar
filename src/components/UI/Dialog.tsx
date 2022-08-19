@@ -40,7 +40,7 @@ const DialogContent: ParentComponent<Props> = (props) => {
       <div class="flex items-center justify-center px-12 py-8 h-full">
         <div
           onclick={(e) => e.stopPropagation()}
-          class="bg-white rounded px-12 py-8 shadow-md max-h-full overflow-y-scroll"
+          class="bg-white rounded px-12 py-8 shadow-md max-h-full overflow-y-scroll min-w-3/5"
         >
           {props.children}
         </div>

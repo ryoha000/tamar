@@ -8,6 +8,10 @@
   --color-text: #000a12;
 }
 
+body {
+  color: var(--color-text);
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

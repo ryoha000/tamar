@@ -101,7 +101,6 @@ const useExplorDir = (props: { dir: string }) => {
         callback,
         []
       );
-      console.log({ _paths });
       setPaths(_paths);
     } catch {}
     setLoading(false);

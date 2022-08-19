@@ -101,12 +101,6 @@ const useDirUsage = (
     if (index === undefined) {
       return [];
     }
-    console.log({
-      dirDepsLengthKind: dirDepsLengthKind(),
-      deps: targetMaxDeps(),
-      paths: paths(),
-      index,
-    });
 
     return paths()[index].dirDeps;
   };

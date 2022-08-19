@@ -1,10 +1,7 @@
-import { Component, createSignal, ParentComponent } from "solid-js";
-import {
-  FaSolidArrowUpLong,
-  FaSolidArrowDownLong,
-  FaSolidArrowDownWideShort,
-} from "solid-icons/fa";
+import { Component, createSignal } from "solid-js";
+import { FaSolidArrowDownWideShort } from "solid-icons/fa";
 import ListBox from "../UI/ListBox";
+import ToggleIconButton from "../UI/ToggleIconButton";
 
 const INITIAL_SELECT_OPTION = "追加日時";
 const SortSelect: Component = () => {
@@ -42,14 +39,10 @@ const SortSelect: Component = () => {
           {selectedOption()}
         </div>
       </ListBox>
-      <FaSolidArrowDownWideShort
+      <ToggleIconButton
         onclick={() => setIsDesc((prev) => !prev)}
-        class="cursor-pointer hover:bg-secondary rounded transition-all p-1"
-        classList={{
-          "text-primary": isDesc(),
-          "opacity-50": !isDesc(),
-        }}
-        size="1.5rem"
+        icon={FaSolidArrowDownWideShort}
+        state={isDesc()}
       />
     </div>
   );

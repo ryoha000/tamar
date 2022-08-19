@@ -1,7 +1,13 @@
 import { fs, path } from "@tauri-apps/api";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
 import { Accessor, createEffect, createSignal } from "solid-js";
+import { command_import_directory } from "../../../lib/commands";
 import { DirPathInfo } from "./exploreDir";
+
+export interface Usages {
+  maxDeps: number;
+  usages: DepsUsage[];
+}
 
 interface DepsUsage {
   deps: number;
@@ -22,12 +28,7 @@ const useDirUsage = (
   paths: Accessor<DirPathInfo[]>,
   targetMaxDeps: Accessor<number>
 ) => {
-  const [usages, setUsages] = createSignal<
-    {
-      maxDirDeps: number;
-      usage: DepsUsage[];
-    }[]
-  >([]);
+  const [usages, setUsages] = createSignal<Usages[]>([]);
   const [sampleSrc, setSampleSrc] = createSignal("");
 
   createEffect(async () => {
@@ -77,8 +78,8 @@ const useDirUsage = (
     const initialUsage = dirDepsLengthKind().map((v) => {
       // TODO: いい感じにinitialを決定する
       return {
-        maxDirDeps: v.deps,
-        usage: paths()[v.index].dirDeps.map(
+        maxDeps: v.deps,
+        usages: paths()[v.index].dirDeps.map(
           (v) =>
             ({
               deps: v.deps,
@@ -107,19 +108,19 @@ const useDirUsage = (
 
   const getUsage = (deps: number) => {
     return usages()
-      .find((v) => v.maxDirDeps === targetMaxDeps())!
-      .usage.find((v) => v.deps === deps)!.usage;
+      .find((v) => v.maxDeps === targetMaxDeps())!
+      .usages.find((v) => v.deps === deps)!.usage;
   };
 
   const setUsage = (deps: number, usage: DepsUsageKind) => {
     setUsages(
       usages().map((v) => {
-        if (v.maxDirDeps !== targetMaxDeps()) {
+        if (v.maxDeps !== targetMaxDeps()) {
           return v;
         }
         return {
-          maxDirDeps: v.maxDirDeps,
-          usage: v.usage.map((u) => {
+          maxDeps: v.maxDeps,
+          usages: v.usages.map((u) => {
             if (u.deps !== deps) {
               return u;
             }
@@ -130,12 +131,18 @@ const useDirUsage = (
     );
   };
 
+  const confirm = async () => {
+    const res = await command_import_directory(paths(), usages());
+    alert(res);
+  };
+
   return {
     eachDepsSample,
     getUsage,
     setUsage,
     sampleSrc,
     dirDepsLengthKindOnlyDeps,
+    confirm,
   };
 };
 

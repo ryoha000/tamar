@@ -4,7 +4,7 @@ import {
   FaSolidArrowDownLong,
   FaSolidArrowDownWideShort,
 } from "solid-icons/fa";
-import ListBox from "./ListBox";
+import ListBox from "../UI/ListBox";
 
 const INITIAL_SELECT_OPTION = "追加日時";
 const SortSelect: Component = () => {

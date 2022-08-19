@@ -1,5 +1,6 @@
 import {
   Component,
+  createEffect,
   createSignal,
   For,
   onMount,
@@ -28,13 +29,22 @@ const ListBox: ParentComponent<Props> = (props) => {
 
   const [rect, setRect] = createSignal<DOMRect | null>(null);
   const widthStyle = () => `width: ${props.width};`;
-  const portalStyle = () =>
-    widthStyle() + `top: ${rect().y + rect().height}px; left: ${rect().x}px`;
+  const portalStyle = () => {
+    let topLeft = "";
+    const _rect = rect();
+    if (_rect) {
+      topLeft = `top: ${_rect.y + _rect.height}px; left: ${_rect.x}px`;
+    }
+    return widthStyle() + topLeft;
+  };
 
   onMount(() => {
-    const rect = target?.getBoundingClientRect();
-    if (rect) {
-      setRect(rect);
+    if (!target) {
+      return;
+    }
+    const _rect = target.getBoundingClientRect();
+    if (_rect) {
+      setRect(_rect);
     }
   });
 
@@ -51,7 +61,7 @@ const ListBox: ParentComponent<Props> = (props) => {
       <Show when={props.isOpen}>
         <Portal>
           <div
-            class="absolute flex flex-col items-center justify-center z-popup"
+            class="absolute flex flex-col items-center justify-center z-list-box bg-white rounded shadow"
             style={portalStyle()}
             onclick={(e) => e.stopPropagation()}
           >
@@ -61,7 +71,7 @@ const ListBox: ParentComponent<Props> = (props) => {
               }
             </For>
           </div>
-          <EntireOverlayCloser close={props.close} />
+          <EntireOverlayCloser class="z-list-box-overlay" close={props.close} />
         </Portal>
       </Show>
     </div>

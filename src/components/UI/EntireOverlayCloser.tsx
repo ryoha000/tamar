@@ -12,9 +12,7 @@ const EntireOverlayCloser: Component<Props> = (props) => {
   };
   return (
     <div
-      class={`absolute top-0 left-0 w-full h-full z-entire-overlay ${
-        props.class ?? ""
-      }`}
+      class={`absolute top-0 left-0 w-full h-full ${props.class ?? ""}`}
       onclick={click}
     ></div>
   );

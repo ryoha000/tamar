@@ -16,8 +16,10 @@ module.exports = {
         text: "var(--color-text)",
       },
       zIndex: {
-        "entire-overlay": 100,
-        popup: 105,
+        "dialog-overlay": 104,
+        dialog: 105,
+        "list-box-overlay": 109,
+        "list-box": 110,
       },
     },
   },

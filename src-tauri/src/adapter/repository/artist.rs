@@ -30,7 +30,7 @@ impl ArtistRepository for DatabaseRepositoryImpl<Artist> {
         let pool = self.pool.0.clone();
         let artist_table: ArtistTable = source.try_into()?;
         let _ = sqlx::query(
-            "insert into artist (id, name, ticker_symbol, market_kind, created_at, updated_at) values (?, ?, ?, ?, ?, ?)",
+            "insert into artist (id, name, created_at, updated_at) values (?, ?, ?, ?)",
         )
         .bind(artist_table.id)
         .bind(artist_table.name)

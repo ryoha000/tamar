@@ -12,6 +12,10 @@ body {
   color: var(--color-text);
 }
 
+*:focus {
+  outline: none;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -3,8 +3,11 @@
     windows_subsystem = "windows"
 )]
 
-pub mod commands;
-pub mod forms;
+mod adapter;
+mod app;
+mod commands;
+mod forms;
+mod kernel;
 
 fn main() {
     tauri::Builder::default()

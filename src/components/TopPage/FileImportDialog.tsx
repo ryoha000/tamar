@@ -29,6 +29,7 @@ const FileImportDialog: Component<Props> = (props) => {
     setUsage,
     sampleSrc,
     dirDepsLengthKindOnlyDeps,
+    confirm,
   } = useDirUsage(paths, selectedDirDepsNumber);
 
   return (
@@ -77,7 +78,10 @@ const FileImportDialog: Component<Props> = (props) => {
             </div>
           </div>
           <div class="flex justify-center">
-            <button class="px-4 py-2 bg-primary hover:bg-secondary transition-all rounded text-white font-bold">
+            <button
+              onclick={confirm}
+              class="px-4 py-2 bg-primary hover:bg-secondary transition-all rounded text-white font-bold"
+            >
               確定
             </button>
           </div>

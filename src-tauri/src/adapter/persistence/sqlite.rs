@@ -15,9 +15,6 @@ impl Db {
             .map_err(|err| format!("{}\nfile: {}", err.to_string(), db_filename))
             .unwrap();
 
-        // Use the database somehow...
-        // println!("db.is_autocommit(): {}", db.is_autocommit());
-
         Db(Arc::new(pool))
     }
 }

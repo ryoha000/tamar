@@ -5,13 +5,9 @@ import { command_import_directory } from "../../../lib/commands";
 import { DirPathInfo } from "./exploreDir";
 
 export interface Usages {
-  maxDeps: number;
-  usages: DepsUsage[];
-}
-
-interface DepsUsage {
-  deps: number;
-  usage: DepsUsageKind;
+  [maxDeps: number]: {
+    [deps: number]: DepsUsageKind;
+  };
 }
 
 export const DEPS_USAGE = ["作品名", "作者名", "タグ", "無視する"] as const;
@@ -28,7 +24,7 @@ const useDirUsage = (
   paths: Accessor<DirPathInfo[]>,
   targetMaxDeps: Accessor<number>
 ) => {
-  const [usages, setUsages] = createSignal<Usages[]>([]);
+  const [usages, setUsages] = createSignal<Usages>({});
   const [sampleSrc, setSampleSrc] = createSignal("");
 
   createEffect(async () => {
@@ -75,18 +71,13 @@ const useDirUsage = (
   };
 
   createEffect(() => {
-    const initialUsage = dirDepsLengthKind().map((v) => {
+    const initialUsage: Usages = {};
+    dirDepsLengthKind().forEach((v) => {
       // TODO: いい感じにinitialを決定する
-      return {
-        maxDeps: v.deps,
-        usages: paths()[v.index].dirDeps.map(
-          (v) =>
-            ({
-              deps: v.deps,
-              usage: "無視する",
-            } as DepsUsage)
-        ),
-      };
+      initialUsage[v.deps] = {};
+      paths()[v.index].dirDeps.forEach((dep) => {
+        initialUsage[v.deps][dep.deps] = "無視する";
+      });
     });
 
     setUsages(initialUsage);
@@ -107,28 +98,13 @@ const useDirUsage = (
   };
 
   const getUsage = (deps: number) => {
-    return usages()
-      .find((v) => v.maxDeps === targetMaxDeps())!
-      .usages.find((v) => v.deps === deps)!.usage;
+    return usages()[targetMaxDeps()][deps];
   };
 
   const setUsage = (deps: number, usage: DepsUsageKind) => {
-    setUsages(
-      usages().map((v) => {
-        if (v.maxDeps !== targetMaxDeps()) {
-          return v;
-        }
-        return {
-          maxDeps: v.maxDeps,
-          usages: v.usages.map((u) => {
-            if (u.deps !== deps) {
-              return u;
-            }
-            return { deps, usage };
-          }),
-        };
-      })
-    );
+    const _usages = usages();
+    _usages[targetMaxDeps()][deps] = usage;
+    setUsages(_usages);
   };
 
   const confirm = async () => {

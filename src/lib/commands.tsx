@@ -4,7 +4,7 @@ import { DirPathInfo } from "../components/TopPage/use/exploreDir";
 
 export const command_import_directory = async (
   dirPathInfos: DirPathInfo[],
-  usages: Usages[]
+  usages: Usages
 ) => {
   await invoke<null>("import_directory", { dirPathInfos, usages });
 };

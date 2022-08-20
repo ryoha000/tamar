@@ -132,8 +132,7 @@ const useDirUsage = (
   };
 
   const confirm = async () => {
-    const res = await command_import_directory(paths(), usages());
-    alert(res);
+    await command_import_directory(paths(), usages());
   };
 
   return {

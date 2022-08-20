@@ -13,7 +13,7 @@ pub async fn import_directory(
     modules: State<'_, Arc<Modules>>,
     dir_path_infos: Vec<DirPathInfo>,
     usages: Vec<Usages>,
-) -> anyhow::Result<String, CommandError> {
+) -> anyhow::Result<(), CommandError> {
     modules
         .artist_use_case()
         .register_artist(CreateArtist::new("ryoha000".into()))
@@ -23,5 +23,5 @@ pub async fn import_directory(
         "dir_path_info: {:#?}, usages: {:#?}",
         dir_path_infos, usages
     );
-    Ok("hello my command".into())
+    Ok(())
 }

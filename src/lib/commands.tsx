@@ -6,6 +6,5 @@ export const command_import_directory = async (
   dirPathInfos: DirPathInfo[],
   usages: Usages[]
 ) => {
-  console.log({ dirPathInfos, usages });
-  await invoke("import_directory", { dirPathInfos, usages });
+  await invoke<null>("import_directory", { dirPathInfos, usages });
 };

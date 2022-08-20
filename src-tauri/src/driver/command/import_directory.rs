@@ -9,6 +9,7 @@ use crate::{
     driver::context::errors::CommandError,
     driver::module::Modules,
     driver::{model::import_directory::*, module::ModulesExt},
+    migration::UNKNOWN_ARTIST_NAME,
 };
 
 #[tauri::command]
@@ -70,7 +71,7 @@ pub async fn import_directory(
                     Some(deps) => {
                         artist_name = dir_path_info.dir_deps[(**deps - 1) as usize].name.clone()
                     }
-                    None => artist_name = "Unknown Artist".to_string(),
+                    None => artist_name = UNKNOWN_ARTIST_NAME.to_string(),
                 }
                 let artist = modules
                     .artist_use_case()

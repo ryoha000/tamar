@@ -1,4 +1,5 @@
 pub mod artist;
+pub mod work;
 
 use super::persistence::sqlite::Db;
 use derive_new::new;

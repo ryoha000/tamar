@@ -17,7 +17,7 @@ fn get_create_table_sqls() -> Vec<String> {
     let artist = "
 CREATE TABLE IF NOT EXISTS artist (
 	id varchar(36) primary key,
-	name varchar(255) not null,
+	name varchar(255) not null UNIQUE,
 	created_at datetime not null,
 	updated_at datetime not null
 );
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS work (
     let tag = "
 CREATE TABLE IF NOT EXISTS tag (
 	id varchar(36) primary key,
-	name varchar(255) not null,
+	name varchar(255) not null UNIQUE,
 	created_at datetime not null,
 	updated_at datetime not null
 );
@@ -51,7 +51,8 @@ CREATE TABLE IF NOT EXISTS work_tag_map (
     work_id varchar(36) not null,
     tag_id varchar(36) not null,
 	created_at datetime not null,
-	updated_at datetime not null
+	updated_at datetime not null,
+    UNIQUE(work_id, tag_id)
 );
     "
     .to_string();

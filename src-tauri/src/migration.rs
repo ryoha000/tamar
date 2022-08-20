@@ -35,5 +35,26 @@ CREATE TABLE IF NOT EXISTS work (
     "
     .to_string();
 
-    return vec![artist, work];
+    let tag = "
+CREATE TABLE IF NOT EXISTS tag (
+	id varchar(36) primary key,
+	name varchar(255) not null,
+	created_at datetime not null,
+	updated_at datetime not null
+);
+    "
+    .to_string();
+
+    let work_tag_map = "
+CREATE TABLE IF NOT EXISTS work_tag_map (
+	id varchar(36) primary key,
+    work_id varchar(36) not null,
+    tag_id varchar(36) not null,
+	created_at datetime not null,
+	updated_at datetime not null
+);
+    "
+    .to_string();
+
+    return vec![artist, work, tag, work_tag_map];
 }

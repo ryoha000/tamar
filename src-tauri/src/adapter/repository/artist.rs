@@ -47,23 +47,21 @@ mod test {
     use crate::kernel::model::artist::NewArtist;
     use crate::kernel::model::Id;
     use crate::kernel::repository::artist::ArtistRepository;
+    use tauri::async_runtime::block_on;
     use ulid::Ulid;
 
     use crate::adapter::persistence::sqlite::Db;
 
     use super::DatabaseRepositoryImpl;
 
-    // TODO later fix
-    #[ignore]
-    async fn test_insert_artist() {
-        let db = Db::new().await;
+    #[test]
+    fn test_insert_artist() {
+        let db = block_on(Db::new());
         let repository = DatabaseRepositoryImpl::new(db);
         let id = Ulid::new();
-        let _ = repository
-            .insert(NewArtist::new(Id::new(id), "りょは".to_string()))
-            .await
-            .unwrap();
-        let found = repository.find(&Id::new(id)).await.unwrap().unwrap();
+        let _ =
+            block_on(repository.insert(NewArtist::new(Id::new(id), "りょは".to_string()))).unwrap();
+        let found = block_on(repository.find(&Id::new(id))).unwrap().unwrap();
         assert_eq!(found.id.value, id);
     }
 }

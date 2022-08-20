@@ -5,8 +5,10 @@ use std::{
 use tauri::State;
 
 use crate::{
-    driver::context::errors::CommandError, driver::model::import_directory::*,
+    app::model::artist::CreateArtist,
+    driver::context::errors::CommandError,
     driver::module::Modules,
+    driver::{model::import_directory::*, module::ModulesExt},
 };
 
 #[tauri::command]
@@ -36,7 +38,25 @@ pub async fn import_directory(
     }
 
     // 対象の artist の Set をつくる
+    let mut artist_set = HashSet::new();
+    for dir_path_info in dir_path_infos.iter() {
+        match artist_usage_map.get(&(dir_path_info.dir_deps.len() as u8)) {
+            Some(deps) => {
+                artist_set.insert(&dir_path_info.dir_deps[**deps as usize].name);
+            }
+            None => {}
+        }
+        artist_usage_map.get(&(dir_path_info.dir_deps.len() as u8));
+    }
+
     // artist がないなら insert
+    for new_artist_name in artist_set.into_iter() {
+        modules
+            .artist_use_case()
+            .register_artist(CreateArtist::new((*new_artist_name).clone()))
+            .await?;
+    }
+
     // 対象の work を insert
     // 対象のタグを insert
     // 対象のタグマップを insert

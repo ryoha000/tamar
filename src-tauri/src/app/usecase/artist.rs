@@ -13,6 +13,14 @@ pub struct ArtistUseCase<R: RepositoriesModuleExt> {
 
 impl<R: RepositoriesModuleExt> ArtistUseCase<R> {
     pub async fn register_artist(&self, source: CreateArtist) -> anyhow::Result<()> {
+        let existed = self
+            .repositories
+            .artist_repository()
+            .find_by_name(source.name.clone())
+            .await?;
+        if existed.is_some() {
+            return Ok(()); // TODO: Err にしなくていいか考える
+        }
         self.repositories
             .artist_repository()
             .insert(source.try_into()?)

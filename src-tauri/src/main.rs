@@ -15,6 +15,9 @@ mod driver;
 mod kernel;
 mod migration;
 
+#[cfg(test)]
+mod test_util;
+
 fn main() {
     block_on(migration::migration());
 

@@ -26,6 +26,19 @@ impl ArtistRepository for DatabaseRepositoryImpl<Artist> {
         }
     }
 
+    async fn find_by_name(&self, name: String) -> anyhow::Result<Option<Artist>> {
+        let pool = self.pool.0.clone();
+        let artist_table = query_as::<_, ArtistTable>("select * from artist where name = ?")
+            .bind(name)
+            .fetch_one(&*pool)
+            .await
+            .ok();
+        match artist_table {
+            Some(st) => Ok(Some(st.try_into()?)),
+            None => Ok(None),
+        }
+    }
+
     async fn insert(&self, source: NewArtist) -> anyhow::Result<()> {
         let pool = self.pool.0.clone();
         let artist_table: ArtistTable = source.try_into()?;
@@ -44,9 +57,10 @@ impl ArtistRepository for DatabaseRepositoryImpl<Artist> {
 
 #[cfg(test)]
 mod test {
-    use crate::kernel::model::artist::NewArtist;
+    use crate::kernel::model::artist::{Artist, NewArtist};
     use crate::kernel::model::Id;
     use crate::kernel::repository::artist::ArtistRepository;
+    use crate::test_util::random_string;
     use tauri::async_runtime::block_on;
     use ulid::Ulid;
 
@@ -57,11 +71,48 @@ mod test {
     #[test]
     fn test_insert_artist() {
         let db = block_on(Db::new());
-        let repository = DatabaseRepositoryImpl::new(db);
         let id = Ulid::new();
-        let _ =
-            block_on(repository.insert(NewArtist::new(Id::new(id), "りょは".to_string()))).unwrap();
-        let found = block_on(repository.find(&Id::new(id))).unwrap().unwrap();
+        let name = random_string();
+
+        insert_artist(db.clone(), NewArtist::new(Id::new(id), name.to_string()));
+        let found = find_artist(db, Id::new(id)).unwrap();
+
         assert_eq!(found.id.value, id);
+        assert_eq!(found.name, name.to_string());
+    }
+
+    #[test]
+    fn test_find_artist_by_id() {
+        let db = block_on(Db::new());
+        let id = Ulid::new();
+        let name = random_string();
+
+        insert_artist(db.clone(), NewArtist::new(Id::new(id), name.to_string()));
+        let found = find_artist_by_name(db, name.to_string()).unwrap();
+        assert_eq!(found.id.value, id);
+        assert_eq!(found.name, name.to_string());
+    }
+
+    #[test]
+    fn test_find_artist_by_id_not_found() {
+        let db = block_on(Db::new());
+
+        let found = find_artist_by_name(db, "りょは9999999".to_string());
+        assert!(found.is_none());
+    }
+
+    fn insert_artist(db: Db, new_artist: NewArtist) {
+        let repository = DatabaseRepositoryImpl::new(db);
+        block_on(repository.insert(new_artist)).unwrap()
+    }
+
+    fn find_artist(db: Db, id: Id<Artist>) -> Option<Artist> {
+        let repository = DatabaseRepositoryImpl::new(db);
+        block_on(repository.find(&id)).unwrap()
+    }
+
+    fn find_artist_by_name(db: Db, name: String) -> Option<Artist> {
+        let repository = DatabaseRepositoryImpl::new(db);
+        block_on(repository.find_by_name(name)).unwrap()
     }
 }

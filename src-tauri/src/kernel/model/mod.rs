@@ -1,4 +1,5 @@
 pub mod artist;
+pub mod work;
 
 use anyhow::anyhow;
 use derive_new::new;

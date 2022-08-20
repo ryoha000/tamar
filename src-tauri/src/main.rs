@@ -16,7 +16,7 @@ mod kernel;
 mod migration;
 
 fn main() {
-    // block_on(migration::migration());
+    block_on(migration::migration());
 
     let modules = Arc::new(block_on(Modules::new()));
 
@@ -29,7 +29,9 @@ fn main() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![driver::commands::import_directory])
+        .invoke_handler(tauri::generate_handler![
+            driver::command::import_directory::import_directory
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

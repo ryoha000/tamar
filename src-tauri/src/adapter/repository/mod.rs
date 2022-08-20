@@ -1,5 +1,7 @@
 pub mod artist;
+pub mod tag;
 pub mod work;
+pub mod work_tag_map;
 
 use super::persistence::sqlite::Db;
 use derive_new::new;

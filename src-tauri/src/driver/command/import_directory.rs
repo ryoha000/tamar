@@ -5,7 +5,7 @@ use std::{
 use tauri::State;
 
 use crate::{
-    app::model::artist::CreateArtist,
+    app::model::{artist::CreateArtist, work::CreateWork},
     driver::context::errors::CommandError,
     driver::module::Modules,
     driver::{model::import_directory::*, module::ModulesExt},
@@ -18,6 +18,7 @@ pub async fn import_directory(
     usages: HashMap<u8, HashMap<u8, String>>,
 ) -> anyhow::Result<(), CommandError> {
     let mut artist_usage_map = HashMap::new();
+    let mut work_usage_map = HashMap::new();
     // usages の validate
     for each_path_usage in usages.iter() {
         for each_deps_usage in each_path_usage.1.iter() {
@@ -26,7 +27,9 @@ pub async fn import_directory(
                 "作者名" => {
                     artist_usage_map.insert(each_path_usage.0, each_deps_usage.0);
                 }
-                "作品名" => {}
+                "作品名" => {
+                    work_usage_map.insert(each_path_usage.0, each_deps_usage.0);
+                }
                 "無視する" => {}
                 _ => {
                     return Err(CommandError::Anyhow(anyhow::anyhow!(
@@ -42,11 +45,10 @@ pub async fn import_directory(
     for dir_path_info in dir_path_infos.iter() {
         match artist_usage_map.get(&(dir_path_info.dir_deps.len() as u8)) {
             Some(deps) => {
-                artist_set.insert(&dir_path_info.dir_deps[**deps as usize].name);
+                artist_set.insert(&dir_path_info.dir_deps[(**deps as usize) - 1].name);
             }
             None => {}
         }
-        artist_usage_map.get(&(dir_path_info.dir_deps.len() as u8));
     }
 
     // artist がないなら insert
@@ -58,8 +60,47 @@ pub async fn import_directory(
     }
 
     // 対象の work を insert
+    for dir_path_info in dir_path_infos.iter() {
+        let max_deps = &(dir_path_info.dir_deps.len() as u8);
+        match work_usage_map.get(max_deps) {
+            Some(deps) => {
+                // work には artist が要るから取得
+                let artist_name;
+                match artist_usage_map.get(max_deps) {
+                    Some(deps) => {
+                        artist_name = dir_path_info.dir_deps[(**deps - 1) as usize].name.clone()
+                    }
+                    None => artist_name = "Unknown Artist".to_string(),
+                }
+                let artist = modules
+                    .artist_use_case()
+                    .get_artist_by_name(artist_name)
+                    .await?;
+
+                match artist {
+                    Some(artist) => {
+                        modules
+                            .work_use_case()
+                            .register_work(CreateWork::new(
+                                dir_path_info.dir_deps[(**deps - 1) as usize].name.clone(),
+                                artist.id,
+                            ))
+                            .await?;
+                    }
+                    None => {
+                        return Err(CommandError::Anyhow(anyhow::anyhow!(
+                            "artist is not found(internal error)"
+                        )));
+                    }
+                }
+            }
+            None => {}
+        }
+    }
+
     // 対象のタグを insert
     // 対象のタグマップを insert
+    // ファイルコピー
 
     println!(
         "dir_path_info: {:#?}, usages: {:#?}",

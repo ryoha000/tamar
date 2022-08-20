@@ -12,7 +12,6 @@ use tauri::Manager;
 mod adapter;
 mod app;
 mod driver;
-mod forms;
 mod kernel;
 mod migration;
 

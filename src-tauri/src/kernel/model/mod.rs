@@ -1,4 +1,3 @@
-pub mod work;
 pub mod artist;
 
 use anyhow::anyhow;

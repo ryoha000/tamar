@@ -4,8 +4,8 @@ use tauri::State;
 use crate::{
     app::model::artist::CreateArtist,
     driver::context::errors::CommandError,
+    driver::model::import_directory::*,
     driver::module::{Modules, ModulesExt},
-    forms::import_directory::*,
 };
 
 #[tauri::command]

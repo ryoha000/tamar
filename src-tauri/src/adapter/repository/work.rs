@@ -50,6 +50,7 @@ mod test {
     use crate::kernel::model::Id;
     use crate::kernel::repository::artist::ArtistRepository;
     use crate::kernel::repository::work::WorkRepository;
+    use crate::test_util::random_string;
     use tauri::async_runtime::block_on;
     use ulid::Ulid;
 
@@ -65,7 +66,7 @@ mod test {
             let db = block_on(Db::new());
             let artist_repository = DatabaseRepositoryImpl::<Artist>::new(db);
             let _ = block_on(
-                artist_repository.insert(NewArtist::new(Id::new(artist_id), "りょは".to_string())),
+                artist_repository.insert(NewArtist::new(Id::new(artist_id), random_string())),
             )
             .unwrap();
         }
@@ -75,7 +76,7 @@ mod test {
         let id = Ulid::new();
         let _ = block_on(repository.insert(NewWork::new(
             Id::new(id),
-            "りょはのえっち本".to_string(),
+            random_string(),
             Id::new(artist_id),
         )))
         .unwrap();

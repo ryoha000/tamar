@@ -46,6 +46,7 @@ mod test {
     use crate::kernel::model::tag::NewTag;
     use crate::kernel::model::Id;
     use crate::kernel::repository::tag::TagRepository;
+    use crate::test_util::random_string;
     use tauri::async_runtime::block_on;
     use ulid::Ulid;
 
@@ -58,7 +59,7 @@ mod test {
         let db = block_on(Db::new());
         let repository = DatabaseRepositoryImpl::new(db);
         let id = Ulid::new();
-        let name = "りょは".to_string();
+        let name = random_string();
         let _ = block_on(repository.insert(NewTag::new(Id::new(id), name.clone()))).unwrap();
         let found = block_on(repository.find(&Id::new(id))).unwrap().unwrap();
 

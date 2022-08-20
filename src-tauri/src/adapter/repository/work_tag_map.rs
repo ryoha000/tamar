@@ -59,6 +59,7 @@ mod test {
     use crate::kernel::repository::tag::TagRepository;
     use crate::kernel::repository::work::WorkRepository;
     use crate::kernel::repository::work_tag_map::WorkTagMapRepository;
+    use crate::test_util::random_string;
     use tauri::async_runtime::block_on;
     use ulid::Ulid;
 
@@ -78,7 +79,7 @@ mod test {
         {
             let repository = DatabaseRepositoryImpl::<Artist>::new(db.clone());
             let _ = block_on(
-                repository.insert(NewArtist::new(Id::new(artist_ulid), "りょは".to_string())),
+                repository.insert(NewArtist::new(Id::new(artist_ulid), random_string())),
             )
             .unwrap();
         }
@@ -87,7 +88,7 @@ mod test {
             let repository = DatabaseRepositoryImpl::<Work>::new(db.clone());
             let _ = block_on(repository.insert(NewWork::new(
                 Id::new(work_ulid),
-                "りょはのえっち本".to_string(),
+                random_string(),
                 Id::new(artist_ulid),
             )))
             .unwrap();
@@ -96,7 +97,7 @@ mod test {
         {
             let repository = DatabaseRepositoryImpl::<Tag>::new(db.clone());
             let _ =
-                block_on(repository.insert(NewTag::new(Id::new(tag_ulid), "えっち本".to_string())))
+                block_on(repository.insert(NewTag::new(Id::new(tag_ulid), random_string())))
                     .unwrap();
         }
 

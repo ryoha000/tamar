@@ -15,8 +15,27 @@ pub async fn import_directory(
     dir_path_infos: Vec<DirPathInfo>,
     usages: HashMap<u8, HashMap<u8, String>>,
 ) -> anyhow::Result<(), CommandError> {
+    let mut artist_usage_map = HashMap::new();
+    // usages の validate
+    for each_path_usage in usages.iter() {
+        for each_deps_usage in each_path_usage.1.iter() {
+            match &**(each_deps_usage.1) {
+                "タグ" => {}
+                "作者名" => {
+                    artist_usage_map.insert(each_path_usage.0, each_deps_usage.0);
+                }
+                "作品名" => {}
+                "無視する" => {}
+                _ => {
+                    return Err(CommandError::Anyhow(anyhow::anyhow!(
+                        "usage not match (タグ | 作者名 | 作品名 | 無視する)"
+                    )));
+                }
+            }
+        }
+    }
+
     // 対象の artist の Set をつくる
-    // let artist_set = HashSet::new();
     // artist がないなら insert
     // 対象の work を insert
     // 対象のタグを insert

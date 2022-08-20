@@ -1,7 +1,8 @@
 use crate::adapter::persistence::sqlite::Db;
 
 pub async fn migration() {
-    println!("call migration");
+    println!("start migration");
+
     let db = Db::new().await;
     let pool = db.0.clone();
 

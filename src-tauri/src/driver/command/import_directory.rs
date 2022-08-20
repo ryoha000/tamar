@@ -12,6 +12,11 @@ pub async fn import_directory(
     dir_path_infos: Vec<DirPathInfo>,
     usages: Vec<Usages>,
 ) -> anyhow::Result<(), CommandError> {
+    // 対象の artist の Set をつくる
+    // artist がないなら insert
+    // 対象の work を insert
+    // 対象のタグを insert
+    // 対象のタグマップを insert
     println!(
         "dir_path_info: {:#?}, usages: {:#?}",
         dir_path_infos, usages

@@ -14,3 +14,8 @@ impl TryFrom<CreateTag> for NewTag {
         Ok(NewTag::new(tag_id, c.name))
     }
 }
+
+#[derive(new)]
+pub struct SearchTag {
+    pub name: String,
+}

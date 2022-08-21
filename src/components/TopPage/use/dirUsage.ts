@@ -76,7 +76,20 @@ const useDirUsage = (
       // TODO: いい感じにinitialを決定する
       initialUsage[v.deps] = {};
       paths()[v.index].dirDeps.forEach((dep) => {
-        initialUsage[v.deps][dep.deps] = "無視する";
+        let usage: DepsUsageKind = "無視する";
+        // when >= 3. 1 => ignore, 2 => artist, ... , last => title
+        // when = 2. 1 => artist, 2 => title
+        // when = 1. 1 => title
+        if (v.deps >= 3 && dep.deps === 2) {
+          usage = "作者名";
+        }
+        if (v.deps === 2 && dep.deps === 1) {
+          usage = "作者名";
+        }
+        if (v.deps === dep.deps) {
+          usage = "作品名";
+        }
+        initialUsage[v.deps][dep.deps] = usage;
       });
     });
 

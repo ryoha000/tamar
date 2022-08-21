@@ -5,7 +5,6 @@ use derive_new::new;
 pub struct CreateWorkTagMap {
     pub work_id: Id<Work>,
     pub tag_id: Id<Tag>,
-    pub name: String,
 }
 
 impl TryFrom<CreateWorkTagMap> for NewWorkTagMap {

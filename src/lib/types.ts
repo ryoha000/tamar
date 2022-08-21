@@ -15,8 +15,9 @@ export interface Artist {
 export interface Work {
   id: string;
   title: string;
-  artist: Artist;
   dirPath: string;
+  artist: Artist;
+  tags: Tag[];
   createdAt: string;
   updatedAt: string;
 }

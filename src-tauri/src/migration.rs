@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS work_tag_map (
     .to_string();
 
     let insert_unknown_artist = format!("
-    INSERT OR IGNORE INTO artist(id, name, created_at, updated_at) VALUES(\"01GAYXAS9G6YHP4BTZDFT360P7\", {}, datetime(CURRENT_TIMESTAMP, 'localtime'), datetime(CURRENT_TIMESTAMP, 'localtime'))
+    INSERT OR IGNORE INTO artist(id, name, created_at, updated_at) VALUES(\"01GAYXAS9G6YHP4BTZDFT360P7\", \"{}\", datetime(CURRENT_TIMESTAMP, 'localtime'), datetime(CURRENT_TIMESTAMP, 'localtime'))
     ", UNKNOWN_ARTIST_NAME);
 
     return vec![artist, work, tag, work_tag_map, insert_unknown_artist];

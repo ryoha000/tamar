@@ -15,3 +15,9 @@ impl TryFrom<CreateWork> for NewWork {
         Ok(NewWork::new(work_id, c.title, c.artist_id))
     }
 }
+
+#[derive(new)]
+pub struct SearchWork {
+    pub title: String,
+    pub artist_id: Id<Artist>,
+}

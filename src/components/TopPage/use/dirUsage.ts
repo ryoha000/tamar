@@ -24,7 +24,7 @@ const useDirUsage = (
   paths: Accessor<DirPathInfo[]>,
   targetMaxDeps: Accessor<number>
 ) => {
-  const [usages, setUsages] = createSignal<Usages>({});
+  const [usages, setUsages] = createSignal<Usages>({}, { equals: false });
   const [sampleSrc, setSampleSrc] = createSignal("");
 
   createEffect(async () => {

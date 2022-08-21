@@ -1,4 +1,6 @@
-use crate::kernel::model::work::Work;
+use derive_new::new;
+
+use crate::kernel::model::work::{SearchWork, Work};
 
 use super::{artist_view::ArtistView, tag_view::TagView};
 
@@ -9,6 +11,29 @@ pub struct WorkView {
     pub artist: ArtistView,
     pub tags: Vec<TagView>,
     pub updated_at: String,
+}
+
+#[derive(new)]
+pub struct SearchWorkView {
+    pub limit: u8,
+    pub offset: u8,
+    pub sort_col: String,
+    pub sort_desc: bool,
+    pub title: String,
+}
+
+impl TryFrom<SearchWorkView> for SearchWork {
+    type Error = anyhow::Error;
+
+    fn try_from(c: SearchWorkView) -> anyhow::Result<Self> {
+        Ok(SearchWork::new(
+            c.limit,
+            c.offset,
+            c.sort_col,
+            c.sort_desc,
+            c.title,
+        ))
+    }
 }
 
 impl WorkView {

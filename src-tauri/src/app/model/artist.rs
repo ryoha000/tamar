@@ -14,3 +14,8 @@ impl TryFrom<CreateArtist> for NewArtist {
         Ok(NewArtist::new(artist_id, c.name))
     }
 }
+
+#[derive(new)]
+pub struct SearchArtist {
+    pub name: String,
+}

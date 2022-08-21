@@ -1,7 +1,7 @@
 import { fs, path } from "@tauri-apps/api";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
 import { Accessor, createEffect, createSignal } from "solid-js";
-import { command_import_directory } from "../../../lib/commands";
+import { commandImportDirectory } from "../../../lib/commands";
 import { DirPathInfo } from "./exploreDir";
 
 export interface Usages {
@@ -121,7 +121,7 @@ const useDirUsage = (
   };
 
   const confirm = async () => {
-    await command_import_directory(paths(), usages());
+    await commandImportDirectory(paths(), usages());
   };
 
   return {

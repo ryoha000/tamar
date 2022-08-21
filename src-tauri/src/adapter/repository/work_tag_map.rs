@@ -31,6 +31,20 @@ impl WorkTagMapRepository for DatabaseRepositoryImpl<WorkTagMap> {
         }
     }
 
+    async fn find_by_work_id(&self, work_id: &Id<Work>) -> anyhow::Result<Vec<WorkTagMap>> {
+        let pool = self.pool.0.clone();
+        let work_tag_map_table =
+            query_as::<_, WorkTagMapTable>("select * from work_tag_map where work_id = ?")
+                .bind(work_id.value.to_string())
+                .fetch_all(&*pool)
+                .await
+                .ok();
+        match work_tag_map_table {
+            Some(st) => Ok(st.into_iter().filter_map(|v| v.try_into().ok()).collect()),
+            None => Ok(vec![]),
+        }
+    }
+
     async fn insert(&self, source: NewWorkTagMap) -> anyhow::Result<()> {
         let pool = self.pool.0.clone();
         let work_tag_map_table: WorkTagMapTable = source.try_into()?;
@@ -76,45 +90,118 @@ mod test {
         let tag_ulid = Ulid::new();
         let work_tag_map_ulid = Ulid::new();
 
-        {
-            let repository = DatabaseRepositoryImpl::<Artist>::new(db.clone());
-            let _ = block_on(
-                repository.insert(NewArtist::new(Id::new(artist_ulid), random_string())),
-            )
-            .unwrap();
-        }
+        insert_artist(
+            db.clone(),
+            NewArtist::new(Id::new(artist_ulid), random_string()),
+        );
 
-        {
-            let repository = DatabaseRepositoryImpl::<Work>::new(db.clone());
-            let _ = block_on(repository.insert(NewWork::new(
-                Id::new(work_ulid),
-                random_string(),
-                Id::new(artist_ulid),
-            )))
-            .unwrap();
-        }
+        insert_work(
+            db.clone(),
+            NewWork::new(Id::new(work_ulid), random_string(), Id::new(artist_ulid)),
+        );
 
-        {
-            let repository = DatabaseRepositoryImpl::<Tag>::new(db.clone());
-            let _ =
-                block_on(repository.insert(NewTag::new(Id::new(tag_ulid), random_string())))
-                    .unwrap();
-        }
+        insert_tag(db.clone(), NewTag::new(Id::new(tag_ulid), random_string()));
 
-        {
-            let repository = DatabaseRepositoryImpl::<WorkTagMap>::new(db.clone());
-            let _ = block_on(repository.insert(NewWorkTagMap::new(
+        insert_work_tag_map(
+            db.clone(),
+            NewWorkTagMap::new(
                 Id::new(work_tag_map_ulid),
                 Id::new(work_ulid),
                 Id::new(tag_ulid),
-            )))
-            .unwrap();
+            ),
+        );
 
-            let found = block_on(repository.find(&Id::new(work_ulid), &Id::new(tag_ulid))).unwrap();
+        let found = block_on(
+            DatabaseRepositoryImpl::<WorkTagMap>::new(db)
+                .find(&Id::new(work_ulid), &Id::new(tag_ulid)),
+        )
+        .unwrap();
 
-            assert_eq!(found[0].id.value, work_tag_map_ulid);
-            assert_eq!(found[0].work_id.value, work_ulid);
-            assert_eq!(found[0].tag_id.value, tag_ulid);
+        assert_eq!(found[0].id.value, work_tag_map_ulid);
+        assert_eq!(found[0].work_id.value, work_ulid);
+        assert_eq!(found[0].tag_id.value, tag_ulid);
+    }
+
+    #[test]
+    fn test_find_work_tag_map_by_work_id() {
+        let db = block_on(Db::new());
+
+        let artist_ulid = Ulid::new();
+        let work_ulid = Ulid::new();
+        let tag_ulid1 = Ulid::new();
+        let tag_ulid2 = Ulid::new();
+        let work_tag_map_ulid1 = Ulid::new();
+        let work_tag_map_ulid2 = Ulid::new();
+
+        insert_artist(
+            db.clone(),
+            NewArtist::new(Id::new(artist_ulid), random_string()),
+        );
+
+        insert_work(
+            db.clone(),
+            NewWork::new(Id::new(work_ulid), random_string(), Id::new(artist_ulid)),
+        );
+
+        insert_tag(db.clone(), NewTag::new(Id::new(tag_ulid1), random_string()));
+        insert_tag(db.clone(), NewTag::new(Id::new(tag_ulid2), random_string()));
+
+        insert_work_tag_map(
+            db.clone(),
+            NewWorkTagMap::new(
+                Id::new(work_tag_map_ulid1),
+                Id::new(work_ulid),
+                Id::new(tag_ulid1),
+            ),
+        );
+        insert_work_tag_map(
+            db.clone(),
+            NewWorkTagMap::new(
+                Id::new(work_tag_map_ulid2),
+                Id::new(work_ulid),
+                Id::new(tag_ulid2),
+            ),
+        );
+
+        let found = find_work_tag_map_by_work_id(db, &Id::new(work_ulid));
+
+        let mut is_exist_1 = false;
+        for v in found.iter() {
+            if v.id.value == work_tag_map_ulid1 {
+                is_exist_1 = true;
+                assert_eq!(v.work_id.value, work_ulid);
+                assert_eq!(v.tag_id.value, tag_ulid1);
+            } else {
+                assert_eq!(v.id.value, work_tag_map_ulid2);
+                assert_eq!(v.work_id.value, work_ulid);
+                assert_eq!(v.tag_id.value, tag_ulid2);
+            }
         }
+        assert!(is_exist_1);
+    }
+
+    fn insert_artist(db: Db, new_artist: NewArtist) {
+        let repository = DatabaseRepositoryImpl::<Artist>::new(db);
+        block_on(repository.insert(new_artist)).unwrap()
+    }
+
+    fn insert_work(db: Db, new_work: NewWork) {
+        let repository = DatabaseRepositoryImpl::<Work>::new(db);
+        block_on(repository.insert(new_work)).unwrap()
+    }
+
+    fn insert_tag(db: Db, new_tag: NewTag) {
+        let repository = DatabaseRepositoryImpl::<Tag>::new(db);
+        block_on(repository.insert(new_tag)).unwrap()
+    }
+
+    fn insert_work_tag_map(db: Db, new_work_tag_map: NewWorkTagMap) {
+        let repository = DatabaseRepositoryImpl::<WorkTagMap>::new(db);
+        block_on(repository.insert(new_work_tag_map)).unwrap()
+    }
+
+    fn find_work_tag_map_by_work_id(db: Db, work_id: &Id<Work>) -> Vec<WorkTagMap> {
+        let repository = DatabaseRepositoryImpl::<WorkTagMap>::new(db);
+        block_on(repository.find_by_work_id(work_id)).unwrap()
     }
 }

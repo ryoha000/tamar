@@ -1,5 +1,5 @@
+use std::path;
 use std::sync::Arc;
-use std::{future, path};
 
 use crate::app::model::artist_view::ArtistView;
 use crate::app::model::tag_view::TagView;

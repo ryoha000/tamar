@@ -7,7 +7,7 @@ use crate::kernel::{
     repository::tag::TagRepository,
 };
 use async_trait::async_trait;
-use sqlx::query_as;
+use sqlx::{query_as, FromRow};
 
 use super::DatabaseRepositoryImpl;
 
@@ -24,6 +24,23 @@ impl TagRepository for DatabaseRepositoryImpl<Tag> {
             Some(st) => Ok(Some(st.try_into()?)),
             None => Ok(None),
         }
+    }
+
+    async fn find_by_ids(&self, ids: &Vec<Id<Tag>>) -> anyhow::Result<Vec<Tag>> {
+        let pool = self.pool.0.clone();
+        let mut builder = sqlx::query_builder::QueryBuilder::new("SELECT * FROM tag WHERE id IN (");
+        let mut separated = builder.separated(", ");
+        for id in ids.iter() {
+            separated.push_bind(id.value.to_string());
+        }
+        separated.push_unseparated(")");
+        let query = builder.build();
+        let rows = query.fetch_all(&*pool).await?;
+        Ok(rows
+            .iter()
+            .filter_map(|v| TagTable::from_row(v).ok())
+            .filter_map(|v| v.try_into().ok())
+            .collect())
     }
 
     async fn find_by_name(&self, name: String) -> anyhow::Result<Option<Tag>> {
@@ -100,6 +117,29 @@ mod test {
         assert!(found.is_none());
     }
 
+    #[test]
+    fn test_find_tag_by_ids() {
+        let db = block_on(Db::new());
+
+        let id1 = Ulid::new();
+        let id2 = Ulid::new();
+
+        insert_tag(db.clone(), NewTag::new(Id::new(id1), random_string()));
+        insert_tag(db.clone(), NewTag::new(Id::new(id2), random_string()));
+
+        let found = find_tag_by_ids(db, &vec![Id::new(id1), Id::new(id2)]);
+
+        let mut is_exist_1 = false;
+        for v in found.iter() {
+            if v.id.value == id1 {
+                is_exist_1 = true;
+            } else {
+                assert_eq!(v.id.value, id2)
+            }
+        }
+        assert!(is_exist_1);
+    }
+
     fn insert_tag(db: Db, new_tag: NewTag) {
         let repository = DatabaseRepositoryImpl::new(db);
         block_on(repository.insert(new_tag)).unwrap()
@@ -113,5 +153,10 @@ mod test {
     fn find_tag_by_name(db: Db, name: String) -> Option<Tag> {
         let repository = DatabaseRepositoryImpl::new(db);
         block_on(repository.find_by_name(name)).unwrap()
+    }
+
+    fn find_tag_by_ids(db: Db, ids: &Vec<Id<Tag>>) -> Vec<Tag> {
+        let repository = DatabaseRepositoryImpl::new(db);
+        block_on(repository.find_by_ids(ids)).unwrap()
     }
 }

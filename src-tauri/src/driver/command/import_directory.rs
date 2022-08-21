@@ -19,10 +19,11 @@ pub async fn import_directory(
     usages: HashMap<u8, HashMap<u8, String>>,
 ) -> anyhow::Result<(), CommandError> {
     let mut artist_usage_map = HashMap::new();
-    let mut work_usage_map = HashMap::new();
+    let mut title_usage_map = HashMap::new();
     let mut tag_usage_map = HashMap::new();
     // usages の validate
     for each_path_usage in usages.iter() {
+        let mut is_title_exist = false;
         for each_deps_usage in each_path_usage.1.iter() {
             match &**(each_deps_usage.1) {
                 "タグ" => {
@@ -32,7 +33,8 @@ pub async fn import_directory(
                     artist_usage_map.insert(each_path_usage.0, each_deps_usage.0);
                 }
                 "作品名" => {
-                    work_usage_map.insert(each_path_usage.0, each_deps_usage.0);
+                    title_usage_map.insert(each_path_usage.0, each_deps_usage.0);
+                    is_title_exist = true
                 }
                 "無視する" => {}
                 _ => {
@@ -41,6 +43,11 @@ pub async fn import_directory(
                     )));
                 }
             }
+        }
+        if !is_title_exist {
+            return Err(CommandError::Anyhow(anyhow::anyhow!(
+                "usage not match (タグ | 作者名 | 作品名 | 無視する)"
+            )));
         }
     }
 
@@ -66,7 +73,7 @@ pub async fn import_directory(
     // 対象の work を insert
     for dir_path_info in dir_path_infos.iter() {
         let max_deps = &(dir_path_info.dir_deps.len() as u8);
-        match work_usage_map.get(max_deps) {
+        match title_usage_map.get(max_deps) {
             Some(deps) => {
                 // work には artist が要るから取得
                 let artist_name;

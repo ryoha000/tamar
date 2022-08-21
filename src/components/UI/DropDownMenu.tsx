@@ -1,12 +1,8 @@
 import { Component, createSignal } from "solid-js";
-import { FaSolidArrowDownWideShort } from "solid-icons/fa";
 import ListBox from "../UI/ListBox";
-import ToggleIconButton from "../UI/ToggleIconButton";
 import { AiOutlineCaretDown } from "solid-icons/ai";
-import TooltipWrapper from "../UI/TooltipWrapper";
 
 interface Props {
-  initialValue: string;
   options: string[];
   selectedOption: string;
   width?: string;

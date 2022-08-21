@@ -21,7 +21,6 @@ const FileImportEachDeps: Component<Props> = (props) => {
         <DropDownMenu
           options={[...DEPS_USAGE]}
           onChange={props.onChange}
-          initialValue={props.selectedUsage}
           selectedOption={props.selectedUsage}
         />
       </div>

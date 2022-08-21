@@ -17,7 +17,6 @@ const SortSelect: Component = () => {
       <DropDownMenu
         options={["追加日時", "作品名", "閲覧日時"]}
         onChange={(option) => setSelectedOption(option)}
-        initialValue={INITIAL_SELECT_OPTION}
         selectedOption={selectedOption()}
       />
       <TooltipWrapper label="降順で表示">

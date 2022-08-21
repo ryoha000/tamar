@@ -45,7 +45,6 @@ const FileImportDialog: Component<Props> = (props) => {
             <div class="flex items-center gap-2">
               <DropDownMenu
                 options={dirDepsLengthKindOnlyDeps()}
-                initialValue={selectedDirDeps()}
                 selectedOption={selectedDirDeps()}
                 onChange={(opt) => setSelectedDirDeps(opt)}
                 width="3rem"

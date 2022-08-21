@@ -60,7 +60,7 @@ mod test {
     use crate::kernel::model::artist::{Artist, NewArtist};
     use crate::kernel::model::Id;
     use crate::kernel::repository::artist::ArtistRepository;
-    use crate::test_util::random_string;
+    use crate::test_util::{random_string, get_test_db};
     use tauri::async_runtime::block_on;
     use ulid::Ulid;
 
@@ -70,7 +70,7 @@ mod test {
 
     #[test]
     fn test_insert_artist() {
-        let db = block_on(Db::new());
+        let db = get_test_db();
         let id = Ulid::new();
         let name = random_string();
 
@@ -83,7 +83,7 @@ mod test {
 
     #[test]
     fn test_find_artist_by_name() {
-        let db = block_on(Db::new());
+        let db = get_test_db();
         let id = Ulid::new();
         let name = random_string();
 
@@ -95,7 +95,7 @@ mod test {
 
     #[test]
     fn test_find_artist_by_name_not_found() {
-        let db = block_on(Db::new());
+        let db = get_test_db();
 
         let found = find_artist_by_name(db, "りょは9999999".to_string());
         assert!(found.is_none());

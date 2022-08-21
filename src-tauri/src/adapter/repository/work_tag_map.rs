@@ -73,7 +73,7 @@ mod test {
     use crate::kernel::repository::tag::TagRepository;
     use crate::kernel::repository::work::WorkRepository;
     use crate::kernel::repository::work_tag_map::WorkTagMapRepository;
-    use crate::test_util::random_string;
+    use crate::test_util::{random_string, get_test_db};
     use tauri::async_runtime::block_on;
     use ulid::Ulid;
 
@@ -83,7 +83,7 @@ mod test {
 
     #[test]
     fn test_insert_work_tag_map() {
-        let db = block_on(Db::new());
+        let db = get_test_db();
 
         let artist_ulid = Ulid::new();
         let work_ulid = Ulid::new();
@@ -124,7 +124,7 @@ mod test {
 
     #[test]
     fn test_find_work_tag_map_by_work_id() {
-        let db = block_on(Db::new());
+        let db = get_test_db();
 
         let artist_ulid = Ulid::new();
         let work_ulid = Ulid::new();

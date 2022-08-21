@@ -110,7 +110,7 @@ mod test {
     use crate::kernel::model::Id;
     use crate::kernel::repository::artist::ArtistRepository;
     use crate::kernel::repository::work::WorkRepository;
-    use crate::test_util::random_string;
+    use crate::test_util::{get_test_db, random_string};
     use tauri::async_runtime::block_on;
     use ulid::Ulid;
 
@@ -120,7 +120,7 @@ mod test {
 
     #[test]
     fn test_insert_work() {
-        let db = block_on(Db::new());
+        let db = get_test_db();
         let artist_id = Ulid::new();
 
         {
@@ -144,7 +144,7 @@ mod test {
 
     #[test]
     fn test_find_work_by_title_and_artist() {
-        let db = block_on(Db::new());
+        let db = get_test_db();
         let artist_id = Ulid::new();
 
         {
@@ -169,7 +169,7 @@ mod test {
 
     #[test]
     fn test_find_work_by_title_and_artist_not_found() {
-        let db = block_on(Db::new());
+        let db = get_test_db();
         let artist_id = Ulid::new();
         let title = random_string();
 
@@ -179,7 +179,7 @@ mod test {
 
     #[test]
     fn test_search_work_not_found() {
-        let db = block_on(Db::new());
+        let db = get_test_db();
         let source = SearchWork::new(10, 0, "updated_at".to_string(), true, random_string());
 
         let found = search(db, source).unwrap();
@@ -188,7 +188,7 @@ mod test {
 
     #[test]
     fn test_search_work_with_no_title() {
-        let db = block_on(Db::new());
+        let db = get_test_db();
         let source = SearchWork::new(10, 0, "updated_at".to_string(), true, "".to_string());
 
         let artist_id = Ulid::new();
@@ -211,7 +211,7 @@ mod test {
 
     #[test]
     fn test_search_work_with_title() {
-        let db = block_on(Db::new());
+        let db = get_test_db();
         let title = random_string();
         let search_title = title
             .chars()

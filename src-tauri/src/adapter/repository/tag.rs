@@ -76,7 +76,7 @@ mod test {
     use crate::kernel::model::tag::{NewTag, Tag};
     use crate::kernel::model::Id;
     use crate::kernel::repository::tag::TagRepository;
-    use crate::test_util::random_string;
+    use crate::test_util::{random_string, get_test_db};
     use tauri::async_runtime::block_on;
     use ulid::Ulid;
 
@@ -86,7 +86,7 @@ mod test {
 
     #[test]
     fn test_insert_tag() {
-        let db = block_on(Db::new());
+        let db = get_test_db();
         let id = Ulid::new();
         let name = random_string();
 
@@ -99,7 +99,7 @@ mod test {
 
     #[test]
     fn test_find_tag_by_id() {
-        let db = block_on(Db::new());
+        let db = get_test_db();
         let id = Ulid::new();
         let name = random_string();
 
@@ -111,7 +111,7 @@ mod test {
 
     #[test]
     fn test_find_tag_by_id_not_found() {
-        let db = block_on(Db::new());
+        let db = get_test_db();
 
         let found = find_tag_by_name(db, "りょは9999999".to_string());
         assert!(found.is_none());
@@ -119,7 +119,7 @@ mod test {
 
     #[test]
     fn test_find_tag_by_ids() {
-        let db = block_on(Db::new());
+        let db = get_test_db();
 
         let id1 = Ulid::new();
         let id2 = Ulid::new();

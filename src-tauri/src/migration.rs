@@ -1,3 +1,5 @@
+use tauri::async_runtime::block_on;
+
 use crate::adapter::persistence::sqlite::Db;
 
 pub const UNKNOWN_ARTIST_NAME: &str = "Unknown Artist";
@@ -11,6 +13,19 @@ pub async fn migration() {
     let sqls = get_migration_sqls();
     for sql in sqls.iter() {
         sqlx::query(sql).execute(&*pool).await.unwrap();
+    }
+
+    println!("end migration");
+}
+
+pub fn migration_sync(db: Db) {
+    println!("start migration");
+
+    let pool = db.0.clone();
+
+    let sqls = get_migration_sqls();
+    for sql in sqls.iter() {
+        block_on(sqlx::query(sql).execute(&*pool)).unwrap();
     }
 
     println!("end migration");

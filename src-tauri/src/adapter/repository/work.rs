@@ -1,4 +1,5 @@
 use crate::adapter::model::work::WorkTable;
+use crate::kernel::model::artist::Artist;
 use crate::kernel::{
     model::{
         work::{NewWork, Work},
@@ -21,6 +22,25 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
             .await
             .ok();
         match work_table {
+            Some(st) => Ok(Some(st.try_into()?)),
+            None => Ok(None),
+        }
+    }
+
+    async fn find_by_title_and_artist(
+        &self,
+        title: String,
+        artist_id: &Id<Artist>,
+    ) -> anyhow::Result<Option<Work>> {
+        let pool = self.pool.0.clone();
+        let artist_table =
+            query_as::<_, WorkTable>("select * from work where title = ? AND artist_id = ?")
+                .bind(title)
+                .bind(artist_id.value.to_string())
+                .fetch_one(&*pool)
+                .await
+                .ok();
+        match artist_table {
             Some(st) => Ok(Some(st.try_into()?)),
             None => Ok(None),
         }
@@ -60,28 +80,84 @@ mod test {
 
     #[test]
     fn test_insert_work() {
+        let db = block_on(Db::new());
         let artist_id = Ulid::new();
 
         {
-            let db = block_on(Db::new());
-            let artist_repository = DatabaseRepositoryImpl::<Artist>::new(db);
-            let _ = block_on(
-                artist_repository.insert(NewArtist::new(Id::new(artist_id), random_string())),
-            )
-            .unwrap();
+            let artist_name = random_string();
+            insert_artist(db.clone(), NewArtist::new(Id::new(artist_id), artist_name));
         }
 
-        let db = block_on(Db::new());
-        let repository = DatabaseRepositoryImpl::<Work>::new(db);
-        let id = Ulid::new();
-        let _ = block_on(repository.insert(NewWork::new(
-            Id::new(id),
-            random_string(),
-            Id::new(artist_id),
-        )))
-        .unwrap();
-        let found = block_on(repository.find(&Id::new(id))).unwrap().unwrap();
+        {
+            let work_id = Ulid::new();
+            let title = random_string();
+            insert_work(
+                db.clone(),
+                NewWork::new(Id::new(work_id), title.clone(), Id::new(artist_id)),
+            );
 
-        assert_eq!(found.id.value, id);
+            let found = find_work(db, Id::new(work_id)).unwrap();
+            assert_eq!(found.id.value, work_id);
+            assert_eq!(found.title, title);
+        }
+    }
+
+    #[test]
+    fn test_find_work_by_title_and_artist() {
+        let db = block_on(Db::new());
+        let artist_id = Ulid::new();
+
+        {
+            let artist_name = random_string();
+            insert_artist(db.clone(), NewArtist::new(Id::new(artist_id), artist_name));
+        }
+
+        {
+            let work_id = Ulid::new();
+            let title = random_string();
+            insert_work(
+                db.clone(),
+                NewWork::new(Id::new(work_id), title.clone(), Id::new(artist_id)),
+            );
+
+            let found =
+                find_work_by_title_and_artist(db, title.clone(), &Id::new(artist_id)).unwrap();
+            assert_eq!(found.id.value, work_id);
+            assert_eq!(found.title, title);
+        }
+    }
+
+    #[test]
+    fn test_find_work_by_title_and_artist_not_found() {
+        let db = block_on(Db::new());
+        let artist_id = Ulid::new();
+        let title = random_string();
+
+        let found = find_work_by_title_and_artist(db, title, &Id::new(artist_id));
+        assert!(found.is_none());
+    }
+
+    fn insert_artist(db: Db, new_artist: NewArtist) {
+        let repository = DatabaseRepositoryImpl::<Artist>::new(db);
+        block_on(repository.insert(new_artist)).unwrap()
+    }
+
+    fn insert_work(db: Db, new_work: NewWork) {
+        let repository = DatabaseRepositoryImpl::<Work>::new(db);
+        block_on(repository.insert(new_work)).unwrap()
+    }
+
+    fn find_work(db: Db, id: Id<Work>) -> Option<Work> {
+        let repository = DatabaseRepositoryImpl::<Work>::new(db);
+        block_on(repository.find(&id)).unwrap()
+    }
+
+    fn find_work_by_title_and_artist(
+        db: Db,
+        title: String,
+        artist_id: &Id<Artist>,
+    ) -> Option<Work> {
+        let repository = DatabaseRepositoryImpl::<Work>::new(db);
+        block_on(repository.find_by_title_and_artist(title, artist_id)).unwrap()
     }
 }

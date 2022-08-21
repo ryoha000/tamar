@@ -17,3 +17,12 @@ pub struct NewWork {
     pub title: String,
     pub artist_id: Id<Artist>,
 }
+
+#[derive(new, Debug)]
+pub struct SearchWork {
+    pub limit: u8,
+    pub offset: u8,
+    pub sort_col: String,
+    pub sort_desc: bool,
+    pub title: String,
+}

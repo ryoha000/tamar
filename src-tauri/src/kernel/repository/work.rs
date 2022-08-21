@@ -1,12 +1,13 @@
 use crate::kernel::model::{
     artist::Artist,
-    work::{NewWork, Work},
+    work::{NewWork, SearchWork, Work},
     Id,
 };
 use async_trait::async_trait;
 
 #[async_trait]
 pub trait WorkRepository {
+    async fn search(&self, source: SearchWork) -> anyhow::Result<Vec<Work>>;
     async fn find(&self, id: &Id<Work>) -> anyhow::Result<Option<Work>>;
     async fn find_by_title_and_artist(
         &self,

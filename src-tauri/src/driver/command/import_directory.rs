@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, fs, path, sync::Arc};
 use tauri::State;
 
 use crate::{
@@ -96,7 +96,7 @@ pub async fn import_directory(
         // work の insert に使うため insert したはずの artist を取得
         let artist = modules
             .artist_use_case()
-            .search_equal_artist(SearchEqualArtist::new(artist_name))
+            .search_equal_artist(SearchEqualArtist::new(artist_name.clone()))
             .await?;
         if artist.is_none() {
             return Err(CommandError::Anyhow(anyhow::anyhow!(
@@ -127,7 +127,7 @@ pub async fn import_directory(
         // tag の insert に使うため insert したはずの work を取得
         let work = modules
             .work_use_case()
-            .search_equal_work(SearchEqualWork::new(work_title, artist.id))
+            .search_equal_work(SearchEqualWork::new(work_title.clone(), artist.id))
             .await?;
 
         if work.is_none() {
@@ -137,6 +137,9 @@ pub async fn import_directory(
         }
         let work = work.unwrap();
         // -------- work に関係する処理 ここまで ---------
+
+        // ファイルコピー
+        copy_work_files(&work_title, &artist_name, &dir_path_info.path)?; // TODO: 全然並列じゃない
 
         // -------- tag に関係する処理 ここから ---------
         match tag_usage_map.get(max_deps) {
@@ -175,11 +178,66 @@ pub async fn import_directory(
         // -------- tag に関係する処理 ここまで ---------
     }
 
-    // ファイルコピー
-
     println!(
         "dir_path_info: {:#?}, usages: {:#?}",
         dir_path_infos, usages
     );
+    Ok(())
+}
+
+fn copy_work_files(work_title: &str, artist_name: &str, work_path: &str) -> anyhow::Result<()> {
+    let copy_root_dir = "tamar_content";
+
+    let artist_dir_path_buf = path::Path::new(copy_root_dir).join(path::Path::new(artist_name));
+    let dst_work_dir_path_buf = artist_dir_path_buf.join(path::Path::new(work_title));
+    let dst_work_dir_path = dst_work_dir_path_buf.as_path();
+    // コピー先のディレクトリをつくる
+    fs::create_dir_all(dst_work_dir_path)?;
+
+    let src_work_dir_path = path::Path::new(work_path);
+
+    copy_files(dst_work_dir_path, src_work_dir_path, vec![])?;
+
+    Ok(())
+}
+
+fn copy_files(
+    dst_work_dir_path: &path::Path,
+    dir_path: &path::Path,
+    dirs: Vec<String>,
+) -> anyhow::Result<()> {
+    let children = fs::read_dir(dir_path)?;
+    for child in children {
+        let child = child?;
+
+        let is_dir_child = child.file_type()?.is_dir();
+
+        let child_path_buf = child.path();
+        let child_path = child_path_buf.as_path();
+
+        let child_name = child_path
+            .file_name()
+            .ok_or(anyhow::anyhow!("failed to get file_name"))?
+            .to_str()
+            .ok_or(anyhow::anyhow!("failed to get &str"))?
+            .to_string();
+
+        if is_dir_child {
+            let mut new_dirs = dirs.to_vec();
+            new_dirs.push(child_name);
+            copy_files(dst_work_dir_path, child_path, new_dirs)?;
+        } else {
+            // child が ファイルの時は callback
+            let dst_filename;
+            match dirs.len() {
+                0 => dst_filename = child_name,
+                _ => dst_filename = format!("{}-{}", dirs.join("-"), child_name),
+            }
+
+            let dst_path_buf = dst_work_dir_path.join(path::Path::new(&dst_filename));
+            let dst_path = dst_path_buf.as_path();
+            fs::copy(child_path, dst_path)?;
+        }
+    }
     Ok(())
 }

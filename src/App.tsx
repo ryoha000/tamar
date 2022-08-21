@@ -1,8 +1,16 @@
-import type { Component } from 'solid-js';
+import type { Component } from "solid-js";
+import { Route, Routes } from "@solidjs/router";
+import TopPage from "./page/TopPage";
+import { Toaster } from "solid-toast";
 
 const App: Component = () => {
   return (
-    <p class="text-4xl text-green-700 text-center py-20">Hello tailwind!</p>
+    <>
+      <Routes>
+        <Route path="/" component={TopPage} />
+      </Routes>
+      <Toaster />
+    </>
   );
 };
 

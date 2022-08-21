@@ -5,7 +5,7 @@ use std::{
 use tauri::State;
 
 use crate::{
-    app::model::{artist::CreateArtist, work::CreateWork},
+    app::model::{artist::CreateArtist, tag::CreateTag, work::CreateWork},
     driver::context::errors::CommandError,
     driver::module::Modules,
     driver::{model::import_directory::*, module::ModulesExt},
@@ -20,11 +20,14 @@ pub async fn import_directory(
 ) -> anyhow::Result<(), CommandError> {
     let mut artist_usage_map = HashMap::new();
     let mut work_usage_map = HashMap::new();
+    let mut tag_usage_map = HashMap::new();
     // usages の validate
     for each_path_usage in usages.iter() {
         for each_deps_usage in each_path_usage.1.iter() {
             match &**(each_deps_usage.1) {
-                "タグ" => {}
+                "タグ" => {
+                    tag_usage_map.insert(each_path_usage.0, each_deps_usage.0);
+                }
                 "作者名" => {
                     artist_usage_map.insert(each_path_usage.0, each_deps_usage.0);
                 }
@@ -100,6 +103,25 @@ pub async fn import_directory(
     }
 
     // 対象のタグを insert
+    // 対象の tag の Set をつくる
+    let mut tag_set = HashSet::new();
+    for dir_path_info in dir_path_infos.iter() {
+        match tag_usage_map.get(&(dir_path_info.dir_deps.len() as u8)) {
+            Some(deps) => {
+                tag_set.insert(&dir_path_info.dir_deps[(**deps as usize) - 1].name);
+            }
+            None => {}
+        }
+    }
+
+    // tag がないなら insert
+    for new_tag_name in tag_set.into_iter() {
+        modules
+            .tag_use_case()
+            .register_tag(CreateTag::new((*new_tag_name).clone()))
+            .await?;
+    }
+
     // 対象のタグマップを insert
     // ファイルコピー
 

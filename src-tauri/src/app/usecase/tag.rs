@@ -13,6 +13,14 @@ pub struct TagUseCase<R: RepositoriesModuleExt> {
 
 impl<R: RepositoriesModuleExt> TagUseCase<R> {
     pub async fn register_tag(&self, source: CreateTag) -> anyhow::Result<()> {
+        let existed = self
+            .repositories
+            .tag_repository()
+            .find_by_name(source.name.clone())
+            .await?;
+        if existed.is_some() {
+            return Ok(()); // TODO: Err にしなくていいか考える
+        }
         self.repositories
             .tag_repository()
             .insert(source.try_into()?)

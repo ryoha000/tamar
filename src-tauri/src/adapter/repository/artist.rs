@@ -82,7 +82,7 @@ mod test {
     }
 
     #[test]
-    fn test_find_artist_by_id() {
+    fn test_find_artist_by_name() {
         let db = block_on(Db::new());
         let id = Ulid::new();
         let name = random_string();
@@ -94,7 +94,7 @@ mod test {
     }
 
     #[test]
-    fn test_find_artist_by_id_not_found() {
+    fn test_find_artist_by_name_not_found() {
         let db = block_on(Db::new());
 
         let found = find_artist_by_name(db, "りょは9999999".to_string());

@@ -7,7 +7,7 @@ const SearchInput: Component = () => {
     <div class="flex items-center border-solid border-text border rounded-full px-3 py-1 gap-2 transition-all focus-within:border-accent flex-1">
       <AiOutlineSearch />
       <Tag // TODO: 検索中のタグ一覧表示
-        tag={{ id: "", name: "tag name", createdAt: "", updatedAt: "" }}
+        tag={{ id: "", name: "tag name", updatedAt: "" }}
         isCloseIcon={true}
         close={() => {}}
       />

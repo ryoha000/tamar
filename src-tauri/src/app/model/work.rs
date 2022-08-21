@@ -17,7 +17,7 @@ impl TryFrom<CreateWork> for NewWork {
 }
 
 #[derive(new)]
-pub struct SearchWork {
+pub struct SearchEqualWork {
     pub title: String,
     pub artist_id: Id<Artist>,
 }

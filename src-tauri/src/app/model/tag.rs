@@ -16,6 +16,6 @@ impl TryFrom<CreateTag> for NewTag {
 }
 
 #[derive(new)]
-pub struct SearchTag {
+pub struct SearchEqualTag {
     pub name: String,
 }

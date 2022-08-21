@@ -4,7 +4,7 @@ use crate::kernel::repository::work::WorkRepository;
 use crate::{adapter::modules::RepositoriesModuleExt, kernel::model::work::Work};
 use derive_new::new;
 
-use crate::app::model::work::{CreateWork, SearchWork};
+use crate::app::model::work::{CreateWork, SearchEqualWork};
 
 #[derive(new)]
 pub struct WorkUseCase<R: RepositoriesModuleExt> {
@@ -27,7 +27,7 @@ impl<R: RepositoriesModuleExt> WorkUseCase<R> {
             .await
     }
 
-    pub async fn search_work(&self, source: SearchWork) -> anyhow::Result<Option<Work>> {
+    pub async fn search_equal_work(&self, source: SearchEqualWork) -> anyhow::Result<Option<Work>> {
         self.repositories
             .work_repository()
             .find_by_title_and_artist(source.title, &source.artist_id)

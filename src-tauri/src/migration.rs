@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS work (
 	title varchar(255) not null,
     artist_id varchar(36) not null,
 	created_at datetime not null,
-	updated_at datetime not null
+	updated_at datetime not null,
+    UNIQUE(title, artist_id)
 );
     "
     .to_string();

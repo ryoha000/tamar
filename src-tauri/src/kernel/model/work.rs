@@ -2,7 +2,7 @@ use super::{artist::Artist, Id};
 use chrono::{DateTime, Local};
 use derive_new::new;
 
-#[derive(new, Debug)]
+#[derive(new, Debug, Clone)]
 pub struct Work {
     pub id: Id<Work>,
     pub title: String,

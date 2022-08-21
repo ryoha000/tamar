@@ -2,7 +2,7 @@ use super::Id;
 use chrono::{DateTime, Local};
 use derive_new::new;
 
-#[derive(new, Debug)]
+#[derive(new, Debug, Clone)]
 pub struct Tag {
     pub id: Id<Tag>,
     pub name: String,

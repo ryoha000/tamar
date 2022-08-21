@@ -1,7 +1,4 @@
-use std::{
-    collections::{HashMap, HashSet},
-    sync::Arc,
-};
+use std::{collections::HashMap, sync::Arc};
 use tauri::State;
 
 use crate::{
@@ -12,7 +9,7 @@ use crate::{
         work_tag_map::CreateWorkTagMap,
     },
     driver::context::errors::CommandError,
-    driver::module::{self, Modules},
+    driver::module::Modules,
     driver::{model::import_directory::*, module::ModulesExt},
     migration::UNKNOWN_ARTIST_NAME,
 };
@@ -25,20 +22,41 @@ pub async fn import_directory(
 ) -> anyhow::Result<(), CommandError> {
     let mut artist_usage_map = HashMap::new();
     let mut title_usage_map = HashMap::new();
-    let mut tag_usage_map = HashMap::new();
+    let mut tag_usage_map = HashMap::new(); // tag は複数追加可能だから型が違う
+
     // usages の validate
     for each_path_usage in usages.iter() {
         let mut is_title_exist = false;
         for each_deps_usage in each_path_usage.1.iter() {
             match &**(each_deps_usage.1) {
                 "タグ" => {
-                    tag_usage_map.insert(each_path_usage.0, each_deps_usage.0);
+                    if !tag_usage_map.contains_key(each_path_usage.0) {
+                        tag_usage_map.insert(each_path_usage.0, vec![]);
+                    }
+                    tag_usage_map
+                        .get_mut(each_path_usage.0)
+                        .unwrap()
+                        .push(each_deps_usage.0);
                 }
                 "作者名" => {
-                    artist_usage_map.insert(each_path_usage.0, each_deps_usage.0);
+                    let is_existed = artist_usage_map
+                        .insert(each_path_usage.0, each_deps_usage.0)
+                        .is_some();
+                    if is_existed {
+                        return Err(CommandError::Anyhow(anyhow::anyhow!(
+                            "artist has duplicated difinition"
+                        )));
+                    }
                 }
                 "作品名" => {
-                    title_usage_map.insert(each_path_usage.0, each_deps_usage.0);
+                    let is_existed = title_usage_map
+                        .insert(each_path_usage.0, each_deps_usage.0)
+                        .is_some();
+                    if is_existed {
+                        return Err(CommandError::Anyhow(anyhow::anyhow!(
+                            "title has duplicated difinition"
+                        )));
+                    }
                     is_title_exist = true
                 }
                 "無視する" => {}
@@ -56,111 +74,26 @@ pub async fn import_directory(
         }
     }
 
-    // 対象の artist の Set をつくる
-    let mut artist_set = HashSet::new();
-    for dir_path_info in dir_path_infos.iter() {
-        match artist_usage_map.get(&(dir_path_info.dir_deps.len() as u8)) {
-            Some(deps) => {
-                artist_set.insert(&dir_path_info.dir_deps[(**deps as usize) - 1].name);
-            }
-            None => {}
-        }
-    }
-
-    // artist がないなら insert
-    for new_artist_name in artist_set.into_iter() {
-        modules
-            .artist_use_case()
-            .register_artist(CreateArtist::new((*new_artist_name).clone()))
-            .await?;
-    }
-
-    // 対象の work を insert
     for dir_path_info in dir_path_infos.iter() {
         let max_deps = &(dir_path_info.dir_deps.len() as u8);
-        match title_usage_map.get(max_deps) {
-            Some(deps) => {
-                // work には artist が要るから取得
-                let artist_name;
-                match artist_usage_map.get(max_deps) {
-                    Some(deps) => {
-                        artist_name = dir_path_info.dir_deps[(**deps - 1) as usize].name.clone()
-                    }
-                    None => artist_name = UNKNOWN_ARTIST_NAME.to_string(),
-                }
-                let artist = modules
-                    .artist_use_case()
-                    .search_equal_artist(SearchEqualArtist::new(artist_name))
-                    .await?;
+        let get_name = |deps: &&u8| dir_path_info.dir_deps[(**deps - 1) as usize].name.clone();
 
-                match artist {
-                    Some(artist) => {
-                        modules
-                            .work_use_case()
-                            .register_work(CreateWork::new(
-                                dir_path_info.dir_deps[(**deps - 1) as usize].name.clone(),
-                                artist.id,
-                            ))
-                            .await?;
-                    }
-                    None => {
-                        return Err(CommandError::Anyhow(anyhow::anyhow!(
-                            "artist is not found(internal error)"
-                        )));
-                    }
-                }
-            }
-            None => {}
-        }
-    }
-
-    // 対象のタグを insert
-    // 対象の tag の Set をつくる
-    let mut tag_set = HashSet::new();
-    for dir_path_info in dir_path_infos.iter() {
-        match tag_usage_map.get(&(dir_path_info.dir_deps.len() as u8)) {
-            Some(deps) => {
-                tag_set.insert(&dir_path_info.dir_deps[(**deps as usize) - 1].name);
-            }
-            None => {}
-        }
-    }
-
-    for new_tag_name in tag_set.into_iter() {
-        // tag がないなら insert
-        modules
-            .tag_use_case()
-            .register_tag(CreateTag::new((*new_tag_name).clone()))
-            .await?;
-    }
-
-    // 対象のタグマップを insert
-    for dir_path_info in dir_path_infos.iter() {
-        let max_deps = &(dir_path_info.dir_deps.len() as u8);
-
-        // insert したはずの tag を取得
-        let tag_name;
-        match artist_usage_map.get(max_deps) {
-            Some(deps) => tag_name = dir_path_info.dir_deps[(**deps - 1) as usize].name.clone(),
-            None => continue, // TODO
-        }
-        let tag = modules
-            .tag_use_case()
-            .search_equal_tag(SearchEqualTag::new(tag_name))
-            .await?;
-        if tag.is_none() {
-            return Err(CommandError::Anyhow(anyhow::anyhow!(
-                "tag is not found(internal error)"
-            )));
-        }
-        let tag = tag.unwrap();
-
-        // insert したはずの artist を取得
+        // -------- artist に関係する処理 ここから ---------
+        // artist を insert
         let artist_name;
         match artist_usage_map.get(max_deps) {
-            Some(deps) => artist_name = dir_path_info.dir_deps[(**deps - 1) as usize].name.clone(),
-            None => artist_name = UNKNOWN_ARTIST_NAME.to_string(),
+            Some(deps) => {
+                artist_name = get_name(deps);
+
+                modules
+                    .artist_use_case()
+                    .register_artist(CreateArtist::new(artist_name.clone()))
+                    .await?;
+            }
+            None => artist_name = UNKNOWN_ARTIST_NAME.to_string(), // UNKNOWN_ARTIST は最初に INSERT 済
         }
+
+        // work の insert に使うため insert したはずの artist を取得
         let artist = modules
             .artist_use_case()
             .search_equal_artist(SearchEqualArtist::new(artist_name))
@@ -171,32 +104,75 @@ pub async fn import_directory(
             )));
         }
         let artist = artist.unwrap();
+        // -------- artist に関係する処理 ここまで ---------
 
-        let title;
+        // -------- work に関係する処理 ここから ---------
+        let work_title;
         match title_usage_map.get(max_deps) {
-            Some(deps) => title = dir_path_info.dir_deps[(**deps - 1) as usize].name.clone(),
+            Some(deps) => {
+                work_title = get_name(deps);
+            }
             None => {
                 return Err(CommandError::Anyhow(anyhow::anyhow!(
                     "title is not defined by usage(internal error)"
                 )));
             }
         }
+        // work の insert
+        modules
+            .work_use_case()
+            .register_work(CreateWork::new(work_title.clone(), artist.id.clone()))
+            .await?;
+
+        // tag の insert に使うため insert したはずの work を取得
         let work = modules
             .work_use_case()
-            .search_equal_work(SearchEqualWork::new(title, artist.id))
+            .search_equal_work(SearchEqualWork::new(work_title, artist.id))
             .await?;
+
         if work.is_none() {
             return Err(CommandError::Anyhow(anyhow::anyhow!(
                 "work is not found(internal error)"
             )));
         }
         let work = work.unwrap();
+        // -------- work に関係する処理 ここまで ---------
 
-        // tag_map を insert
-        modules
-            .work_tag_map_use_case()
-            .register_work_tag_map(CreateWorkTagMap::new(work.id, tag.id))
-            .await?;
+        // -------- tag に関係する処理 ここから ---------
+        match tag_usage_map.get(max_deps) {
+            // tag をつけるとき
+            Some(deps_vec) => {
+                for deps in deps_vec.iter() {
+                    let tag_name = get_name(deps);
+
+                    // tag を insert
+                    modules
+                        .tag_use_case()
+                        .register_tag(CreateTag::new(tag_name.clone()))
+                        .await?;
+
+                    // work_tag_map を作る必要があるため insert したはずの tag を取得
+                    let tag = modules
+                        .tag_use_case()
+                        .search_equal_tag(SearchEqualTag::new(tag_name))
+                        .await?;
+                    if tag.is_none() {
+                        return Err(CommandError::Anyhow(anyhow::anyhow!(
+                            "tag is not found(internal error)"
+                        )));
+                    }
+                    let tag = tag.unwrap();
+
+                    // work_tag_map を insert
+                    modules
+                        .work_tag_map_use_case()
+                        .register_work_tag_map(CreateWorkTagMap::new(work.id.clone(), tag.id))
+                        .await?
+                }
+            }
+            None => {} // tag をつけなくていいため何もしない
+        }
+        // -------- tag に関係する処理 ここまで ---------
     }
 
     // ファイルコピー

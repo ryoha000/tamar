@@ -53,10 +53,7 @@ impl TryFrom<SearchAroundUpdatedAtWorkView> for SearchAroundUpdatedAtWork {
     type Error = anyhow::Error;
 
     fn try_from(c: SearchAroundUpdatedAtWorkView) -> anyhow::Result<Self> {
-        Ok(SearchAroundUpdatedAtWork::new(
-            c.limit,
-            c.is_before,
-            NaiveDateTime::parse_from_str("2018/12/07 19:31:28.55", "%Y/%m/%d %H:%M:%S%.f")?,
-        ))
+        let t = NaiveDateTime::parse_from_str(&c.updated_at, "%Y-%m-%d %H:%M:%S%.f")?;
+        Ok(SearchAroundUpdatedAtWork::new(c.limit, c.is_before, t))
     }
 }

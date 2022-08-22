@@ -371,11 +371,12 @@ mod test {
         let source = SearchAroundUpdatedAtWork::new(10, true, updated_at_vec[1].clone());
         let found = search_around_updated_at(db.clone(), source).unwrap();
 
-        assert!(!found.is_empty());
+        assert_eq!(found.len(), 1);
         assert_eq!(found[0].updated_at, updated_at_vec[0]);
 
         let source = SearchAroundUpdatedAtWork::new(10, false, updated_at_vec[1].clone());
         let found = search_around_updated_at(db, source).unwrap();
+        assert_eq!(found.len(), 1);
         assert_eq!(found[0].updated_at, updated_at_vec[2]);
     }
 

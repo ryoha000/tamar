@@ -73,7 +73,6 @@ const useDirUsage = (
   createEffect(() => {
     const initialUsage: Usages = {};
     dirDepsLengthKind().forEach((v) => {
-      // TODO: いい感じにinitialを決定する
       initialUsage[v.deps] = {};
       paths()[v.index].dirDeps.forEach((dep) => {
         let usage: DepsUsageKind = "無視する";

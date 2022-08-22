@@ -1,7 +1,10 @@
+use std::str::FromStr;
+
 use derive_new::new;
+use sqlx::types::chrono::NaiveDateTime;
 
 use crate::kernel::model::{
-    work::{SearchAroundTitleWork, SearchWork, Work},
+    work::{SearchAroundTitleWork, SearchAroundUpdatedAtWork, SearchWork, Work},
     Id,
 };
 
@@ -51,6 +54,25 @@ impl TryFrom<SearchAroundTitleWorkView> for SearchAroundTitleWork {
 
     fn try_from(c: SearchAroundTitleWorkView) -> anyhow::Result<Self> {
         Ok(SearchAroundTitleWork::new(c.limit, c.is_before, c.title))
+    }
+}
+
+#[derive(new)]
+pub struct SearchAroundUpdatedAtWorkView {
+    pub limit: u8,
+    pub is_before: bool,
+    pub updated_at: String,
+}
+
+impl TryFrom<SearchAroundUpdatedAtWorkView> for SearchAroundUpdatedAtWork {
+    type Error = anyhow::Error;
+
+    fn try_from(c: SearchAroundUpdatedAtWorkView) -> anyhow::Result<Self> {
+        Ok(SearchAroundUpdatedAtWork::new(
+            c.limit,
+            c.is_before,
+            NaiveDateTime::from_str(&c.updated_at)?,
+        ))
     }
 }
 

@@ -36,6 +36,7 @@ fn main() {
             driver::command::import_directory::import_directory,
             driver::command::work_view::search_work,
             driver::command::work_view::search_around_title_work,
+            driver::command::work_view::search_around_updated_at_work,
             driver::command::work_view::get_work,
         ])
         .run(tauri::generate_context!())

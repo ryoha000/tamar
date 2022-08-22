@@ -1,16 +1,41 @@
-import { Link, useParams } from "@solidjs/router";
-import { Component } from "solid-js";
+import { Link } from "@solidjs/router";
+import { AiOutlineHome } from "solid-icons/ai";
+import { Component, createSignal, onMount } from "solid-js";
+import HeaderNextPrev from "../UI/HeaderNextPrev";
 
+const HIDDEN_MS = 1000;
 const Header: Component = () => {
-  const params = useParams();
+  const [hidden, setHidden] = createSignal(false);
+  const [timer, setTimer] = createSignal(0);
 
+  onMount(() => {
+    setHiddenTimer();
+  });
+  const setHiddenTimer = () => {
+    setTimer(setTimeout(() => setHidden(true), HIDDEN_MS));
+  };
+  const actionStart = () => {
+    clearTimeout(timer());
+    setHidden(false);
+    console.log("start");
+  };
+  const actionEnd = () => {
+    setHiddenTimer();
+    console.log("end");
+  };
   return (
     <div
-      class="h-12 bg-opacity-50 bg-slate-500 fixed z-header w-full"
+      class="bg-opacity-50 bg-neutral-50 fixed z-header w-full flex items-center gap-2 px-4 py-2 transition-all duration-300 h-header"
       tabIndex={-1}
+      classList={{ "opacity-0": hidden(), "opacity-100": !hidden() }}
+      onMouseEnter={actionStart}
+      onMouseLeave={actionEnd}
     >
-      ここにヘッダー {`page: ${params["page"]}`}
-      <Link href={`/work/${params["id"]}/${+params["page"] + 1}`}>link</Link>
+      <Link href="/">
+        <AiOutlineHome size="1.2rem" />
+      </Link>
+      <HeaderNextPrev />
+      <div>title</div>
     </div>
   );
 };

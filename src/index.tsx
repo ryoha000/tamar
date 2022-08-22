@@ -5,11 +5,15 @@ import { render } from "solid-js/web";
 import App from "./App";
 import { Router } from "@solidjs/router";
 
+import { StoreProvider } from "./lib/store";
+
 render(
   () => (
-    <Router>
-      <App />
-    </Router>
+    <StoreProvider>
+      <Router>
+        <App />
+      </Router>
+    </StoreProvider>
   ),
   document.getElementById("root") as HTMLElement
 );

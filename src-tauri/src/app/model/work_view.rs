@@ -1,6 +1,9 @@
 use derive_new::new;
 
-use crate::kernel::model::work::{SearchWork, Work};
+use crate::kernel::model::{
+    work::{SearchWork, Work},
+    Id,
+};
 
 use super::{artist_view::ArtistView, tag_view::TagView};
 
@@ -33,6 +36,18 @@ impl TryFrom<SearchWorkView> for SearchWork {
             c.sort_desc,
             c.title,
         ))
+    }
+}
+
+pub struct GetWorkView {
+    pub id: Id<Work>,
+}
+
+impl GetWorkView {
+    pub fn new(id: String) -> anyhow::Result<Self> {
+        Ok(Self {
+            id: Id::<Work>::new(ulid::Ulid::from_string(&id)?),
+        })
     }
 }
 

@@ -6,7 +6,7 @@ import SortSelect from "./SortSelect";
 
 const Header: Component = () => {
   return (
-    <div class="flex items-center bg-white px-4 py-2 gap-2">
+    <div class="flex items-center bg-white px-4 py-2 gap-2 fixed top-0 left-0 w-full z-header">
       <SearchInput />
       <SortSelect />
       <ByArtistToggle />

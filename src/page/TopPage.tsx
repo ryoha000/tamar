@@ -20,7 +20,7 @@ const TopPage: Component = () => {
     return res;
   };
   return (
-    <div>
+    <div class="flex p-4 pt-14">
       <Header />
       <div>
         <MasonryWrapper>

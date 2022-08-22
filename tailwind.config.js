@@ -20,6 +20,7 @@ module.exports = {
         dialog: 105,
         "list-box-overlay": 109,
         "list-box": 110,
+        header: 50,
       },
       minWidth: {
         "3/5": "60%",
@@ -30,7 +31,7 @@ module.exports = {
         "masonry-sm": "repeat(auto-fill, minmax(8rem, 1fr))",
       },
       gridAutoRows: {
-        0: "1px",
+        0: 1,
       },
     },
   },

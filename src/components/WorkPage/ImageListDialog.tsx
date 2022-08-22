@@ -48,7 +48,7 @@ const ImageListDialog: Component<Props> = (props) => {
           <div class="grid grid-cols-image-list p-4 gap-2">
             <For each={props.imageSrcArray}>
               {(src, i) => (
-                <Link href={`../${i()}`} class="hover:scale-105">
+                <Link href={`../${i()}`} class="hover:scale-105 transition-all">
                   <img class="w-full h-full object-contain" src={src} />
                 </Link>
               )}

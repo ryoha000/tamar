@@ -11,7 +11,6 @@ export type SortKind = typeof SORT_KIND[number];
 
 const SortSelect: Component = () => {
   const store = useStore();
-  const [isDesc, setIsDesc] = createSignal(true);
 
   return (
     <Show when={store}>
@@ -23,9 +22,9 @@ const SortSelect: Component = () => {
         />
         <TooltipWrapper label="降順で表示">
           <ToggleIconButton
-            onclick={() => setIsDesc((prev) => !prev)}
+            onclick={() => store!.setIsSortDesc(!store?.isSortDesc())}
             icon={FaSolidArrowDownWideShort}
-            state={isDesc()}
+            state={store!.isSortDesc()}
           />
         </TooltipWrapper>
       </div>

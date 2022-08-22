@@ -18,11 +18,14 @@ export interface Store {
   workPageMap: Map<string, number>; // key: workId, value: page
   sortKind: Accessor<string>;
   setSortKind: (s: string) => void;
+  isSortDesc: Accessor<boolean>;
+  setIsSortDesc: (b: boolean) => void;
 }
 
 export const StoreProvider: ParentComponent = (props) => {
   const workPageMap = new Map(); // reaactive じゃなくていいためただの Map
-  const { works, setText, sortKind, setSortKind } = useSearch();
+  const { works, setText, sortKind, setSortKind, isSortDesc, setIsSortDesc } =
+    useSearch();
 
   const store = {
     works,
@@ -30,6 +33,8 @@ export const StoreProvider: ParentComponent = (props) => {
     workPageMap,
     sortKind,
     setSortKind,
+    isSortDesc,
+    setIsSortDesc,
   };
 
   return (

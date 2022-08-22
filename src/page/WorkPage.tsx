@@ -1,7 +1,11 @@
 import { useParams } from "@solidjs/router";
-import { convertFileSrc } from "@tauri-apps/api/tauri";
 import { Component, onMount } from "solid-js";
-import Header from "../components/TopPage/Header";
+import Header from "../components/WorkPage/Header";
+import {
+  NextOverlay,
+  PrevOverlay,
+} from "../components/WorkPage/NavigationOverlay";
+import usePage from "../components/WorkPage/use/page";
 import { useStore } from "../lib/store";
 
 const WorkPage: Component = () => {
@@ -13,29 +17,25 @@ const WorkPage: Component = () => {
 
   onMount(() => {
     console.log("onMount WorkPage");
+    // TODO: 閲覧履歴を insert する
   });
 
-  const { works } = store;
+  const { works, workPageMap } = store;
   const work = () => {
     const workId = params["id"];
-    return works().find((v) => v.id === workId)!;
-  };
-  const imageSrc = () => {
-    const sortedPaths = [...work().paths];
-    sortedPaths.sort();
-    return sortedPaths.map((v) => convertFileSrc(v));
+    // TODO: ちゃんとfetchする(F5押したときに困る)
+    const v = works().find((v) => v.id === workId);
+    return v ?? null;
   };
 
+  const { imageSrc, next, prev, keyDown } = usePage(work, workPageMap);
+
   return (
-    <div class="flex">
-      <div class="h-12 bg-opacity-50 bg-slate-500 fixed z-header w-full">
-        ここにヘッダー {`page: ${params["page"]}`}
-      </div>
-      <img
-        src={imageSrc()[+params["page"]]}
-        class="w-screen h-screen object-contain"
-      ></img>
-      <div>WorkPage</div>
+    <div class="flex" onkeydown={keyDown}>
+      <Header />
+      <img src={imageSrc()} class="w-screen h-screen object-contain"></img>
+      <NextOverlay navigate={next} />
+      <PrevOverlay navigate={prev} />
     </div>
   );
 };

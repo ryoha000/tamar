@@ -1,11 +1,13 @@
 // 参考: https://www.webdesignleaves.com/pr/plugins/css-grid-masonry.html
-import { Component, createSignal, onMount } from "solid-js";
+import { Accessor, Component, createSignal, For, JSX, onMount } from "solid-js";
+import MasonryItem from "./MasonryItem";
 
-interface Props {
-  children: Component<{ rowHeight: number; rowGap: number }>;
+interface Props<T> {
+  each: T[];
+  children: (item: T, index: Accessor<number>) => JSX.Element;
 }
 
-const MasonryWrapper: Component<Props> = (props) => {
+function MasonryWrapper<T>(props: Props<T>) {
   let container: HTMLDivElement | undefined = undefined;
 
   const [rowHeight, setRowHeight] = createSignal(0);
@@ -29,12 +31,16 @@ const MasonryWrapper: Component<Props> = (props) => {
     setRowGap(+rg);
   });
   return (
-    <div>
-      <div ref={container} class="grid gap-4 grid-cols-masonry-lg auto-rows-0">
-        {props.children({ rowHeight: rowHeight(), rowGap: rowGap() })}
-      </div>
+    <div ref={container} class="grid gap-4 grid-cols-masonry-lg auto-rows-0">
+      <For each={props.each}>
+        {(item, i) => (
+          <MasonryItem rowGap={rowGap()} rowHeight={rowHeight()}>
+            {props.children(item, i)}
+          </MasonryItem>
+        )}
+      </For>
     </div>
   );
-};
+}
 
 export default MasonryWrapper;

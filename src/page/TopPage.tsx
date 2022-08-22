@@ -23,21 +23,8 @@ const TopPage: Component = () => {
     <div class="flex p-4 pt-14">
       <Header />
       <div>
-        <MasonryWrapper>
-          {(payload: { rowHeight: number; rowGap: number }) => {
-            return (
-              <For each={debugWorks()}>
-                {(work, i) => (
-                  <MasonryItem
-                    rowGap={payload.rowGap}
-                    rowHeight={payload.rowHeight}
-                  >
-                    <Work work={work} />
-                  </MasonryItem>
-                )}
-              </For>
-            );
-          }}
+        <MasonryWrapper each={debugWorks()}>
+          {(work, i) => <Work work={work} />}
         </MasonryWrapper>
       </div>
     </div>

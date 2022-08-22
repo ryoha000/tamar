@@ -34,6 +34,9 @@ module.exports = {
       gridAutoRows: {
         0: 1,
       },
+      height: {
+        header: "3.5rem",
+      },
     },
   },
   plugins: [],

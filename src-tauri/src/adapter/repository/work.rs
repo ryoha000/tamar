@@ -1,6 +1,6 @@
 use crate::adapter::model::work::WorkTable;
 use crate::kernel::model::artist::Artist;
-use crate::kernel::model::work::{SearchAroundTitleWork, SearchWork};
+use crate::kernel::model::work::{SearchAroundTitleWork, SearchAroundUpdatedAtWork, SearchWork};
 use crate::kernel::{
     model::{
         work::{NewWork, Work},
@@ -9,9 +9,35 @@ use crate::kernel::{
     repository::work::WorkRepository,
 };
 use async_trait::async_trait;
-use sqlx::{query_as, FromRow};
+use sqlx::{query_as, FromRow, Sqlite};
 
 use super::DatabaseRepositoryImpl;
+
+fn get_search_around_query(
+    builder: &mut sqlx::QueryBuilder<Sqlite>,
+    limit: u8,
+    is_before: bool,
+    col: String,
+    value: String,
+) {
+    builder.push(format!("SELECT * FROM work WHERE {} ", col));
+    if is_before {
+        builder.push(" < ");
+    } else {
+        builder.push(" > ");
+    }
+    builder.push_bind(format!("{}", value));
+
+    builder.push(format!(" ORDER BY {} ", col));
+    if is_before {
+        builder.push(" DESC ");
+    } else {
+        builder.push(" ASC ");
+    }
+
+    builder.push(" LIMIT ");
+    builder.push_bind(limit);
+}
 
 #[async_trait]
 impl WorkRepository for DatabaseRepositoryImpl<Work> {
@@ -90,27 +116,38 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
         &self,
         source: SearchAroundTitleWork,
     ) -> anyhow::Result<Vec<Work>> {
-        let mut builder = sqlx::QueryBuilder::new("SELECT * FROM work WHERE title");
-        if source.is_before {
-            builder.push(" < ");
-        } else {
-            builder.push(" > ");
-        }
-        builder.push_bind(format!("{}", source.title));
-
-        builder.push(" ORDER BY title ");
-        if source.is_before {
-            builder.push(" DESC ");
-        } else {
-            builder.push(" ASC ");
-        }
-
-        builder.push(" LIMIT ");
-        builder.push_bind(source.limit);
-
-        let query = builder.build();
+        let mut builder = sqlx::QueryBuilder::new("");
+        get_search_around_query(
+            &mut builder,
+            source.limit,
+            source.is_before,
+            "title".to_string(),
+            source.title,
+        );
         let pool = self.pool.0.clone();
-        let work_table = query.fetch_all(&*pool).await?;
+        let work_table = builder.build().fetch_all(&*pool).await?;
+
+        Ok(work_table
+            .into_iter()
+            .filter_map(|v| WorkTable::from_row(&v).ok()?.try_into().ok())
+            .collect())
+    }
+
+    async fn search_around_updated_at(
+        &self,
+        source: SearchAroundUpdatedAtWork,
+    ) -> anyhow::Result<Vec<Work>> {
+        let mut builder = sqlx::QueryBuilder::new("");
+        get_search_around_query(
+            &mut builder,
+            source.limit,
+            source.is_before,
+            "updated_at".to_string(),
+            source.updated_at.to_string(),
+        );
+
+        let pool = self.pool.0.clone();
+        let work_table = builder.build().fetch_all(&*pool).await?;
 
         Ok(work_table
             .into_iter()
@@ -137,8 +174,13 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
 
 #[cfg(test)]
 mod test {
+    use core::time;
+    use std::thread;
+
     use crate::kernel::model::artist::{Artist, NewArtist};
-    use crate::kernel::model::work::{NewWork, SearchAroundTitleWork, SearchWork, Work};
+    use crate::kernel::model::work::{
+        NewWork, SearchAroundTitleWork, SearchAroundUpdatedAtWork, SearchWork, Work,
+    };
     use crate::kernel::model::Id;
     use crate::kernel::repository::artist::ArtistRepository;
     use crate::kernel::repository::work::WorkRepository;
@@ -304,6 +346,39 @@ mod test {
         assert_eq!(found[0].title, titles[2]);
     }
 
+    #[test]
+    fn test_search_work_around_updated_at() {
+        let db = get_test_db();
+
+        let artist_id = Ulid::new();
+        {
+            let artist_name = random_string();
+            insert_artist(db.clone(), NewArtist::new(Id::new(artist_id), artist_name));
+        }
+
+        let mut updated_at_vec = vec![];
+        for _ in 0..3 {
+            let work_id = Ulid::new();
+            insert_work(
+                db.clone(),
+                NewWork::new(Id::new(work_id), random_string(), Id::new(artist_id)),
+            );
+            updated_at_vec.push(find_work(db.clone(), Id::new(work_id)).unwrap().updated_at);
+            let ten_millis = time::Duration::from_millis(100);
+            thread::sleep(ten_millis);
+        }
+
+        let source = SearchAroundUpdatedAtWork::new(10, true, updated_at_vec[1].clone());
+        let found = search_around_updated_at(db.clone(), source).unwrap();
+
+        assert!(!found.is_empty());
+        assert_eq!(found[0].updated_at, updated_at_vec[0]);
+
+        let source = SearchAroundUpdatedAtWork::new(10, false, updated_at_vec[1].clone());
+        let found = search_around_updated_at(db, source).unwrap();
+        assert_eq!(found[0].updated_at, updated_at_vec[2]);
+    }
+
     fn insert_artist(db: Db, new_artist: NewArtist) {
         let repository = DatabaseRepositoryImpl::<Artist>::new(db);
         block_on(repository.insert(new_artist)).unwrap()
@@ -336,5 +411,13 @@ mod test {
     fn search_around_title(db: Db, source: SearchAroundTitleWork) -> anyhow::Result<Vec<Work>> {
         let repository = DatabaseRepositoryImpl::<Work>::new(db);
         block_on(repository.search_around_title(source))
+    }
+
+    fn search_around_updated_at(
+        db: Db,
+        source: SearchAroundUpdatedAtWork,
+    ) -> anyhow::Result<Vec<Work>> {
+        let repository = DatabaseRepositoryImpl::<Work>::new(db);
+        block_on(repository.search_around_updated_at(source))
     }
 }

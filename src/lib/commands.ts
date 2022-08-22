@@ -51,7 +51,7 @@ export const commandSearchAroundUpdatedAtWork = async (payload: {
   return await invoke<string[]>("search_around_updated_at_work", {
     limit: payload.limit,
     isBefore: payload.isBefore,
-    updated_at: payload.updated_at,
+    updatedAt: payload.updated_at,
   });
 };
 

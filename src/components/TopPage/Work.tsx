@@ -1,6 +1,7 @@
 import { Link } from "@solidjs/router";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
 import { Component, For, Show } from "solid-js";
+import { useStore } from "../../lib/store";
 import { Work as WorkI } from "../../lib/types";
 
 interface Props {
@@ -8,6 +9,12 @@ interface Props {
 }
 
 const Work: Component<Props> = (props) => {
+  const store = useStore();
+  if (!store) {
+    return null;
+  }
+  const { workPageMap } = store;
+
   const imageSrc = () => {
     if (!props.work.paths.length) {
       return "";
@@ -18,7 +25,9 @@ const Work: Component<Props> = (props) => {
   return (
     <div class="hover:scale-110 transition-all cursor-pointer">
       <Show when={imageSrc()}>
-        <Link href={`/work/${props.work.id}/${1}`}>
+        <Link
+          href={`/work/${props.work.id}/${workPageMap.get(props.work.id) ?? 0}`}
+        >
           <img class="object-contain" src={imageSrc()} />
         </Link>
       </Show>

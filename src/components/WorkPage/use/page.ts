@@ -3,7 +3,10 @@ import { convertFileSrc } from "@tauri-apps/api/tauri";
 import { Accessor } from "solid-js";
 import { Work } from "../../../lib/types";
 
-const usePage = (work: Accessor<Work | null>) => {
+const usePage = (
+  work: Accessor<Work | null>,
+  workPageMap: Map<string, number>
+) => {
   const params = useParams();
   const navigator = useNavigate();
 
@@ -33,17 +36,27 @@ const usePage = (work: Accessor<Work | null>) => {
     return imageSrcArray()[page()];
   };
 
+  const setWorkPage = (nextPage: number) => {
+    const workId = work()?.id;
+    if (workId) {
+      workPageMap.set(workId, nextPage);
+    }
+  };
   const prev = () => {
-    if (page() <= 0) {
+    const nextPage = page() - 1;
+    if (nextPage < 0) {
       return;
     }
-    navigator(`../${page() - 1}`);
+    navigator(`../${nextPage}`);
+    setWorkPage(nextPage);
   };
   const next = () => {
-    if (page() >= imageSrcArray().length - 1) {
+    const nextPage = page() + 1;
+    if (nextPage >= imageSrcArray().length) {
       return;
     }
-    navigator(`../${page() + 1}`);
+    navigator(`../${nextPage}`);
+    setWorkPage(nextPage);
   };
 
   const keyDown = (e: KeyboardEvent) => {

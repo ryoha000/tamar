@@ -24,6 +24,14 @@ module.exports = {
       minWidth: {
         "3/5": "60%",
       },
+      gridTemplateColumns: {
+        "masonry-lg": "repeat(auto-fill, minmax(16rem, 1fr))",
+        "masonry-md": "repeat(auto-fill, minmax(12rem, 1fr))",
+        "masonry-sm": "repeat(auto-fill, minmax(8rem, 1fr))",
+      },
+      gridAutoRows: {
+        0: "1px",
+      },
     },
   },
   plugins: [],

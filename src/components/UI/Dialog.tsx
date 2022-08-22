@@ -1,6 +1,5 @@
-import { createEffect, onMount, ParentComponent, Show } from "solid-js";
+import { onCleanup, onMount, ParentComponent, Show } from "solid-js";
 import { Portal } from "solid-js/web";
-import EntireOverlayCloser from "./EntireOverlayCloser";
 
 interface Props {
   isOpen: boolean;
@@ -19,10 +18,27 @@ const Dialog: ParentComponent<Props> = (props) => {
   );
 };
 
+const getScrollbarWidth = () => {
+  let element = document.createElement("div");
+  element.style.visibility = "hidden";
+  element.style.overflow = "scroll";
+  document.body.appendChild(element);
+  const scrollbarWidth = element.offsetWidth - element.clientWidth;
+  document.body.removeChild(element);
+
+  return scrollbarWidth;
+};
+
 const DialogContent: ParentComponent<Props> = (props) => {
   let ele: HTMLDivElement | undefined = undefined;
   onMount(() => {
     ele?.focus();
+    window.document.body.style.overflowY = "hidden";
+    document.body.style.paddingRight = `${getScrollbarWidth()}px`;
+  });
+  onCleanup(() => {
+    window.document.body.style.overflowY = "auto";
+    document.body.style.paddingRight = `0px`;
   });
 
   return (

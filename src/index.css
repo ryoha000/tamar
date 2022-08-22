@@ -10,7 +10,6 @@
 
 body {
   color: var(--color-text);
-  overflow: hidden;
 }
 
 *:focus {

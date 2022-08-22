@@ -35,6 +35,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             driver::command::import_directory::import_directory,
             driver::command::work_view::search_work,
+            driver::command::work_view::get_work,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -30,3 +30,7 @@ export const commandSearchWork = async (payload: {
     sortDesc: payload.sortDesc,
   });
 };
+
+export const commandGetWork = async (id: String) => {
+  return await invoke<Work>("get_work", { id });
+};

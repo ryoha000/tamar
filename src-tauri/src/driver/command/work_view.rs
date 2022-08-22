@@ -2,7 +2,7 @@ use std::sync::Arc;
 use tauri::State;
 
 use crate::{
-    app::model::work_view::SearchWorkView,
+    app::model::work_view::{GetWorkView, SearchWorkView},
     driver::{
         context::errors::CommandError,
         model::work_view::JsonWorkView,
@@ -39,4 +39,17 @@ pub async fn search_work(
         .collect();
 
     Ok(works)
+}
+
+#[tauri::command]
+pub async fn get_work(
+    modules: State<'_, Arc<Modules>>,
+    id: String,
+) -> anyhow::Result<JsonWorkView, CommandError> {
+    let work = modules
+        .work_view_use_case()
+        .get_work(GetWorkView::new(id)?)
+        .await?;
+
+    Ok(JsonWorkView::from(work))
 }

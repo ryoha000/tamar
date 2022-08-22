@@ -1,11 +1,12 @@
 import { useParams } from "@solidjs/router";
-import { Component, onMount } from "solid-js";
+import { Component, createResource, onMount } from "solid-js";
 import Header from "../components/WorkPage/Header";
 import {
   NextOverlay,
   PrevOverlay,
 } from "../components/WorkPage/NavigationOverlay";
 import usePage from "../components/WorkPage/use/page";
+import { commandGetWork } from "../lib/commands";
 import { useStore } from "../lib/store";
 
 const WorkPage: Component = () => {
@@ -20,13 +21,10 @@ const WorkPage: Component = () => {
     // TODO: 閲覧履歴を insert する
   });
 
-  const { works, workPageMap } = store;
-  const work = () => {
-    const workId = params["id"];
-    // TODO: ちゃんとfetchする(F5押したときに困る)
-    const v = works().find((v) => v.id === workId);
-    return v ?? null;
-  };
+  const { workPageMap } = store;
+  const [work] = createResource(params["id"], commandGetWork, {
+    initialValue: null,
+  });
 
   const { imageSrc, next, prev, keyDown } = usePage(work, workPageMap);
 

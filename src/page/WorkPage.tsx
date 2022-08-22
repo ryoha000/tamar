@@ -22,14 +22,16 @@ const WorkPage: Component = () => {
     // TODO: 閲覧履歴を insert する
   });
 
-  const { workPageMap } = store;
-  const [work] = createResource(params["id"], commandGetWork, {
+  const { workPageMap, isSortDesc, sortCol } = store;
+  const [work] = createResource(() => params["id"], commandGetWork, {
     initialValue: null,
   });
 
   const { imageSrc, imageSrcArray, next, prev, keyDown, wheel } = usePage(
     work,
-    workPageMap
+    workPageMap,
+    isSortDesc,
+    sortCol
   );
 
   const [isListOpen, setIsListOpen] = createSignal(false);

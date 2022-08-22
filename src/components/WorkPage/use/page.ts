@@ -1,11 +1,16 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
 import { Accessor, createSignal } from "solid-js";
-import { Work } from "../../../lib/types";
+import { SortColumnKind } from "../../../lib/commands";
+import type { Work } from "../../../lib/types";
+import useWorkIdsCache from "./workIdsCache";
 
+const LIMIT = 20;
 const usePage = (
   work: Accessor<Work | null>,
-  workPageMap: Map<string, number>
+  workPageMap: Map<string, number>,
+  isSortDesc: Accessor<boolean>,
+  sortCol: Accessor<SortColumnKind>
 ) => {
   const params = useParams();
   const navigator = useNavigate();
@@ -36,6 +41,8 @@ const usePage = (
     return imageSrcArray()[page()];
   };
 
+  const { workIds, fetchWorkIds, loading } = useWorkIdsCache();
+
   const setWorkPage = (nextPage: number) => {
     const workId = work()?.id;
     if (workId) {
@@ -58,6 +65,51 @@ const usePage = (
     navigator(`../${nextPage}`);
     setWorkPage(nextPage);
   };
+  // 作品間の遷移
+  const navigateBetweenWork = async (step: number) => {
+    if (loading()) {
+      return;
+    }
+    const _work = work();
+    const workId = _work?.id;
+    if (!workId) {
+      return;
+    }
+
+    const currentIndex = workIds().findIndex((v) => v === workId);
+    const nextIndex = currentIndex + step;
+    if (currentIndex === -1 || nextIndex < 0 || nextIndex >= workIds().length) {
+      const value = sortCol() === "title" ? _work.title : _work.updatedAt;
+      await fetchWorkIds({
+        currentWorkId: workId,
+        isBefore: step > 0,
+        col: sortCol(),
+        limit: 20,
+        value,
+      });
+
+      const currentIndex = workIds().findIndex((v) => v === workId);
+      const nextIndex = currentIndex + step;
+      if (
+        currentIndex === -1 ||
+        nextIndex < 0 ||
+        nextIndex >= workIds().length
+      ) {
+        return; // fetch しても遷移先がない時
+      }
+    }
+    const nextId = workIds()[nextIndex];
+    navigator(`/work/${nextId}/${workPageMap.get(nextId) ?? 0}`, {
+      resolve: false,
+      replace: true,
+    });
+  };
+  const up = async () => {
+    await navigateBetweenWork(isSortDesc() ? -1 : 1);
+  };
+  const down = async () => {
+    await navigateBetweenWork(isSortDesc() ? 1 : -1);
+  };
 
   const keyDown = (e: KeyboardEvent) => {
     if (e.key === "ArrowRight") {
@@ -65,6 +117,12 @@ const usePage = (
     }
     if (e.key === "ArrowLeft") {
       prev();
+    }
+    if (e.key === "ArrowUp") {
+      up();
+    }
+    if (e.key === "ArrowDown") {
+      down();
     }
     console.log(e.key);
   };

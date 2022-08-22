@@ -1,7 +1,6 @@
-import { Component, For } from "solid-js";
+import { Component } from "solid-js";
 import Header from "../components/TopPage/Header";
 import Work from "../components/TopPage/Work";
-import MasonryItem from "../components/UI/MasonryItem";
 import MasonryWrapper from "../components/UI/MasonryWrapper";
 import { useStore } from "../lib/store";
 

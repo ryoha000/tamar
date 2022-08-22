@@ -12,7 +12,7 @@ const Work: Component<Props> = (props) => {
   const images = () => props.work.paths.map((v) => convertFileSrc(v));
 
   return (
-    <div class="flex flex-col items-center content-center gap-2 hover:scale-110 transition-all p-3 cursor-pointer">
+    <div class="hover:scale-110 transition-all cursor-pointer">
       <Show when={images().length}>
         <img class="object-contain" src={images()[0]} />
       </Show>

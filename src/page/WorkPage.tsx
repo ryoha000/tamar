@@ -40,7 +40,15 @@ const WorkPage: Component = () => {
         openListDialog={() => setIsListOpen(true)}
         workTitle={work()?.title ?? ""}
       />
-      <img src={imageSrc()} class="w-screen h-screen object-contain"></img>
+      <img
+        src={imageSrc()}
+        tabIndex={-1}
+        // @ts-ignore
+        autofocus
+        class="w-screen h-screen object-contain"
+        onwheel={console.log}
+        onKeyDown={keyDown}
+      ></img>
       <NextOverlay navigate={next} />
       <PrevOverlay navigate={prev} />
       <ImageListDialog

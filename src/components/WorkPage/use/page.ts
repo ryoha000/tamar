@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
-import { Accessor } from "solid-js";
+import { Accessor, createSignal } from "solid-js";
 import { Work } from "../../../lib/types";
 
 const usePage = (
@@ -69,7 +69,40 @@ const usePage = (
     console.log(e.key);
   };
 
-  return { imageSrc, imageSrcArray, prev, next, keyDown };
+  const INITIAL_WHEEL_STATE = { x: 0, y: 0 };
+  const [wheelState, setWheelState] = createSignal(INITIAL_WHEEL_STATE);
+  const [wheelTimer, setWheelTimer] = createSignal(0);
+  const wheel = (e: WheelEvent) => {
+    const oldState = wheelState();
+    const state = { x: oldState.x + e.deltaX, y: oldState.y + e.deltaY };
+    setWheelState(state);
+    clearTimeout(wheelTimer());
+    setWheelTimer(
+      setTimeout(() => {
+        // 遷移
+        const state = wheelState();
+
+        if (Math.abs(state.x) > Math.abs(state.y)) {
+          // 水平スクロールのとき
+          if (Math.abs(state.x) > 80) {
+            // 閾値は適当
+            if (state.x < 0) {
+              prev();
+            } else {
+              next();
+            }
+          }
+        } else {
+          // 垂直スクロールのとき
+          // TODO
+        }
+        console.log(state);
+        setWheelState(INITIAL_WHEEL_STATE);
+      }, 50)
+    );
+  };
+
+  return { imageSrc, imageSrcArray, prev, next, keyDown, wheel };
 };
 
 export default usePage;

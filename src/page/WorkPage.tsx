@@ -27,7 +27,7 @@ const WorkPage: Component = () => {
     initialValue: null,
   });
 
-  const { imageSrc, imageSrcArray, next, prev, keyDown } = usePage(
+  const { imageSrc, imageSrcArray, next, prev, keyDown, wheel } = usePage(
     work,
     workPageMap
   );
@@ -46,7 +46,7 @@ const WorkPage: Component = () => {
         // @ts-ignore
         autofocus
         class="w-screen h-screen object-contain"
-        onwheel={console.log}
+        onwheel={wheel}
         onKeyDown={keyDown}
       ></img>
       <NextOverlay navigate={next} />

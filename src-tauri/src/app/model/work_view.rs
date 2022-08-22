@@ -1,7 +1,7 @@
 use derive_new::new;
 
 use crate::kernel::model::{
-    work::{SearchWork, Work},
+    work::{SearchAroundTitleWork, SearchWork, Work},
     Id,
 };
 
@@ -36,6 +36,21 @@ impl TryFrom<SearchWorkView> for SearchWork {
             c.sort_desc,
             c.title,
         ))
+    }
+}
+
+#[derive(new)]
+pub struct SearchAroundTitleWorkView {
+    pub limit: u8,
+    pub is_before: bool,
+    pub title: String,
+}
+
+impl TryFrom<SearchAroundTitleWorkView> for SearchAroundTitleWork {
+    type Error = anyhow::Error;
+
+    fn try_from(c: SearchAroundTitleWorkView) -> anyhow::Result<Self> {
+        Ok(SearchAroundTitleWork::new(c.limit, c.is_before, c.title))
     }
 }
 

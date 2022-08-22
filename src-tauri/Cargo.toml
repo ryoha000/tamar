@@ -22,7 +22,6 @@ derive-new = "0.5"
 ulid = "1.0.0"
 anyhow = "1.0"
 thiserror = "1.0"
-chrono = "0.4"
 async-trait = "0.1.57"
 sqlx = { version = "0.6", features = [ "runtime-tokio-rustls", "sqlite", "chrono" ] }
 

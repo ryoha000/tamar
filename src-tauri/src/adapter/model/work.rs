@@ -1,5 +1,5 @@
 use crate::kernel::model::work::{NewWork, Work};
-use chrono::{DateTime, Utc};
+use sqlx::types::chrono::{NaiveDateTime, Utc};
 use sqlx::FromRow;
 
 #[derive(FromRow)]
@@ -7,8 +7,8 @@ pub struct WorkTable {
     pub id: String,
     pub title: String,
     pub artist_id: String,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 impl TryFrom<WorkTable> for Work {
@@ -31,8 +31,8 @@ impl TryFrom<NewWork> for WorkTable {
             id: s.id.value.to_string(),
             title: s.title,
             artist_id: s.artist_id.value.to_string(),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
+            created_at: Utc::now().naive_utc(),
+            updated_at: Utc::now().naive_utc(),
         })
     }
 }

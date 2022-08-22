@@ -1,13 +1,13 @@
 use crate::kernel::model::tag::{NewTag, Tag};
-use chrono::{DateTime, Utc};
+use sqlx::types::chrono::{NaiveDateTime, Utc};
 use sqlx::FromRow;
 
 #[derive(FromRow)]
 pub struct TagTable {
     pub id: String,
     pub name: String,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 impl TryFrom<TagTable> for Tag {
@@ -28,8 +28,8 @@ impl TryFrom<NewTag> for TagTable {
         Ok(TagTable {
             id: s.id.value.to_string(),
             name: s.name,
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
+            created_at: Utc::now().naive_utc(),
+            updated_at: Utc::now().naive_utc(),
         })
     }
 }

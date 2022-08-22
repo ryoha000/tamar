@@ -45,7 +45,15 @@ const useSearch = () => {
 
   // TODO: スクロールでオフセット増やす処理
 
-  return { works, setText, sortKind, setSortKind, isSortDesc, setIsSortDesc };
+  return {
+    works,
+    setText,
+    sortKind,
+    setSortKind,
+    isSortDesc,
+    setIsSortDesc,
+    sortCol,
+  };
 };
 
 export default useSearch;

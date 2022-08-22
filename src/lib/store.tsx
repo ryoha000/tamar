@@ -20,12 +20,20 @@ export interface Store {
   setSortKind: (s: string) => void;
   isSortDesc: Accessor<boolean>;
   setIsSortDesc: (b: boolean) => void;
+  sortCol: () => "updated_at" | "title";
 }
 
 export const StoreProvider: ParentComponent = (props) => {
   const workPageMap = new Map(); // reaactive じゃなくていいためただの Map
-  const { works, setText, sortKind, setSortKind, isSortDesc, setIsSortDesc } =
-    useSearch();
+  const {
+    works,
+    setText,
+    sortKind,
+    setSortKind,
+    isSortDesc,
+    setIsSortDesc,
+    sortCol,
+  } = useSearch();
 
   const store = {
     works,
@@ -34,6 +42,7 @@ export const StoreProvider: ParentComponent = (props) => {
     sortKind,
     setSortKind,
     isSortDesc,
+    sortCol,
     setIsSortDesc,
   };
 

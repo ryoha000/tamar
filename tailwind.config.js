@@ -30,6 +30,7 @@ module.exports = {
         "masonry-lg": "repeat(auto-fill, minmax(16rem, 1fr))",
         "masonry-md": "repeat(auto-fill, minmax(12rem, 1fr))",
         "masonry-sm": "repeat(auto-fill, minmax(8rem, 1fr))",
+        "image-list": "repeat(auto-fill, minmax(5rem, 1fr))",
       },
       gridAutoRows: {
         0: 1,

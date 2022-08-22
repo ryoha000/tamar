@@ -69,7 +69,7 @@ const usePage = (
     console.log(e.key);
   };
 
-  return { imageSrc, prev, next, keyDown };
+  return { imageSrc, imageSrcArray, prev, next, keyDown };
 };
 
 export default usePage;

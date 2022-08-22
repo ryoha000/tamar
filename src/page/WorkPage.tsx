@@ -1,6 +1,7 @@
 import { useParams } from "@solidjs/router";
-import { Component, createResource, onMount } from "solid-js";
+import { Component, createResource, createSignal, onMount } from "solid-js";
 import Header from "../components/WorkPage/Header";
+import ImageListDialog from "../components/WorkPage/ImageListDialog";
 import {
   NextOverlay,
   PrevOverlay,
@@ -26,14 +27,28 @@ const WorkPage: Component = () => {
     initialValue: null,
   });
 
-  const { imageSrc, next, prev, keyDown } = usePage(work, workPageMap);
+  const { imageSrc, imageSrcArray, next, prev, keyDown } = usePage(
+    work,
+    workPageMap
+  );
+
+  const [isListOpen, setIsListOpen] = createSignal(false);
 
   return (
     <div class="flex" onkeydown={keyDown}>
-      <Header />
+      <Header
+        openListDialog={() => setIsListOpen(true)}
+        workTitle={work()?.title ?? ""}
+      />
       <img src={imageSrc()} class="w-screen h-screen object-contain"></img>
       <NextOverlay navigate={next} />
       <PrevOverlay navigate={prev} />
+      <ImageListDialog
+        work={work()}
+        imageSrcArray={imageSrcArray()}
+        isOpen={isListOpen()}
+        close={() => setIsListOpen(false)}
+      />
     </div>
   );
 };

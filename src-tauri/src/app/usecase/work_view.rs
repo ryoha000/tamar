@@ -13,7 +13,7 @@ use crate::{
 use derive_new::new;
 
 use crate::app::model::work_view::{
-    GetWorkView, SearchAroundTitleWorkView, SearchAroundUpdatedAtWorkView, SearchWorkView, WorkView,
+    GetWorkView, SearchWorkView, WorkView,
 };
 
 #[derive(new)]
@@ -88,38 +88,6 @@ impl<R: RepositoriesModuleExt> WorkViewUseCase<R> {
             .repositories
             .work_repository()
             .search(source.try_into()?)
-            .await?;
-        let mut work_views = Vec::new();
-        for work in works.into_iter() {
-            work_views.push(self.get_work_view_from_work(work).await?);
-        }
-        Ok(work_views)
-    }
-
-    pub async fn search_around_title(
-        &self,
-        source: SearchAroundTitleWorkView,
-    ) -> anyhow::Result<Vec<WorkView>> {
-        let works = self
-            .repositories
-            .work_repository()
-            .search_around_title(source.try_into()?)
-            .await?;
-        let mut work_views = Vec::new();
-        for work in works.into_iter() {
-            work_views.push(self.get_work_view_from_work(work).await?);
-        }
-        Ok(work_views)
-    }
-
-    pub async fn search_around_updated_at(
-        &self,
-        source: SearchAroundUpdatedAtWorkView,
-    ) -> anyhow::Result<Vec<WorkView>> {
-        let works = self
-            .repositories
-            .work_repository()
-            .search_around_updated_at(source.try_into()?)
             .await?;
         let mut work_views = Vec::new();
         for work in works.into_iter() {

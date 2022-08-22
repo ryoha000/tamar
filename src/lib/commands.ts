@@ -36,7 +36,7 @@ export const commandSearchAroundTitleWork = async (payload: {
   isBefore: boolean;
   title: string;
 }) => {
-  return await invoke<Work[]>("search_around_title_work", {
+  return await invoke<string[]>("search_around_title_work", {
     limit: payload.limit,
     isBefore: payload.isBefore,
     title: payload.title,
@@ -48,7 +48,7 @@ export const commandSearchAroundUpdatedAtWork = async (payload: {
   isBefore: boolean;
   updated_at: string;
 }) => {
-  return await invoke<Work[]>("search_around_updated_at_work", {
+  return await invoke<string[]>("search_around_updated_at_work", {
     limit: payload.limit,
     isBefore: payload.isBefore,
     updated_at: payload.updated_at,

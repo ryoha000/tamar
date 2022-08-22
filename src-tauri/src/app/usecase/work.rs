@@ -1,10 +1,13 @@
 use std::sync::Arc;
 
+use crate::kernel::model::Id;
 use crate::kernel::repository::work::WorkRepository;
 use crate::{adapter::modules::RepositoriesModuleExt, kernel::model::work::Work};
 use derive_new::new;
 
-use crate::app::model::work::{CreateWork, SearchEqualWork};
+use crate::app::model::work::{
+    CreateWork, SearchAroundTitleWorkView, SearchAroundUpdatedAtWorkView, SearchEqualWork,
+};
 
 #[derive(new)]
 pub struct WorkUseCase<R: RepositoriesModuleExt> {
@@ -32,5 +35,37 @@ impl<R: RepositoriesModuleExt> WorkUseCase<R> {
             .work_repository()
             .find_by_title_and_artist(source.title, &source.artist_id)
             .await
+    }
+
+    pub async fn search_around_title(
+        &self,
+        source: SearchAroundTitleWorkView,
+    ) -> anyhow::Result<Vec<Id<Work>>> {
+        let work_ids = self
+            .repositories
+            .work_repository()
+            .search_around_title(source.try_into()?)
+            .await?
+            .into_iter()
+            .map(|v| v.id)
+            .collect();
+
+        Ok(work_ids)
+    }
+
+    pub async fn search_around_updated_at(
+        &self,
+        source: SearchAroundUpdatedAtWorkView,
+    ) -> anyhow::Result<Vec<Id<Work>>> {
+        let work_ids = self
+            .repositories
+            .work_repository()
+            .search_around_updated_at(source.try_into()?)
+            .await?
+            .into_iter()
+            .map(|v| v.id)
+            .collect();
+
+        Ok(work_ids)
     }
 }

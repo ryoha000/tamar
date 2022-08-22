@@ -1,6 +1,9 @@
 import { createResource, createSignal } from "solid-js";
 import { commandSearchWork, SortColumnKind } from "./commands";
-import { SortKind } from "../components/TopPage/SortSelect";
+import {
+  INITIAL_SELECT_OPTION,
+  SortKind,
+} from "../components/TopPage/SortSelect";
 
 const SEARCH_LIMIT = 30;
 
@@ -8,7 +11,7 @@ const useSearch = () => {
   const [offset, setOffset] = createSignal(0);
   const [text, setText] = createSignal("");
   const [tags, setTags] = createSignal<string[]>([]);
-  const [sortKind, setSortKind] = createSignal<SortKind>("追加日時");
+  const [sortKind, setSortKind] = createSignal<SortKind>(INITIAL_SELECT_OPTION);
   const [isSortDesc, setIsSortDesc] = createSignal(true);
 
   const sortCol = (): SortColumnKind => {
@@ -42,7 +45,7 @@ const useSearch = () => {
 
   // TODO: スクロールでオフセット増やす処理
 
-  return { works, setText };
+  return { works, setText, sortKind, setSortKind };
 };
 
 export default useSearch;

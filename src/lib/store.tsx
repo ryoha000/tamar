@@ -5,6 +5,7 @@ import {
   ParentComponent,
   Resource,
   Setter,
+  Accessor,
 } from "solid-js";
 import useSearch from "./search";
 import { Work } from "./types";
@@ -15,16 +16,20 @@ export interface Store {
   works: Resource<Work[]>;
   setSearchText: Setter<string>;
   workPageMap: Map<string, number>; // key: workId, value: page
+  sortKind: Accessor<string>;
+  setSortKind: (s: string) => void;
 }
 
 export const StoreProvider: ParentComponent = (props) => {
-  const { works, setText } = useSearch();
   const workPageMap = new Map(); // reaactive じゃなくていいためただの Map
+  const { works, setText, sortKind, setSortKind } = useSearch();
 
   const store = {
     works,
     setSearchText: setText,
     workPageMap,
+    sortKind,
+    setSortKind,
   };
 
   return (

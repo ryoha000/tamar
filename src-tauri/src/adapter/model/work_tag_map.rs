@@ -1,5 +1,5 @@
 use crate::kernel::model::work_tag_map::{NewWorkTagMap, WorkTagMap};
-use chrono::{DateTime, Local};
+use chrono::{DateTime, Utc};
 use sqlx::FromRow;
 
 #[derive(FromRow)]
@@ -7,8 +7,8 @@ pub struct WorkTagMapTable {
     pub id: String,
     pub work_id: String,
     pub tag_id: String,
-    pub created_at: DateTime<Local>,
-    pub updated_at: DateTime<Local>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 impl TryFrom<WorkTagMapTable> for WorkTagMap {
@@ -31,8 +31,8 @@ impl TryFrom<NewWorkTagMap> for WorkTagMapTable {
             id: s.id.value.to_string(),
             work_id: s.work_id.value.to_string(),
             tag_id: s.tag_id.value.to_string(),
-            created_at: Local::now(),
-            updated_at: Local::now(),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
         })
     }
 }

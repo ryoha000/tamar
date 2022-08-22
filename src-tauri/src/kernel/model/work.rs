@@ -1,5 +1,5 @@
 use super::{artist::Artist, Id};
-use chrono::{DateTime, Local};
+use chrono::{DateTime, Utc};
 use derive_new::new;
 
 #[derive(new, Debug, Clone)]
@@ -7,8 +7,8 @@ pub struct Work {
     pub id: Id<Work>,
     pub title: String,
     pub artist_id: Id<Artist>,
-    pub created_at: DateTime<Local>,
-    pub updated_at: DateTime<Local>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(new, Debug)]
@@ -32,4 +32,11 @@ pub struct SearchAroundTitleWork {
     pub limit: u8,
     pub is_before: bool,
     pub title: String,
+}
+
+#[derive(new, Debug)]
+pub struct SearchAroundUpdatedAtWork {
+    pub limit: u8,
+    pub is_before: bool,
+    pub updated_at: DateTime<Utc>,
 }

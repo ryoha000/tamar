@@ -1,13 +1,13 @@
 use super::Id;
-use chrono::{DateTime, Local};
+use chrono::{DateTime, Utc};
 use derive_new::new;
 
 #[derive(new, Debug, Clone)]
 pub struct Tag {
     pub id: Id<Tag>,
     pub name: String,
-    pub created_at: DateTime<Local>,
-    pub updated_at: DateTime<Local>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(new, Debug)]

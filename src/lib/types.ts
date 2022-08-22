@@ -13,7 +13,7 @@ export interface Artist {
 export interface Work {
   id: string;
   title: string;
-  dirPath: string;
+  paths: string[];
   artist: Artist;
   tags: Tag[];
   updatedAt: string;

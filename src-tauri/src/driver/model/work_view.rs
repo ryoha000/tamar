@@ -9,7 +9,7 @@ use super::{artist_view::JsonArtistView, tag_view::JsonTagView};
 pub struct JsonWorkView {
     pub id: String,
     pub title: String,
-    pub dir_path: String,
+    pub paths: Vec<String>,
     pub artist: JsonArtistView,
     pub tags: Vec<JsonTagView>,
     pub updated_at: String,
@@ -20,7 +20,7 @@ impl From<WorkView> for JsonWorkView {
         JsonWorkView {
             id: s.id,
             title: s.title,
-            dir_path: s.dir_path,
+            paths: s.paths,
             artist: JsonArtistView::from(s.artist),
             tags: s
                 .tags

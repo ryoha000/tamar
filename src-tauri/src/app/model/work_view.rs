@@ -7,7 +7,7 @@ use super::{artist_view::ArtistView, tag_view::TagView};
 pub struct WorkView {
     pub id: String,
     pub title: String,
-    pub dir_path: String,
+    pub paths: Vec<String>,
     pub artist: ArtistView,
     pub tags: Vec<TagView>,
     pub updated_at: String,
@@ -37,11 +37,11 @@ impl TryFrom<SearchWorkView> for SearchWork {
 }
 
 impl WorkView {
-    pub fn new(work: Work, dir_path: String, artist: ArtistView, tags: Vec<TagView>) -> Self {
+    pub fn new(work: Work, paths: Vec<String>, artist: ArtistView, tags: Vec<TagView>) -> Self {
         Self {
             id: work.id.value.to_string(),
             title: work.title,
-            dir_path,
+            paths,
             artist,
             tags,
             updated_at: work.updated_at.to_string(),

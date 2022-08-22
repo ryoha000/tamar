@@ -1,5 +1,5 @@
-use std::path;
 use std::sync::Arc;
+use std::{fs, path};
 
 use crate::app::model::artist_view::ArtistView;
 use crate::app::model::tag_view::TagView;
@@ -51,15 +51,29 @@ impl<R: RepositoriesModuleExt> WorkViewUseCase<R> {
                 .map(|v| TagView::new(v))
                 .collect();
 
-            let dir_path = path::Path::new("tamar_content");
+            let dir_path = std::env::current_dir()?;
+            let dir_path = dir_path.join(path::Path::new("tamar_content"));
             let dir_path = dir_path.join(path::Path::new(&artist.name));
-            let dir_path = dir_path
-                .join(path::Path::new(&work.title))
-                .to_str()
-                .ok_or(anyhow::anyhow!("can't encode pathbuf -> str"))?
-                .to_string();
+            let dir_path = dir_path.join(path::Path::new(&work.title));
 
-            work_views.push(WorkView::new(work, dir_path, ArtistView::new(artist), tags));
+            let paths = fs::read_dir(dir_path)?;
+            let mut image_paths = Vec::new();
+            for path in paths {
+                image_paths.push(
+                    path?
+                        .path()
+                        .to_str()
+                        .ok_or(anyhow::anyhow!("can't encode pathbuf -> str"))?
+                        .to_string(),
+                );
+            }
+
+            work_views.push(WorkView::new(
+                work,
+                image_paths,
+                ArtistView::new(artist),
+                tags,
+            ));
         }
         Ok(work_views)
     }

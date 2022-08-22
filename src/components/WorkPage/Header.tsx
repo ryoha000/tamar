@@ -3,30 +3,15 @@ import { AiOutlineHome } from "solid-icons/ai";
 import { IoGridOutline } from "solid-icons/io";
 import { Component, createSignal, onMount, Show } from "solid-js";
 import HeaderNextPrev from "../UI/HeaderNextPrev";
+import useHide from "./use/hide";
 
 interface Props {
   openListDialog: () => void;
   workTitle: string;
 }
 
-const HIDDEN_MS = 1000;
 const Header: Component<Props> = (props) => {
-  const [hidden, setHidden] = createSignal(false);
-  const [timer, setTimer] = createSignal(0);
-
-  onMount(() => {
-    setHiddenTimer();
-  });
-  const setHiddenTimer = () => {
-    setTimer(setTimeout(() => setHidden(true), HIDDEN_MS));
-  };
-  const actionStart = () => {
-    clearTimeout(timer());
-    setHidden(false);
-  };
-  const actionEnd = () => {
-    setHiddenTimer();
-  };
+  const { actionStart, actionEnd, hidden } = useHide();
 
   return (
     <div

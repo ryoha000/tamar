@@ -21,6 +21,7 @@ module.exports = {
         "list-box-overlay": 109,
         "list-box": 110,
         header: 50,
+        "work-navigation-overlay": 30,
       },
       minWidth: {
         "3/5": "60%",

@@ -186,7 +186,7 @@ pub async fn import_directory(
 }
 
 fn copy_work_files(work_title: &str, artist_name: &str, work_path: &str) -> anyhow::Result<()> {
-    let copy_root_dir = "tamar_content";
+    let copy_root_dir = "../tamar_content";
 
     let artist_dir_path_buf = path::Path::new(copy_root_dir).join(path::Path::new(artist_name));
     let dst_work_dir_path_buf = artist_dir_path_buf.join(path::Path::new(work_title));

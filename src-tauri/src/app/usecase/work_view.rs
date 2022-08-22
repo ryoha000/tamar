@@ -12,9 +12,7 @@ use crate::{
 };
 use derive_new::new;
 
-use crate::app::model::work_view::{
-    GetWorkView, SearchWorkView, WorkView,
-};
+use crate::app::model::work_view::{GetWorkView, SearchWorkView, WorkView};
 
 #[derive(new)]
 pub struct WorkViewUseCase<R: RepositoriesModuleExt> {
@@ -47,8 +45,7 @@ impl<R: RepositoriesModuleExt> WorkViewUseCase<R> {
             .map(|v| TagView::new(v))
             .collect();
 
-        let dir_path = std::env::current_dir()?;
-        let dir_path = dir_path.join(path::Path::new("tamar_content"));
+        let dir_path = path::Path::new("../tamar_content");
         let dir_path = dir_path.join(path::Path::new(&artist.name));
         let dir_path = dir_path.join(path::Path::new(&work.title));
 
@@ -56,8 +53,7 @@ impl<R: RepositoriesModuleExt> WorkViewUseCase<R> {
         let mut image_paths = Vec::new();
         for path in paths {
             image_paths.push(
-                path?
-                    .path()
+                fs::canonicalize(path?.path())?
                     .to_str()
                     .ok_or(anyhow::anyhow!("can't encode pathbuf -> str"))?
                     .to_string(),

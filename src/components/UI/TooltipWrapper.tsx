@@ -11,11 +11,12 @@ const TooltipWrapper: ParentComponent<Props> = (props) => {
         class={[
           "whitespace-nowrap",
           "rounded",
+          "bg-white",
           "border border-secondary",
           "px-2",
           "py-1",
           "absolute",
-          "top-10",
+          "top-8",
           "left-1/2",
           "-translate-x-1/2",
           "before:content-['']",

@@ -1,6 +1,6 @@
 use crate::adapter::model::work::WorkTable;
 use crate::kernel::model::artist::Artist;
-use crate::kernel::model::work::SearchWork;
+use crate::kernel::model::work::{SearchAroundTitleWork, SearchWork};
 use crate::kernel::{
     model::{
         work::{NewWork, Work},
@@ -86,6 +86,38 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
             .collect())
     }
 
+    async fn search_around_title(
+        &self,
+        source: SearchAroundTitleWork,
+    ) -> anyhow::Result<Vec<Work>> {
+        let mut builder = sqlx::QueryBuilder::new("SELECT * FROM work WHERE title");
+        if source.is_before {
+            builder.push(" < ");
+        } else {
+            builder.push(" > ");
+        }
+        builder.push_bind(format!("{}", source.title));
+
+        builder.push(" ORDER BY title ");
+        if source.is_before {
+            builder.push(" DESC ");
+        } else {
+            builder.push(" ASC ");
+        }
+
+        builder.push(" LIMIT ");
+        builder.push_bind(source.limit);
+
+        let query = builder.build();
+        let pool = self.pool.0.clone();
+        let work_table = query.fetch_all(&*pool).await?;
+
+        Ok(work_table
+            .into_iter()
+            .filter_map(|v| WorkTable::from_row(&v).ok()?.try_into().ok())
+            .collect())
+    }
+
     async fn insert(&self, source: NewWork) -> anyhow::Result<()> {
         let pool = self.pool.0.clone();
         let work_table: WorkTable = source.try_into()?;
@@ -106,7 +138,7 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
 #[cfg(test)]
 mod test {
     use crate::kernel::model::artist::{Artist, NewArtist};
-    use crate::kernel::model::work::{NewWork, SearchWork, Work};
+    use crate::kernel::model::work::{NewWork, SearchAroundTitleWork, SearchWork, Work};
     use crate::kernel::model::Id;
     use crate::kernel::repository::artist::ArtistRepository;
     use crate::kernel::repository::work::WorkRepository;
@@ -239,6 +271,39 @@ mod test {
         assert_eq!(found[0].title, title);
     }
 
+    #[test]
+    fn test_search_work_around_title() {
+        let db = get_test_db();
+        let title_base = random_string();
+        let titles = vec![
+            format!("{}-1", title_base),
+            format!("{}-2", title_base),
+            format!("{}-3", title_base),
+        ];
+
+        let artist_id = Ulid::new();
+        {
+            let artist_name = random_string();
+            insert_artist(db.clone(), NewArtist::new(Id::new(artist_id), artist_name));
+        }
+
+        for title in titles.iter() {
+            let work_id = Ulid::new();
+            insert_work(
+                db.clone(),
+                NewWork::new(Id::new(work_id), (*title).clone(), Id::new(artist_id)),
+            );
+        }
+
+        let source = SearchAroundTitleWork::new(10, true, titles[1].clone());
+        let found = search_around_title(db.clone(), source).unwrap();
+        assert_eq!(found[0].title, titles[0]);
+
+        let source = SearchAroundTitleWork::new(10, false, titles[1].clone());
+        let found = search_around_title(db, source).unwrap();
+        assert_eq!(found[0].title, titles[2]);
+    }
+
     fn insert_artist(db: Db, new_artist: NewArtist) {
         let repository = DatabaseRepositoryImpl::<Artist>::new(db);
         block_on(repository.insert(new_artist)).unwrap()
@@ -266,5 +331,10 @@ mod test {
     fn search(db: Db, source: SearchWork) -> anyhow::Result<Vec<Work>> {
         let repository = DatabaseRepositoryImpl::<Work>::new(db);
         block_on(repository.search(source))
+    }
+
+    fn search_around_title(db: Db, source: SearchAroundTitleWork) -> anyhow::Result<Vec<Work>> {
+        let repository = DatabaseRepositoryImpl::<Work>::new(db);
+        block_on(repository.search_around_title(source))
     }
 }

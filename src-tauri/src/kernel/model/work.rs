@@ -26,3 +26,10 @@ pub struct SearchWork {
     pub sort_desc: bool,
     pub title: String,
 }
+
+#[derive(new, Debug)]
+pub struct SearchAroundTitleWork {
+    pub limit: u8,
+    pub is_before: bool,
+    pub title: String,
+}

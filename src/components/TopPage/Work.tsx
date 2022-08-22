@@ -8,13 +8,18 @@ interface Props {
 }
 
 const Work: Component<Props> = (props) => {
-  const images = () => props.work.paths.map((v) => convertFileSrc(v));
+  const imageSrc = () => {
+    if (!props.work.paths.length) {
+      return "";
+    }
+    return convertFileSrc(props.work.paths[0]);
+  };
 
   return (
     <div class="hover:scale-110 transition-all cursor-pointer">
-      <Show when={images().length}>
-        <Link href={`/work/${props.work.id}/view`}>
-          <img class="object-contain" src={images()[0]} />
+      <Show when={imageSrc()}>
+        <Link href={`/work/${props.work.id}/${1}`}>
+          <img class="object-contain" src={imageSrc()} />
         </Link>
       </Show>
     </div>

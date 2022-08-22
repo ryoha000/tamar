@@ -23,7 +23,7 @@ const Work: Component<Props> = (props) => {
   };
 
   return (
-    <div class="hover:scale-110 transition-all cursor-pointer">
+    <div class="hover:scale-110 hover:shadow-md transition-all cursor-pointer">
       <Show when={imageSrc()}>
         <Link
           href={`/work/${props.work.id}/${workPageMap.get(props.work.id) ?? 0}`}

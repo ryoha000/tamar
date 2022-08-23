@@ -1,4 +1,5 @@
 import { Component, Match, Show, Switch } from "solid-js";
+import ArtistList from "../components/TopPage/ArtistList";
 import Header from "../components/TopPage/Header";
 import WorkList from "../components/TopPage/WorkList";
 import { useStore } from "../lib/store";
@@ -15,7 +16,7 @@ const TopPage: Component = () => {
             <WorkList />
           </Match>
           <Match when={store!.isFilterArtist()}>
-            <WorkList />
+            <ArtistList />
           </Match>
         </Switch>
       </div>

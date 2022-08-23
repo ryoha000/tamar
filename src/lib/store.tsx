@@ -5,9 +5,8 @@ import {
   Setter,
   Accessor,
 } from "solid-js";
-import { SortKind } from "../components/TopPage/SortSelect";
-import { SearchWorkRequest } from "./commands";
 import useOption from "./option";
+import { SearchWorkRequest, SortKind } from "./types";
 
 const StoreContext = createContext<Store>();
 

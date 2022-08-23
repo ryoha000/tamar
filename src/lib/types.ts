@@ -18,3 +18,27 @@ export interface Work {
   tags: Tag[];
   updatedAt: string;
 }
+
+export const SORT_KIND = ["追加日時", "作品名", "閲覧日時"] as const;
+export const INITIAL_SELECT_SORT_OPTION = SORT_KIND[0];
+export type SortKind = typeof SORT_KIND[number];
+
+export const SORT_COLUMNS = ["updated_at", "title"] as const;
+export type SortColumnKind = typeof SORT_COLUMNS[number];
+
+export interface SearchWorkRequest {
+  limit: number;
+  offset: number;
+  search: string;
+  tags: string[];
+  sortCol: SortColumnKind;
+  sortDesc: boolean;
+}
+
+export interface SearchArtistRequest {
+  limit: number;
+  offset: number;
+  search: string;
+  sortCol: SortColumnKind;
+  sortDesc: boolean;
+}

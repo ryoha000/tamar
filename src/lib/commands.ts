@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api";
 import { Usages } from "../components/TopPage/use/dirUsage";
 import { DirPathInfo } from "../components/TopPage/use/exploreDir";
-import { Artist, Work } from "./types";
+import { Artist, SearchArtistRequest, SearchWorkRequest, Work } from "./types";
 
 export const commandImportDirectory = async (
   dirPathInfos: DirPathInfo[],
@@ -9,18 +9,6 @@ export const commandImportDirectory = async (
 ) => {
   await invoke<null>("import_directory", { dirPathInfos, usages });
 };
-
-export const SORT_COLUMNS = ["updated_at", "title"] as const;
-export type SortColumnKind = typeof SORT_COLUMNS[number];
-
-export interface SearchWorkRequest {
-  limit: number;
-  offset: number;
-  search: string;
-  tags: string[];
-  sortCol: SortColumnKind;
-  sortDesc: boolean;
-}
 
 export const commandSearchWork = async (payload: SearchWorkRequest) => {
   return await invoke<Work[]>("search_work", {
@@ -64,14 +52,6 @@ export const commandGetWork = async (id: String) => {
 export const commandSelectWorkByArtist = async (artistId: String) => {
   return await invoke<Work[]>("select_work_by_artist", { artistId });
 };
-
-export interface SearchArtistRequest {
-  limit: number;
-  offset: number;
-  search: string;
-  sortCol: SortColumnKind;
-  sortDesc: boolean;
-}
 
 export const commandSearchArtist = async (payload: SearchArtistRequest) => {
   return await invoke<Artist[]>("search_artist", {

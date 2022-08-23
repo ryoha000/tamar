@@ -1,8 +1,7 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
 import { Accessor, createSignal } from "solid-js";
-import { SortColumnKind } from "../../../lib/commands";
-import type { Work } from "../../../lib/types";
+import type { SortColumnKind, Work } from "../../../lib/types";
 import useWorkIdsCache from "./workIdsCache";
 
 const LIMIT = 20;
@@ -80,6 +79,7 @@ const usePage = (
     const nextIndex = currentIndex + step;
     if (currentIndex === -1 || nextIndex < 0 || nextIndex >= workIds().length) {
       const value = sortCol() === "title" ? _work.title : _work.updatedAt;
+      // TODO: artist filter
       await fetchWorkIds({
         currentWorkId: workId,
         isBefore: step > 0,

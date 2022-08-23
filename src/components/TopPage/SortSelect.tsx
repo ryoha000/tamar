@@ -1,12 +1,9 @@
-import { Component, createSignal, Setter, Show } from "solid-js";
+import { Component, Setter } from "solid-js";
 import { FaSolidArrowDownWideShort } from "solid-icons/fa";
 import ToggleIconButton from "../UI/ToggleIconButton";
 import TooltipWrapper from "../UI/TooltipWrapper";
 import DropDownMenu from "../UI/DropDownMenu";
-
-export const SORT_KIND = ["追加日時", "作品名", "閲覧日時"] as const;
-export const INITIAL_SELECT_OPTION = SORT_KIND[0];
-export type SortKind = typeof SORT_KIND[number];
+import { SortKind, SORT_KIND } from "../../lib/types";
 
 interface Props {
   selected: SortKind;

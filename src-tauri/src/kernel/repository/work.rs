@@ -15,6 +15,7 @@ pub trait WorkRepository {
         source: SearchAroundUpdatedAtWork,
     ) -> anyhow::Result<Vec<Work>>;
     async fn find(&self, id: &Id<Work>) -> anyhow::Result<Option<Work>>;
+    async fn find_by_artist(&self, id: &Id<Artist>) -> anyhow::Result<Vec<Work>>;
     async fn find_by_title_and_artist(
         &self,
         title: String,

@@ -54,6 +54,18 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
         }
     }
 
+    async fn find_by_artist(&self, artist_id: &Id<Artist>) -> anyhow::Result<Vec<Work>> {
+        let pool = self.pool.0.clone();
+        let work_table = query_as::<_, WorkTable>("select * from work where artist_id = ?")
+            .bind(artist_id.value.to_string())
+            .fetch_all(&*pool)
+            .await?;
+        Ok(work_table
+            .into_iter()
+            .filter_map(|st| st.try_into().ok())
+            .collect())
+    }
+
     async fn find_by_title_and_artist(
         &self,
         title: String,
@@ -256,6 +268,41 @@ mod test {
 
         let found = find_work_by_title_and_artist(db, title, &Id::new(artist_id));
         assert!(found.is_none());
+    }
+
+    #[test]
+    fn test_find_work_by_artist() {
+        let db = get_test_db();
+
+        let artist_id = Ulid::new();
+        insert_artist(
+            db.clone(),
+            NewArtist::new(Id::new(artist_id), random_string()),
+        );
+        let work_id = Ulid::new();
+        insert_work(
+            db.clone(),
+            NewWork::new(Id::new(work_id), random_string(), Id::new(artist_id)),
+        );
+
+        let artist_fake_id = Ulid::new();
+        insert_artist(
+            db.clone(),
+            NewArtist::new(Id::new(artist_fake_id), random_string()),
+        );
+        insert_work(
+            db.clone(),
+            NewWork::new(
+                Id::new(Ulid::new()),
+                random_string(),
+                Id::new(artist_fake_id),
+            ),
+        );
+
+        let found = find_work_by_artist(db, &Id::new(artist_id));
+
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0].id.value, work_id);
     }
 
     #[test]
@@ -486,6 +533,11 @@ mod test {
     ) -> Option<Work> {
         let repository = DatabaseRepositoryImpl::<Work>::new(db);
         block_on(repository.find_by_title_and_artist(title, artist_id)).unwrap()
+    }
+
+    fn find_work_by_artist(db: Db, artist_id: &Id<Artist>) -> Vec<Work> {
+        let repository = DatabaseRepositoryImpl::<Work>::new(db);
+        block_on(repository.find_by_artist(artist_id)).unwrap()
     }
 
     fn search(db: Db, source: SearchWork) -> anyhow::Result<Vec<Work>> {

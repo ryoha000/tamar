@@ -14,6 +14,14 @@ module.exports = {
         error: "var(--color-error)",
         white: "var(--color-white)",
         text: "var(--color-text)",
+        // white opacity(for use bg)
+        "white-opacity-10": "var(--color-white-opacity-10)",
+        "white-opacity-20": "var(--color-white-opacity-20)",
+        "white-opacity-30": "var(--color-white-opacity-30)",
+        "white-opacity-50": "var(--color-white-opacity-50)",
+        "white-opacity-70": "var(--color-white-opacity-70)",
+        "white-opacity-80": "var(--color-white-opacity-80)",
+        "white-opacity-90": "var(--color-white-opacity-90)",
       },
       zIndex: {
         "dialog-overlay": 104,
@@ -22,6 +30,7 @@ module.exports = {
         "list-box": 110,
         header: 50,
         "work-navigation-overlay": 30,
+        "artist-navigation-overlay": 30,
       },
       minWidth: {
         "3/5": "60%",

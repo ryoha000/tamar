@@ -5,6 +5,15 @@
   --color-accent: #FCB173;
   --color-error:#ff1744;
   --color-white: #FFFFFF;
+
+  --color-white-opacity-10: rgba(255, 255, 255, 0.1);
+  --color-white-opacity-20: rgba(255, 255, 255, 0.2);
+  --color-white-opacity-30: rgba(255, 255, 255, 0.3);
+  --color-white-opacity-50: rgba(255, 255, 255, 0.5);
+  --color-white-opacity-70: rgba(255, 255, 255, 0.7);
+  --color-white-opacity-80: rgba(255, 255, 255, 0.8);
+  --color-white-opacity-90: rgba(255, 255, 255, 0.9);
+
   --color-text: #000a12;
 }
 
@@ -20,3 +29,17 @@ body {
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  .hidden-scrollbar {
+    -ms-overflow-style: none;
+    /* IE, Edge 対応 */
+    scrollbar-width: none;
+    /* Firefox 対応 */
+  }
+
+  .hidden-scrollbar::-webkit-scrollbar {
+    /* Chrome, Safari 対応 */
+    display: none;
+  }
+}

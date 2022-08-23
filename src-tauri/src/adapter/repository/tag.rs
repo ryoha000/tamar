@@ -56,6 +56,18 @@ impl TagRepository for DatabaseRepositoryImpl<Tag> {
         }
     }
 
+    async fn search_by_name(&self, name: &str) -> anyhow::Result<Vec<Tag>> {
+        let pool = self.pool.0.clone();
+        let tag_table = query_as::<_, TagTable>("select * from tag where name LIKE ?")
+            .bind(format!("%{}%", name))
+            .fetch_all(&*pool)
+            .await?;
+        Ok(tag_table
+            .into_iter()
+            .filter_map(|v| v.try_into().ok())
+            .collect())
+    }
+
     async fn insert(&self, source: NewTag) -> anyhow::Result<()> {
         let pool = self.pool.0.clone();
         let tag_table: TagTable = source.try_into()?;
@@ -76,7 +88,7 @@ mod test {
     use crate::kernel::model::tag::{NewTag, Tag};
     use crate::kernel::model::Id;
     use crate::kernel::repository::tag::TagRepository;
-    use crate::test_util::{random_string, get_test_db};
+    use crate::test_util::{get_test_db, random_string};
     use tauri::async_runtime::block_on;
     use ulid::Ulid;
 
@@ -118,6 +130,23 @@ mod test {
     }
 
     #[test]
+    fn test_search_tag_by_name() {
+        let db = get_test_db();
+        let id = Ulid::new();
+        let text = random_string();
+        let name = format!("{}-tag", text);
+
+        insert_tag(db.clone(), NewTag::new(Id::new(id), name));
+        insert_tag(
+            db.clone(),
+            NewTag::new(Id::new(Ulid::new()), random_string()),
+        );
+        let found = search_tag_by_name(db, &text);
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0].id.value, id);
+    }
+
+    #[test]
     fn test_find_tag_by_ids() {
         let db = get_test_db();
 
@@ -153,6 +182,11 @@ mod test {
     fn find_tag_by_name(db: Db, name: String) -> Option<Tag> {
         let repository = DatabaseRepositoryImpl::new(db);
         block_on(repository.find_by_name(name)).unwrap()
+    }
+
+    fn search_tag_by_name(db: Db, name: &str) -> Vec<Tag> {
+        let repository = DatabaseRepositoryImpl::new(db);
+        block_on(repository.search_by_name(name)).unwrap()
     }
 
     fn find_tag_by_ids(db: Db, ids: &Vec<Id<Tag>>) -> Vec<Tag> {

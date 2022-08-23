@@ -20,9 +20,10 @@ pub async fn search_work(
     sort_col: String,
     sort_desc: bool,
 ) -> anyhow::Result<Vec<JsonWorkView>, CommandError> {
-    // TODO: タグを用いた検索
-    // TODO: search を artist にも適用(search が空文字の時はスキップ)
-    // TODO: search を tag にも適用(search が空文字の時はスキップ)
+    //! まぎらわしい仕様についてのメモ /
+    //! tags の指定は AND 検索になる ( tags を指定するとその tag を持たない work は表示されない) /
+
+    // TODO: タグを用いた検索(SearchWorkView に `work`.`id` IN (?) 用のプロパティを生やす)
 
     let works = modules
         .work_view_use_case()

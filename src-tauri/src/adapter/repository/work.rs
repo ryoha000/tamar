@@ -80,7 +80,7 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
             _ => anyhow::bail!("sort_col is invalid. sort_col: {}", source.sort_col),
         }
 
-        let is_use_where = source.title.len() != 0;
+        let is_search = source.text.len() != 0;
 
         let sort_order_sql;
         match source.sort_desc {
@@ -88,10 +88,17 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
             false => sort_order_sql = "ASC",
         }
 
-        let mut builder = sqlx::QueryBuilder::new("SELECT * FROM work");
-        if is_use_where {
-            builder.push(" WHERE title LIKE ");
-            builder.push_bind(format!("%{}%", source.title));
+        let mut builder = sqlx::QueryBuilder::new("");
+        if is_search {
+            builder.push("SELECT `work`.`id` AS `id`, `work`.`title` AS `title`, `work`.`artist_id` AS `artist_id`, `work`.`created_at` AS `created_at`, `work`.`updated_at` AS `updated_at` FROM work");
+            builder.push(" INNER JOIN artist ON `work`.`artist_id` = `artist`.`id` ");
+            builder.push(" WHERE `work`.`title` LIKE ");
+            builder.push_bind(format!("%{}%", source.text));
+
+            builder.push(" OR `artist`.`name` LIKE ");
+            builder.push_bind(format!("%{}%", source.text));
+        } else {
+            builder.push("SELECT * FROM work");
         }
 
         builder.push(format!(" ORDER BY {} {} ", source.sort_col, sort_order_sql));
@@ -311,6 +318,83 @@ mod test {
         assert_eq!(found.len(), 1);
         assert_eq!(found[0].id.value, work_id);
         assert_eq!(found[0].title, title);
+    }
+
+    #[test]
+    fn test_search_work_with_name() {
+        let db = get_test_db();
+        let artist_name = random_string();
+        let search_name = artist_name
+            .chars()
+            .enumerate()
+            .filter(|&(i, _)| i > 0) // unique
+            .fold("".to_string(), |s, (_, c)| format!("{}{}", s, c));
+        let source = SearchWork::new(10, 0, "updated_at".to_string(), true, search_name);
+
+        let artist_id = Ulid::new();
+        insert_artist(db.clone(), NewArtist::new(Id::new(artist_id), artist_name));
+
+        let work_id = Ulid::new();
+        insert_work(
+            db.clone(),
+            NewWork::new(Id::new(work_id), random_string(), Id::new(artist_id)),
+        );
+
+        let found = search(db, source).unwrap();
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0].id.value, work_id);
+    }
+
+    #[test]
+    fn test_search_work_with_title_name() {
+        let db = get_test_db();
+        let base = random_string();
+        let name = format!("{}-artist", &base);
+        let title = format!("{}-title", &base);
+
+        let mut expected_ids = vec![];
+
+        let source = SearchWork::new(10, 0, "updated_at".to_string(), true, base);
+
+        // 検索に引っかかる artist_id
+        let artist_id = Ulid::new();
+        insert_artist(db.clone(), NewArtist::new(Id::new(artist_id), name));
+
+        // 検索に引っかからない artist_id
+        let artist_fake_id = Ulid::new();
+        insert_artist(
+            db.clone(),
+            NewArtist::new(Id::new(artist_fake_id), random_string()),
+        );
+
+        // 検索に引っかかる
+        let work_id = Ulid::new();
+        expected_ids.push(work_id.clone());
+        insert_work(
+            db.clone(),
+            NewWork::new(Id::new(work_id), random_string(), Id::new(artist_id)),
+        );
+
+        // 検索に引っかかる
+        let work_id = Ulid::new();
+        expected_ids.push(work_id.clone());
+        insert_work(
+            db.clone(),
+            NewWork::new(Id::new(work_id), title, Id::new(artist_fake_id)),
+        );
+
+        // 検索に引っかからない
+        let work_id = Ulid::new();
+        insert_work(
+            db.clone(),
+            NewWork::new(Id::new(work_id), random_string(), Id::new(artist_fake_id)),
+        );
+
+        let found = search(db, source).unwrap();
+        assert_eq!(found.len(), 2);
+        // sort_desc -> true なので逆順
+        assert_eq!(found[0].id.value, expected_ids[1]);
+        assert_eq!(found[1].id.value, expected_ids[0]);
     }
 
     #[test]

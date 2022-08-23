@@ -24,7 +24,7 @@ pub struct SearchWork {
     pub offset: u8,
     pub sort_col: String,
     pub sort_desc: bool,
-    pub title: String,
+    pub text: String,
 }
 
 #[derive(new, Debug)]

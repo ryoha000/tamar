@@ -22,7 +22,7 @@ pub struct SearchWorkView {
     pub offset: u8,
     pub sort_col: String,
     pub sort_desc: bool,
-    pub title: String,
+    pub text: String,
 }
 
 impl TryFrom<SearchWorkView> for SearchWork {
@@ -34,7 +34,7 @@ impl TryFrom<SearchWorkView> for SearchWork {
             c.offset,
             c.sort_col,
             c.sort_desc,
-            c.title,
+            c.text,
         ))
     }
 }

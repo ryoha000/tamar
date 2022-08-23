@@ -1,5 +1,3 @@
-use tauri::async_runtime::block_on;
-
 use crate::adapter::persistence::sqlite::Db;
 
 pub const UNKNOWN_ARTIST_NAME: &str = "Unknown Artist";
@@ -18,7 +16,10 @@ pub async fn migration() {
     println!("end migration");
 }
 
+#[cfg(test)]
 pub fn migration_sync(db: Db) {
+    use tauri::async_runtime::block_on;
+
     let pool = db.0.clone();
 
     let sqls = get_migration_sqls();
@@ -51,14 +52,17 @@ CREATE TABLE IF NOT EXISTS work (
     "
     .to_string();
 
-    let work_title_index = "CREATE INDEX work_title_index ON work(title);".to_string();
-    let work_artist_id_index = "CREATE INDEX work_artist_id_index ON work(artist_id);".to_string();
+    let work_title_index =
+        "CREATE INDEX IF NOT EXISTS work_title_index ON work(title);".to_string();
+    let work_artist_id_index =
+        "CREATE INDEX IF NOT EXISTS work_artist_id_index ON work(artist_id);".to_string();
     let work_updated_at_index =
-        "CREATE INDEX work_updated_at_index ON work(updated_at);".to_string();
+        "CREATE INDEX IF NOT EXISTS work_updated_at_index ON work(updated_at);".to_string();
     let work_artist_id_updated_at_index =
-        "CREATE INDEX work_artist_id_updated_at_index ON work(artist_id, updated_at);".to_string();
+        "CREATE INDEX IF NOT EXISTS work_artist_id_updated_at_index ON work(artist_id, updated_at);".to_string();
     let work_title_updated_at_index =
-        "CREATE INDEX work_title_updated_at_index ON work(title, updated_at);".to_string();
+        "CREATE INDEX IF NOT EXISTS work_title_updated_at_index ON work(title, updated_at);"
+            .to_string();
 
     let tag = "
 CREATE TABLE IF NOT EXISTS tag (

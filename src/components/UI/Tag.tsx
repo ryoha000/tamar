@@ -5,6 +5,7 @@ import type { Tag as TagI } from "../../lib/types";
 interface Props {
   tag: TagI;
   isCloseIcon?: boolean;
+  onclick?: () => void;
   close?: () => void;
 }
 const randamRGB = () => {

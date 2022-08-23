@@ -40,6 +40,18 @@ impl ArtistRepository for DatabaseRepositoryImpl<Artist> {
         }
     }
 
+    async fn search_by_name(&self, name: &str) -> anyhow::Result<Vec<Artist>> {
+        let pool = self.pool.0.clone();
+        let artist_table = query_as::<_, ArtistTable>("select * from artist where name LIKE ?")
+            .bind(format!("%{}%", name))
+            .fetch_all(&*pool)
+            .await?;
+        Ok(artist_table
+            .into_iter()
+            .filter_map(|v| v.try_into().ok())
+            .collect())
+    }
+
     async fn search_also_using_work(
         &self,
         source: SearchAlsoUsingWorkArtist,
@@ -153,6 +165,23 @@ mod test {
         let found = find_artist_by_name(db, name.to_string()).unwrap();
         assert_eq!(found.id.value, id);
         assert_eq!(found.name, name.to_string());
+    }
+
+    #[test]
+    fn test_search_artist_by_name() {
+        let db = get_test_db();
+        let id = Ulid::new();
+        let text = random_string();
+        let name = format!("{}-artist", &text);
+
+        insert_artist(db.clone(), NewArtist::new(Id::new(id), name));
+        insert_artist(
+            db.clone(),
+            NewArtist::new(Id::new(Ulid::new()), random_string()),
+        );
+        let found = search_artist_by_name(db, &text);
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0].id.value, id);
     }
 
     #[test]
@@ -297,6 +326,11 @@ mod test {
     fn find_artist_by_name(db: Db, name: String) -> Option<Artist> {
         let repository = DatabaseRepositoryImpl::<Artist>::new(db);
         block_on(repository.find_by_name(name)).unwrap()
+    }
+
+    fn search_artist_by_name(db: Db, name: &str) -> Vec<Artist> {
+        let repository = DatabaseRepositoryImpl::<Artist>::new(db);
+        block_on(repository.search_by_name(name)).unwrap()
     }
 
     fn insert_work(db: Db, source: NewWork) {

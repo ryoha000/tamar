@@ -8,6 +8,7 @@ use async_trait::async_trait;
 pub trait ArtistRepository {
     async fn find(&self, id: &Id<Artist>) -> anyhow::Result<Option<Artist>>;
     async fn find_by_name(&self, name: String) -> anyhow::Result<Option<Artist>>;
+    async fn search_by_name(&self, name: &str) -> anyhow::Result<Vec<Artist>>;
     async fn search_also_using_work(
         &self,
         source: SearchAlsoUsingWorkArtist,

@@ -5,6 +5,7 @@ import {
   Setter,
   Accessor,
 } from "solid-js";
+import { SortKind } from "../components/TopPage/SortSelect";
 import { SearchWorkRequest } from "./commands";
 import useOption from "./option";
 
@@ -13,10 +14,10 @@ const StoreContext = createContext<Store>();
 export interface Store {
   setSearchText: Setter<string>;
   workPageMap: Map<string, number>; // key: workId, value: page
-  sortKind: Accessor<string>;
-  setSortKind: (s: string) => void;
+  sortKind: Accessor<SortKind>;
+  setSortKind: Setter<SortKind>;
   isSortDesc: Accessor<boolean>;
-  setIsSortDesc: (b: boolean) => void;
+  setIsSortDesc: Setter<boolean>;
   sortCol: () => "updated_at" | "title";
   searchRequest: () => SearchWorkRequest;
   isFilterArtist: Accessor<boolean>;

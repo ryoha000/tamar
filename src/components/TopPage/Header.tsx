@@ -14,8 +14,13 @@ const Header: Component = () => {
     <Show when={store}>
       <div class="flex items-center bg-white px-4 py-2 gap-2 fixed top-0 left-0 w-full z-header h-header">
         <HeaderNextPrev />
-        <SearchInput />
-        <SortSelect />
+        <SearchInput setText={store!.setSearchText} />
+        <SortSelect
+          selected={store!.sortKind()}
+          select={store!.setSortKind}
+          isDesc={store!.isSortDesc()}
+          toggleDesc={() => store!.setIsSortDesc((prev) => !prev)}
+        />
         <ByArtistToggle
           isFilter={store!.isFilterArtist()}
           toggle={() => store!.setIsFilterArtist((prev) => !prev)}

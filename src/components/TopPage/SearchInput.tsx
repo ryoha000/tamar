@@ -1,15 +1,12 @@
-import type { Component } from "solid-js";
+import type { Component, Setter } from "solid-js";
 import { AiOutlineSearch } from "solid-icons/ai";
 import Tag from "../UI/Tag";
-import { useStore } from "../../lib/store";
 
-const SearchInput: Component = () => {
-  const store = useStore();
-  if (!store) {
-    return <div>loading</div>;
-  }
+interface Props {
+  setText: Setter<string>;
+}
 
-  const { setSearchText } = store;
+const SearchInput: Component<Props> = (props) => {
   return (
     <div class="flex items-center border-solid border-text border rounded-full px-3 py-1 gap-2 transition-all focus-within:border-accent flex-1">
       <AiOutlineSearch />
@@ -22,7 +19,7 @@ const SearchInput: Component = () => {
         class="w-full focus:outline-none"
         type="text"
         // @ts-ignore
-        oninput={(e) => setSearchText(e.target.value)}
+        oninput={(e) => props.setText(e.target.value)}
       ></input>
     </div>
   );

@@ -74,3 +74,9 @@ export const commandSearchArtist = async (payload: {
     sortDesc: payload.sortDesc,
   });
 };
+
+export const commandGetArtist = async (artist_id: string) => {
+  return await invoke<Artist>("get_artist", {
+    id: artist_id,
+  });
+};

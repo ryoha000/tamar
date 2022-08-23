@@ -3,8 +3,11 @@ use std::sync::Arc;
 
 use crate::{
     adapter::modules::RepositoriesModuleExt,
-    app::model::artist_view::{ArtistView, SearchArtistView},
-    kernel::repository::artist::ArtistRepository,
+    app::model::artist_view::{ArtistView, GetArtistView, SearchArtistView},
+    kernel::{
+        model::{artist::Artist, Id},
+        repository::artist::ArtistRepository,
+    },
 };
 
 #[derive(new)]
@@ -24,5 +27,18 @@ impl<R: RepositoriesModuleExt> ArtistViewUseCase<R> {
             .collect();
 
         Ok(artists)
+    }
+
+    pub async fn get(&self, source: GetArtistView) -> anyhow::Result<ArtistView> {
+        let id = Id::<Artist>::new(ulid::Ulid::from_string(&source.id)?);
+
+        let artist = self
+            .repositories
+            .artist_repository()
+            .find(&id)
+            .await?
+            .ok_or(anyhow::anyhow!("artist is not found"))?;
+
+        Ok(ArtistView::new(artist))
     }
 }

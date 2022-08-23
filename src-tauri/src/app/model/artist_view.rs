@@ -40,3 +40,8 @@ impl TryFrom<SearchArtistView> for SearchAlsoUsingWorkArtist {
         ))
     }
 }
+
+#[derive(new)]
+pub struct GetArtistView {
+    pub id: String,
+}

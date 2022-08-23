@@ -1,19 +1,16 @@
 import {
-  createSignal,
   createContext,
   useContext,
   ParentComponent,
-  Resource,
   Setter,
   Accessor,
 } from "solid-js";
-import useSearch from "./search";
-import { Work } from "./types";
+import { SearchWorkRequest } from "./commands";
+import useOption from "./option";
 
 const StoreContext = createContext<Store>();
 
 export interface Store {
-  works: Resource<Work[]>;
   setSearchText: Setter<string>;
   workPageMap: Map<string, number>; // key: workId, value: page
   sortKind: Accessor<string>;
@@ -21,22 +18,22 @@ export interface Store {
   isSortDesc: Accessor<boolean>;
   setIsSortDesc: (b: boolean) => void;
   sortCol: () => "updated_at" | "title";
+  searchRequest: () => SearchWorkRequest;
 }
 
 export const StoreProvider: ParentComponent = (props) => {
   const workPageMap = new Map(); // reaactive じゃなくていいためただの Map
   const {
-    works,
     setText,
     sortKind,
     setSortKind,
     isSortDesc,
     setIsSortDesc,
     sortCol,
-  } = useSearch();
+    request,
+  } = useOption();
 
   const store = {
-    works,
     setSearchText: setText,
     workPageMap,
     sortKind,
@@ -44,6 +41,7 @@ export const StoreProvider: ParentComponent = (props) => {
     isSortDesc,
     sortCol,
     setIsSortDesc,
+    searchRequest: request,
   };
 
   return (

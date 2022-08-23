@@ -7,12 +7,13 @@ import {
 
 const SEARCH_LIMIT = 30;
 
-const useSearch = () => {
+const useOption = () => {
   const [offset, setOffset] = createSignal(0);
   const [text, setText] = createSignal("");
   const [tags, setTags] = createSignal<string[]>([]);
   const [sortKind, setSortKind] = createSignal<SortKind>(INITIAL_SELECT_OPTION);
   const [isSortDesc, setIsSortDesc] = createSignal(true);
+  const [isFilterArtist, setIsFilterArtist] = createSignal(true);
 
   const sortCol = (): SortColumnKind => {
     const kind = sortKind();
@@ -30,7 +31,7 @@ const useSearch = () => {
     }
   };
 
-  const payload = () => ({
+  const request = () => ({
     limit: SEARCH_LIMIT,
     offset: offset(),
     search: text(),
@@ -39,21 +40,19 @@ const useSearch = () => {
     sortDesc: isSortDesc(),
   });
 
-  const [works, { refetch }] = createResource(payload, commandSearchWork, {
-    initialValue: [],
-  });
-
   // TODO: スクロールでオフセット増やす処理
 
   return {
-    works,
+    request,
     setText,
     sortKind,
     setSortKind,
     isSortDesc,
     setIsSortDesc,
     sortCol,
+    isFilterArtist,
+    setIsFilterArtist,
   };
 };
 
-export default useSearch;
+export default useOption;

@@ -6,7 +6,7 @@ import {
   Accessor,
 } from "solid-js";
 import useOption from "./option";
-import { SearchWorkRequest, SortKind } from "./types";
+import { SearchWorkRequest, SortKind, Tag } from "./types";
 
 const StoreContext = createContext<Store>();
 
@@ -21,6 +21,8 @@ export interface Store {
   searchRequest: () => SearchWorkRequest;
   isFilterArtist: Accessor<boolean>;
   setIsFilterArtist: Setter<boolean>;
+  searchTags: Accessor<Tag[]>;
+  setSearchTags: Setter<Tag[]>;
 }
 
 export const StoreProvider: ParentComponent = (props) => {
@@ -35,9 +37,11 @@ export const StoreProvider: ParentComponent = (props) => {
     request,
     isFilterArtist,
     setIsFilterArtist,
+    tags,
+    setTags,
   } = useOption();
 
-  const store = {
+  const store: Store = {
     setSearchText: setText,
     workPageMap,
     sortKind,
@@ -48,6 +52,8 @@ export const StoreProvider: ParentComponent = (props) => {
     searchRequest: request,
     isFilterArtist,
     setIsFilterArtist,
+    searchTags: tags,
+    setSearchTags: setTags,
   };
 
   return (

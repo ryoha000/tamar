@@ -9,7 +9,7 @@ use super::{artist_view::JsonArtistView, tag_view::JsonTagView};
 pub struct JsonWorkView {
     pub id: String,
     pub title: String,
-    pub paths: Vec<String>,
+    pub paths: Vec<String>, // TODO: 最初の一つでよさそう
     pub artist: JsonArtistView,
     pub tags: Vec<JsonTagView>,
     pub updated_at: String,

@@ -1,4 +1,6 @@
-use crate::kernel::model::artist::Artist;
+use derive_new::new;
+
+use crate::kernel::model::artist::{Artist, SearchAlsoUsingWorkArtist};
 
 pub struct ArtistView {
     pub id: String,
@@ -13,5 +15,28 @@ impl ArtistView {
             name: artist.name,
             updated_at: artist.updated_at.to_string(),
         }
+    }
+}
+
+#[derive(new)]
+pub struct SearchArtistView {
+    pub limit: u8,
+    pub offset: u8,
+    pub sort_col: String,
+    pub sort_desc: bool,
+    pub text: String,
+}
+
+impl TryFrom<SearchArtistView> for SearchAlsoUsingWorkArtist {
+    type Error = anyhow::Error;
+
+    fn try_from(c: SearchArtistView) -> anyhow::Result<Self> {
+        Ok(SearchAlsoUsingWorkArtist::new(
+            c.limit,
+            c.offset,
+            c.sort_col,
+            c.sort_desc,
+            c.text,
+        ))
     }
 }

@@ -19,6 +19,8 @@ export interface Store {
   setIsSortDesc: (b: boolean) => void;
   sortCol: () => "updated_at" | "title";
   searchRequest: () => SearchWorkRequest;
+  isFilterArtist: Accessor<boolean>;
+  setIsFilterArtist: Setter<boolean>;
 }
 
 export const StoreProvider: ParentComponent = (props) => {
@@ -31,6 +33,8 @@ export const StoreProvider: ParentComponent = (props) => {
     setIsSortDesc,
     sortCol,
     request,
+    isFilterArtist,
+    setIsFilterArtist,
   } = useOption();
 
   const store = {
@@ -42,6 +46,8 @@ export const StoreProvider: ParentComponent = (props) => {
     sortCol,
     setIsSortDesc,
     searchRequest: request,
+    isFilterArtist,
+    setIsFilterArtist,
   };
 
   return (

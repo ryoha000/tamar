@@ -22,6 +22,11 @@ body {
   overflow-x: hidden;
 }
 
+/* https: //stackoverflow.com/questions/20937475/remove-datalist-dropdown-arrow-in-chrome */
+input[list]::-webkit-calendar-picker-indicator {
+  display: none !important;
+}
+
 *:focus {
   outline: none;
 }

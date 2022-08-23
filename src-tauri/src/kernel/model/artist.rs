@@ -15,3 +15,12 @@ pub struct NewArtist {
     pub id: Id<Artist>,
     pub name: String,
 }
+
+#[derive(new, Debug)]
+pub struct SearchAlsoUsingWorkArtist {
+    pub limit: u8,
+    pub offset: u8,
+    pub sort_col: String,
+    pub sort_desc: bool,
+    pub text: String,
+}

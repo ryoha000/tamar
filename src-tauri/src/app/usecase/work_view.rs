@@ -3,7 +3,9 @@ use std::{fs, path};
 
 use crate::app::model::artist_view::ArtistView;
 use crate::app::model::tag_view::TagView;
+use crate::kernel::model::artist::Artist;
 use crate::kernel::model::work::Work;
+use crate::kernel::model::Id;
 use crate::kernel::repository::tag::TagRepository;
 use crate::kernel::repository::work::WorkRepository;
 use crate::kernel::repository::work_tag_map::WorkTagMapRepository;
@@ -12,7 +14,7 @@ use crate::{
 };
 use derive_new::new;
 
-use crate::app::model::work_view::{GetWorkView, SearchWorkView, WorkView};
+use crate::app::model::work_view::{GetWorkView, SearchWorkView, SelectByArtistView, WorkView};
 
 #[derive(new)]
 pub struct WorkViewUseCase<R: RepositoriesModuleExt> {
@@ -84,6 +86,24 @@ impl<R: RepositoriesModuleExt> WorkViewUseCase<R> {
             .repositories
             .work_repository()
             .search(source.try_into()?)
+            .await?;
+        let mut work_views = Vec::new();
+        for work in works.into_iter() {
+            work_views.push(self.get_work_view_from_work(work).await?);
+        }
+        Ok(work_views)
+    }
+
+    pub async fn select_by_artist(
+        &self,
+        source: SelectByArtistView,
+    ) -> anyhow::Result<Vec<WorkView>> {
+        let id = Id::<Artist>::new(ulid::Ulid::from_string(&source.id)?);
+
+        let works = self
+            .repositories
+            .work_repository()
+            .find_by_artist(&id)
             .await?;
         let mut work_views = Vec::new();
         for work in works.into_iter() {

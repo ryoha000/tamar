@@ -36,6 +36,7 @@ fn main() {
             driver::command::import_directory::import_directory,
             driver::command::work_view::search_work,
             driver::command::work_view::get_work,
+            driver::command::work_view::select_work_by_artist,
             driver::command::work::search_around_title_work,
             driver::command::work::search_around_updated_at_work,
             driver::command::artist_view::search_artist,

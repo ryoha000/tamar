@@ -43,6 +43,11 @@ pub struct GetWorkView {
     pub id: Id<Work>,
 }
 
+#[derive(new)]
+pub struct SelectByArtistView {
+    pub id: String,
+}
+
 impl GetWorkView {
     pub fn new(id: String) -> anyhow::Result<Self> {
         Ok(Self {

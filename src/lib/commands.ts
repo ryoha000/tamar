@@ -59,6 +59,10 @@ export const commandGetWork = async (id: String) => {
   return await invoke<Work>("get_work", { id });
 };
 
+export const commandSelectWorkByArtist = async (artistId: String) => {
+  return await invoke<Work[]>("select_work_by_artist", { artistId });
+};
+
 export const commandSearchArtist = async (payload: {
   limit: number;
   offset: number;

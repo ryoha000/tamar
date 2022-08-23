@@ -2,7 +2,7 @@ use std::sync::Arc;
 use tauri::State;
 
 use crate::{
-    app::model::work_view::{GetWorkView, SearchWorkView},
+    app::model::work_view::{GetWorkView, SearchWorkView, SelectByArtistView},
     driver::{
         context::errors::CommandError,
         model::work_view::JsonWorkView,
@@ -53,4 +53,21 @@ pub async fn get_work(
         .await?;
 
     Ok(JsonWorkView::from(work))
+}
+
+#[tauri::command]
+pub async fn select_work_by_artist(
+    modules: State<'_, Arc<Modules>>,
+    artist_id: String,
+) -> anyhow::Result<Vec<JsonWorkView>, CommandError> {
+    // TODO: limit が必要か考える
+    let works = modules
+        .work_view_use_case()
+        .select_by_artist(SelectByArtistView::new(artist_id))
+        .await?
+        .into_iter()
+        .map(|v| JsonWorkView::from(v))
+        .collect();
+
+    Ok(works)
 }

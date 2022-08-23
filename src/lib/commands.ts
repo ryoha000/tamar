@@ -13,14 +13,16 @@ export const commandImportDirectory = async (
 export const SORT_COLUMNS = ["updated_at", "title"] as const;
 export type SortColumnKind = typeof SORT_COLUMNS[number];
 
-export const commandSearchWork = async (payload: {
+export interface SearchWorkRequest {
   limit: number;
   offset: number;
   search: string;
   tags: string[];
-  sortCol: string;
+  sortCol: SortColumnKind;
   sortDesc: boolean;
-}) => {
+}
+
+export const commandSearchWork = async (payload: SearchWorkRequest) => {
   return await invoke<Work[]>("search_work", {
     limit: payload.limit,
     offset: payload.offset,
@@ -63,13 +65,15 @@ export const commandSelectWorkByArtist = async (artistId: String) => {
   return await invoke<Work[]>("select_work_by_artist", { artistId });
 };
 
-export const commandSearchArtist = async (payload: {
+export interface SearchArtistRequest {
   limit: number;
   offset: number;
   search: string;
-  sortCol: string;
+  sortCol: SortColumnKind;
   sortDesc: boolean;
-}) => {
+}
+
+export const commandSearchArtist = async (payload: SearchArtistRequest) => {
   return await invoke<Artist[]>("search_artist", {
     limit: payload.limit,
     offset: payload.offset,

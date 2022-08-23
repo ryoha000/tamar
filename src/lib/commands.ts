@@ -1,7 +1,13 @@
 import { invoke } from "@tauri-apps/api";
 import { Usages } from "../components/TopPage/use/dirUsage";
 import { DirPathInfo } from "../components/TopPage/use/exploreDir";
-import { Artist, SearchArtistRequest, SearchWorkRequest, Work } from "./types";
+import {
+  Artist,
+  SearchArtistRequest,
+  SearchWorkRequest,
+  Suggest,
+  Work,
+} from "./types";
 
 export const commandImportDirectory = async (
   dirPathInfos: DirPathInfo[],
@@ -67,4 +73,8 @@ export const commandGetArtist = async (artist_id: string) => {
   return await invoke<Artist>("get_artist", {
     id: artist_id,
   });
+};
+
+export const commandGetSuggest = async (text: string) => {
+  return await invoke<Suggest>("get_suggest", { text });
 };

@@ -1,3 +1,5 @@
+use derive_new::new;
+
 use crate::kernel::model::tag::Tag;
 
 pub struct TagView {
@@ -14,4 +16,9 @@ impl TagView {
             updated_at: tag.updated_at.to_string(),
         }
     }
+}
+
+#[derive(new)]
+pub struct SearchByNameTagView<'a> {
+    pub name: &'a str,
 }

@@ -1,8 +1,9 @@
 use std::sync::Arc;
 
-use crate::adapter::modules::RepositoriesModuleExt;
+use crate::app::model::tag_view::SearchByNameTagView;
 use crate::kernel::model::tag::Tag;
 use crate::kernel::repository::tag::TagRepository;
+use crate::{adapter::modules::RepositoriesModuleExt, app::model::tag_view::TagView};
 use derive_new::new;
 
 use crate::app::model::tag::{CreateTag, SearchEqualTag};
@@ -33,5 +34,21 @@ impl<R: RepositoriesModuleExt> TagUseCase<R> {
             .tag_repository()
             .find_by_name(source.name)
             .await
+    }
+
+    pub async fn search_by_name(
+        &self,
+        source: SearchByNameTagView<'_>,
+    ) -> anyhow::Result<Vec<TagView>> {
+        let tags = self
+            .repositories
+            .tag_repository()
+            .search_by_name(source.name)
+            .await?
+            .into_iter()
+            .map(|v| TagView::new(v))
+            .collect();
+
+        Ok(tags)
     }
 }

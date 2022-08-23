@@ -42,3 +42,8 @@ export interface SearchArtistRequest {
   sortCol: SortColumnKind;
   sortDesc: boolean;
 }
+
+export interface Suggest {
+  artists: Artist[];
+  tags: Tag[];
+}

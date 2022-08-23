@@ -41,6 +41,7 @@ fn main() {
             driver::command::work::search_around_updated_at_work,
             driver::command::artist_view::search_artist,
             driver::command::artist_view::get_artist,
+            driver::command::suggest::get_suggest,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

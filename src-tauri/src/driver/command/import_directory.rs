@@ -4,7 +4,7 @@ use tauri::State;
 use crate::{
     app::model::{
         artist::{CreateArtist, SearchEqualArtist},
-        tag::{CreateTag, SearchEqualTag},
+        tag::{CreateTag, GetByNameTag},
         work::{CreateWork, SearchEqualWork},
         work_tag_map::CreateWorkTagMap,
     },
@@ -157,7 +157,7 @@ pub async fn import_directory(
                     // work_tag_map を作る必要があるため insert したはずの tag を取得
                     let tag = modules
                         .tag_use_case()
-                        .search_equal_tag(SearchEqualTag::new(tag_name))
+                        .find_tag_by_name(GetByNameTag::new(tag_name))
                         .await?;
                     if tag.is_none() {
                         return Err(CommandError::Anyhow(anyhow::anyhow!(

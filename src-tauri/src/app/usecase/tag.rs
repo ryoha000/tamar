@@ -6,7 +6,7 @@ use crate::kernel::repository::tag::TagRepository;
 use crate::{adapter::modules::RepositoriesModuleExt, app::model::tag_view::TagView};
 use derive_new::new;
 
-use crate::app::model::tag::{CreateTag, SearchEqualTag};
+use crate::app::model::tag::{CreateTag, GetByNameTag};
 
 #[derive(new)]
 pub struct TagUseCase<R: RepositoriesModuleExt> {
@@ -29,7 +29,7 @@ impl<R: RepositoriesModuleExt> TagUseCase<R> {
             .await
     }
 
-    pub async fn search_equal_tag(&self, source: SearchEqualTag) -> anyhow::Result<Option<Tag>> {
+    pub async fn find_tag_by_name(&self, source: GetByNameTag) -> anyhow::Result<Option<Tag>> {
         self.repositories
             .tag_repository()
             .find_by_name(source.name)

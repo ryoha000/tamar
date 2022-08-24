@@ -107,3 +107,7 @@ export const commandUpdateWorkTitle = async (id: string, title: string) => {
 export const commandUpdateWorkArtist = async (id: string, name: string) => {
   return await invoke<void>("update_work_artist", { id, name });
 };
+
+export const commandSelectArtistByName = async (name: string) => {
+  return await invoke<Artist[]>("select_artist_by_name", { name });
+};

@@ -1,8 +1,14 @@
+import { useNavigate } from "@solidjs/router";
+import { path, shell } from "@tauri-apps/api";
+import { confirm } from "@tauri-apps/api/dialog";
 import { IconTypes } from "solid-icons";
-import { AiOutlineFolderOpen } from "solid-icons/ai";
+import { AiOutlineFolderOpen, AiOutlineRotateRight } from "solid-icons/ai";
 import { BsFileEarmarkX, BsFolderX } from "solid-icons/bs";
 import { Component, ParentComponent } from "solid-js";
 import {
+  commandDeleteWork,
+  commandDeleteWorkFile,
+  commandRotateWorkFile,
   commandSelectArtistByName,
   commandUpdateWorkArtist,
   commandUpdateWorkTitle,
@@ -16,11 +22,15 @@ import MenuDialogTagList from "./MenuDialogTagList";
 interface Props {
   isOpen: boolean;
   work: Work;
+  imageSrc: string;
   close: () => void;
   refetch: () => void;
+  refetchImage: () => void;
 }
 
 const MenuDialog: Component<Props> = (props) => {
+  const navigator = useNavigate();
+
   const titleCommand = async (title: string) => {
     if (title === "") {
       errorToast("変更後のタイトルが空文字です");
@@ -43,6 +53,38 @@ const MenuDialog: Component<Props> = (props) => {
     return (await commandSelectArtistByName(text)).map((v) => v.name);
   };
 
+  const openExplorer = async () => {
+    const p = await path.dirname(props.imageSrc);
+    shell.open(p);
+    props.close();
+  };
+
+  const deleteWork = async () => {
+    if (await confirm("本当にこの作品を削除しますか？")) {
+      await commandDeleteWork(props.work.id);
+      props.close();
+      navigator("/");
+    }
+  };
+
+  const rotate = async () => {
+    try {
+      // TODO: アホ重いから非同期でやって表示してるやつは transform で回転させる(refetchImage -> rotateImage)
+      await commandRotateWorkFile(props.imageSrc);
+      props.refetchImage();
+    } catch (e) {
+      errorToast(`画像回転に失敗しました。error: ${e}`);
+      console.error(e);
+    }
+    props.close();
+  };
+
+  const deleteFile = async () => {
+    await commandDeleteWorkFile(props.imageSrc);
+    props.refetch(); // TODO: これでpage外にいくとめんどくさい
+    props.close();
+  };
+
   return (
     <DialogBase
       isOpen={props.isOpen}
@@ -50,7 +92,7 @@ const MenuDialog: Component<Props> = (props) => {
       withCurtain={true}
       align="left"
     >
-      <div class="flex gap-2 flex-col">
+      <div class="flex gap-2 flex-col h-full">
         <MenuDialogSection label="タイトル">
           <Editor
             initialText={props.work.title}
@@ -80,9 +122,24 @@ const MenuDialog: Component<Props> = (props) => {
         <MenuDialogIconButton
           label="フォルダを開く"
           icon={AiOutlineFolderOpen}
+          click={openExplorer}
         />
-        <MenuDialogIconButton label="ファイルを消す" icon={BsFileEarmarkX} />
-        <MenuDialogIconButton label="作品を消す" icon={BsFolderX} />
+        <MenuDialogIconButton
+          label="このファイルを回転"
+          icon={AiOutlineRotateRight}
+          click={rotate}
+        />
+        <MenuDialogIconButton
+          label="ファイルを消す"
+          icon={BsFileEarmarkX}
+          click={deleteFile}
+        />
+        <MenuDialogIconButton
+          buttonClass="bg-error mt-auto text-slate-50 align-bottom hover:text-text" // TODO: 色大丈夫？
+          label="作品を消す"
+          icon={BsFolderX}
+          click={deleteWork}
+        />
       </div>
     </DialogBase>
   );
@@ -99,10 +156,17 @@ const MenuDialogSection: ParentComponent<{ label: string }> = (props) => {
 
 const MenuDialogIconButton: ParentComponent<{
   label: string;
+  buttonClass?: string;
+  click: () => void;
   icon: IconTypes;
 }> = (props) => {
   return (
-    <button class="rounded px-4 py-2 hover:bg-secondary transition-all">
+    <button
+      onclick={props.click}
+      class={`rounded px-4 py-2 hover:bg-secondary transition-all ${
+        props.buttonClass ?? ""
+      }`}
+    >
       <div class="flex items-center gap-2">
         {props.icon({ size: "1.5rem" })}
         <div>{props.label}</div>

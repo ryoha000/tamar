@@ -38,16 +38,24 @@ const WorkPage: Component = () => {
     }
   );
 
-  const { imageSrc, imageSrcArray, next, prev, keyDown, wheel } = usePage(
-    work,
-    workPageMap,
-    isSortDesc,
-    sortCol
-  );
+  const {
+    imageSrc,
+    imageSrcArray,
+    next,
+    prev,
+    keyDown,
+    wheel,
+    originalImageSrc,
+  } = usePage(work, workPageMap, isSortDesc, sortCol);
 
   const [isListOpen, setIsListOpen] = createSignal(false);
 
   const [isOpenMenuDialog, setIsOpenMenuDialog] = createSignal(false);
+
+  const [imageCacheKey, setImageCacheKey] = createSignal("");
+  const refreshImage = () => {
+    setImageCacheKey(`${Math.random()}`);
+  };
 
   return (
     <div class="flex" onkeydown={keyDown}>
@@ -58,7 +66,7 @@ const WorkPage: Component = () => {
       />
       <Show when={work()}>
         <img
-          src={imageSrc()}
+          src={`${imageSrc()}?${imageCacheKey()}`}
           tabIndex={-1}
           // @ts-ignore
           autofocus
@@ -76,9 +84,11 @@ const WorkPage: Component = () => {
         />
         <MenuDialog
           work={work()!}
+          imageSrc={originalImageSrc()}
           isOpen={isOpenMenuDialog()}
           close={() => setIsOpenMenuDialog(false)}
           refetch={refetch}
+          refetchImage={refreshImage}
         />
       </Show>
     </div>

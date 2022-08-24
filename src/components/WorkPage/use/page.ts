@@ -22,22 +22,32 @@ const usePage = (
     return page;
   };
 
-  const imageSrcArray = () => {
+  const originalImageSrcArray = () => {
     const _work = work();
     if (!_work) {
       return [];
     }
     const sortedPaths = [..._work.paths];
     sortedPaths.sort(); // TODO: ソートがこれでいいのか考える
-    return sortedPaths.map((v) => convertFileSrc(v));
+    return sortedPaths;
+  };
+
+  const imageSrcArray = () => {
+    return originalImageSrcArray().map((v) => convertFileSrc(v));
   };
 
   const imageSrc = () => {
     if (page() < 0 || page() >= imageSrcArray().length) {
-      console.error(`page: ${page()}, image.len: ${imageSrcArray().length}`);
       return "";
     }
     return imageSrcArray()[page()];
+  };
+
+  const originalImageSrc = () => {
+    if (page() < 0 || page() >= originalImageSrcArray().length) {
+      return "";
+    }
+    return originalImageSrcArray()[page()];
   };
 
   const { workIds, fetchWorkIds, loading } = useWorkIdsCache();
@@ -160,7 +170,15 @@ const usePage = (
     );
   };
 
-  return { imageSrc, imageSrcArray, prev, next, keyDown, wheel };
+  return {
+    imageSrc,
+    imageSrcArray,
+    prev,
+    next,
+    keyDown,
+    wheel,
+    originalImageSrc,
+  };
 };
 
 export default usePage;

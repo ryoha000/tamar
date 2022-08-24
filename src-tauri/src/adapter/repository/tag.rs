@@ -56,6 +56,18 @@ impl TagRepository for DatabaseRepositoryImpl<Tag> {
         }
     }
 
+    async fn select(&self, limit: u8) -> anyhow::Result<Vec<Tag>> {
+        let pool = self.pool.0.clone();
+        let tag_table = query_as::<_, TagTable>("select * from tag LIMIT ?")
+            .bind(limit)
+            .fetch_all(&*pool)
+            .await?;
+        Ok(tag_table
+            .into_iter()
+            .filter_map(|v| v.try_into().ok())
+            .collect())
+    }
+
     async fn search_by_name(&self, name: &str) -> anyhow::Result<Vec<Tag>> {
         let pool = self.pool.0.clone();
         let tag_table = query_as::<_, TagTable>("select * from tag where name LIKE ?")
@@ -147,6 +159,27 @@ mod test {
     }
 
     #[test]
+    fn test_select_tag() {
+        let db = get_test_db();
+
+        insert_tag(
+            db.clone(),
+            NewTag::new(Id::new(Ulid::new()), random_string()),
+        );
+        insert_tag(
+            db.clone(),
+            NewTag::new(Id::new(Ulid::new()), random_string()),
+        );
+        // 全部取る
+        let found = select_tag(db.clone(), 10);
+        assert_eq!(found.len(), 2);
+
+        // ひとつだけ
+        let found = select_tag(db.clone(), 1);
+        assert_eq!(found.len(), 1);
+    }
+
+    #[test]
     fn test_find_tag_by_ids() {
         let db = get_test_db();
 
@@ -187,6 +220,11 @@ mod test {
     fn search_tag_by_name(db: Db, name: &str) -> Vec<Tag> {
         let repository = DatabaseRepositoryImpl::new(db);
         block_on(repository.search_by_name(name)).unwrap()
+    }
+
+    fn select_tag(db: Db, limit: u8) -> Vec<Tag> {
+        let repository = DatabaseRepositoryImpl::new(db);
+        block_on(repository.select(limit)).unwrap()
     }
 
     fn find_tag_by_ids(db: Db, ids: &Vec<Id<Tag>>) -> Vec<Tag> {

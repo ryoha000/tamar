@@ -2,13 +2,14 @@ use std::sync::Arc;
 
 use crate::kernel::model::work::{NewerArtistIdWork, NewerTitleWork};
 use crate::kernel::model::Id;
+use crate::kernel::repository::file::FileRepository;
 use crate::kernel::repository::work::WorkRepository;
 use crate::{adapter::modules::RepositoriesModuleExt, kernel::model::work::Work};
 use derive_new::new;
 
 use crate::app::model::work::{
-    CreateWork, GetByTitleWork, SearchAroundTitleWorkView, SearchAroundUpdatedAtWorkView,
-    UpdateArtistIdWork, UpdateTitleWork,
+    CreateWork, DeleteWork, GetByTitleWork, SearchAroundTitleWorkView,
+    SearchAroundUpdatedAtWorkView, UpdateArtistIdWork, UpdateTitleWork,
 };
 
 #[derive(new)]
@@ -30,6 +31,15 @@ impl<R: RepositoriesModuleExt> WorkUseCase<R> {
             .work_repository()
             .insert(source.try_into()?)
             .await
+    }
+
+    pub async fn delete_work(&self, source: DeleteWork) -> anyhow::Result<()> {
+        let work_id = source.to_work_id()?;
+
+        self.repositories.work_repository().delete(&work_id).await?;
+        self.repositories
+            .file_repository()
+            .delete_work_files(&work_id)
     }
 
     pub async fn update_work_title(&self, source: UpdateTitleWork) -> anyhow::Result<()> {

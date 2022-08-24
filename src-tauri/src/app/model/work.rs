@@ -2,7 +2,7 @@ use crate::kernel::model::{
     artist::Artist,
     work::{
         NewWork, NewerArtistIdWork, NewerTitleWork, SearchAroundTitleWork,
-        SearchAroundUpdatedAtWork,
+        SearchAroundUpdatedAtWork, Work,
     },
     Id,
 };
@@ -51,6 +51,17 @@ impl TryFrom<UpdateArtistIdWork> for NewerArtistIdWork {
     fn try_from(c: UpdateArtistIdWork) -> anyhow::Result<Self> {
         let work_id = ulid::Ulid::from_string(&c.id)?;
         Ok(NewerArtistIdWork::new(Id::new(work_id), c.artist_id))
+    }
+}
+
+#[derive(new)]
+pub struct DeleteWork {
+    pub id: String,
+}
+
+impl DeleteWork {
+    pub fn to_work_id(&self) -> anyhow::Result<Id<Work>> {
+        Ok(Id::new(ulid::Ulid::from_string(&self.id)?))
     }
 }
 

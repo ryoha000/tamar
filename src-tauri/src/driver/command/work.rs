@@ -5,8 +5,8 @@ use crate::{
     app::model::{
         artist::{CreateArtist, GetByNameArtist},
         work::{
-            SearchAroundTitleWorkView, SearchAroundUpdatedAtWorkView, UpdateArtistIdWork,
-            UpdateTitleWork,
+            DeleteWork, SearchAroundTitleWorkView, SearchAroundUpdatedAtWorkView,
+            UpdateArtistIdWork, UpdateTitleWork,
         },
     },
     driver::{
@@ -101,6 +101,18 @@ pub async fn update_work_artist(
     modules
         .work_use_case()
         .update_work_artist_id(UpdateArtistIdWork::new(id, artist_id))
+        .await?;
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn delete_work(
+    modules: State<'_, Arc<Modules>>,
+    id: String,
+) -> anyhow::Result<(), CommandError> {
+    modules
+        .work_use_case()
+        .delete_work(DeleteWork::new(id))
         .await?;
     Ok(())
 }

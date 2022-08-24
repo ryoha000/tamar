@@ -41,6 +41,7 @@ fn main() {
             driver::command::work::search_around_updated_at_work,
             driver::command::work::update_work_title,
             driver::command::work::update_work_artist,
+            driver::command::work::delete_work,
             driver::command::artist_view::search_artist,
             driver::command::artist_view::select_artist_by_name,
             driver::command::artist_view::get_artist,

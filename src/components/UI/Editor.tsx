@@ -19,8 +19,11 @@ const Editor: Component<Props & EditProps> = (props) => {
     text,
   } = useEdit(props);
 
-  const clickStartOrConfirm = async () => {
+  const clickStartOrConfirm = async (e: Event) => {
+    e.preventDefault();
     if (editable()) {
+      // form経由の時はfocusoutが発生しない？
+      setIsFocusInput(false);
       await confirmEdit();
     } else {
       startEdit();
@@ -43,15 +46,16 @@ const Editor: Component<Props & EditProps> = (props) => {
 
   const [isFocusInput, setIsFocusInput] = createSignal(false);
   return (
-    <div
+    <form
       class="flex items-center gap-4 w-full"
+      onsubmit={clickStartOrConfirm}
       oninput={stop}
       onclick={stop}
       onkeydown={stop}
     >
       <div class="relative flex-1">
         <input
-          id={randomString}
+          list={randomString}
           class={`flex-1 transition-all ${
             clickable() ? "hover:bg-secondary" : ""
           } ${props.link ? "cursor-pointer" : ""} ${props.inputClass ?? ""}`}
@@ -65,7 +69,7 @@ const Editor: Component<Props & EditProps> = (props) => {
         <div
           classList={{
             "scale-0": !isFocusInput(),
-            "scale-100": isFocusInput(),
+            "scale-100": isFocusInput() && editable(),
           }}
           class="absolute bottom-0 left-0 h-0.5 w-full bg-secondary transition-all"
         ></div>
@@ -77,20 +81,27 @@ const Editor: Component<Props & EditProps> = (props) => {
           </For>
         </datalist>
       </Show>
-      <button
-        onclick={clickStartOrConfirm}
-        class="opacity-50 hover:opacity-80 transition-all"
-      >
-        <Switch>
-          <Match when={editable()}>
+      <Switch>
+        <Match when={editable()}>
+          <button
+            type="button"
+            class="opacity-50 hover:opacity-80 transition-all"
+            onclick={clickStartOrConfirm}
+          >
             <AiOutlineCheck size="1.2rem" />
-          </Match>
-          <Match when={!editable()}>
+          </button>
+        </Match>
+        <Match when={!editable()}>
+          <button
+            type="submit"
+            class="opacity-50 hover:opacity-80 transition-all"
+          >
             <AiOutlineEdit size="1.2rem" />
-          </Match>
-        </Switch>
-      </button>
+          </button>
+        </Match>
+      </Switch>
       <button
+        type="button"
         onclick={cancelEdit}
         classList={{ "opacity-100": editable(), "opacity-0": !editable() }}
       >
@@ -99,7 +110,7 @@ const Editor: Component<Props & EditProps> = (props) => {
           size="1.2rem"
         />
       </button>
-    </div>
+    </form>
   );
 };
 

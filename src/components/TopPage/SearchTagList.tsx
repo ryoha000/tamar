@@ -5,23 +5,9 @@ import Tag from "../UI/Tag";
 
 interface Props {
   tags: TagI[];
+  removeTag: (id: string) => void;
 }
 const SearchTagList: Component<Props> = (props) => {
-  const debugTags = () => {
-    const names = [
-      "aaaaaa",
-      "bbb",
-      "blue archive",
-      "blue archive",
-      "blue archive",
-    ];
-    const res: TagI[] = [];
-    for (const name of names) {
-      res.push({ id: `${name}-id`, name, updatedAt: "" });
-    }
-    return res;
-  };
-
   return (
     <div class="flex h-full min-w-0 max-w-search-tags">
       <HorizontalScroller
@@ -29,8 +15,16 @@ const SearchTagList: Component<Props> = (props) => {
         isGradientFader={false}
         iconSize="sm"
       >
-        <div class="flex items-center">
-          <For each={debugTags()}>{(tag, i) => <Tag tag={tag} />}</For>
+        <div class="flex items-center gap-2">
+          <For each={props.tags}>
+            {(tag, i) => (
+              <Tag
+                tag={tag}
+                isCloseIcon={true}
+                close={() => props.removeTag(tag.id)}
+              />
+            )}
+          </For>
         </div>
       </HorizontalScroller>
     </div>

@@ -11,10 +11,13 @@ type Props = {
 
 const SearchInput: Component<Props> = (props) => {
   const { keydown, input, change, options } = useSuggest(props);
+  const removeTag = (id: string) => {
+    props.setTags((prev) => prev.filter((v) => v.id !== id));
+  };
   return (
     <div class="flex items-center flex-1 border-solid border-text border rounded-full px-3 py-1 gap-2 transition-all focus-within:border-accent">
       <AiOutlineSearch />
-      <SearchTagList tags={props.tags} />
+      <SearchTagList tags={props.tags} removeTag={removeTag} />
       <input
         class="focus:outline-none flex-1"
         type="text"

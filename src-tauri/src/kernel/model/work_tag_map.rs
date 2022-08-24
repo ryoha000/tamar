@@ -17,3 +17,9 @@ pub struct NewWorkTagMap {
     pub work_id: Id<Work>,
     pub tag_id: Id<Tag>,
 }
+
+#[derive(new, Debug)]
+pub struct DeleteWorkTagMap {
+    pub work_id: Id<Work>,
+    pub tag_id: Id<Tag>,
+}

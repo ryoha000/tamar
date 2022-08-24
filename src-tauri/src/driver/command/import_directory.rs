@@ -4,6 +4,7 @@ use tauri::State;
 use crate::{
     app::model::{
         artist::{CreateArtist, GetByNameArtist},
+        file::SaveWorkFiles,
         tag::{CreateTag, GetByNameTag},
         work::{CreateWork, GetByTitleWork},
         work_tag_map::CreateWorkTagMap,
@@ -139,7 +140,10 @@ pub async fn import_directory(
         // -------- work に関係する処理 ここまで ---------
 
         // ファイルコピー
-        copy_work_files(&work.id.value.to_string(), &dir_path_info.path)?; // TODO: 全然並列じゃない
+        modules.file_use_case().save_work_files(SaveWorkFiles::new(
+            work.id.clone(),
+            dir_path_info.path.clone(),
+        ))?;
 
         // -------- tag に関係する処理 ここから ---------
         match tag_usage_map.get(max_deps) {
@@ -178,62 +182,5 @@ pub async fn import_directory(
         // -------- tag に関係する処理 ここまで ---------
     }
 
-    Ok(())
-}
-
-fn copy_work_files(work_id: &str, work_path: &str) -> anyhow::Result<()> {
-    let copy_root_dir = "../tamar_content";
-
-    let dir_path = path::Path::new(copy_root_dir);
-    let dst_work_dir_path_buf = dir_path.join(path::Path::new(work_id));
-    let dst_work_dir_path = dst_work_dir_path_buf.as_path();
-    // コピー先のディレクトリをつくる
-    fs::create_dir_all(dst_work_dir_path)?;
-
-    let src_work_dir_path = path::Path::new(work_path);
-
-    copy_files(dst_work_dir_path, src_work_dir_path, vec![])?;
-
-    Ok(())
-}
-
-fn copy_files(
-    dst_work_dir_path: &path::Path,
-    dir_path: &path::Path,
-    dirs: Vec<String>,
-) -> anyhow::Result<()> {
-    let children = fs::read_dir(dir_path)?;
-    for child in children {
-        let child = child?;
-
-        let is_dir_child = child.file_type()?.is_dir();
-
-        let child_path_buf = child.path();
-        let child_path = child_path_buf.as_path();
-
-        let child_name = child_path
-            .file_name()
-            .ok_or(anyhow::anyhow!("failed to get file_name"))?
-            .to_str()
-            .ok_or(anyhow::anyhow!("failed to get &str"))?
-            .to_string();
-
-        if is_dir_child {
-            let mut new_dirs = dirs.to_vec();
-            new_dirs.push(child_name);
-            copy_files(dst_work_dir_path, child_path, new_dirs)?;
-        } else {
-            // child が ファイルの時は callback
-            let dst_filename;
-            match dirs.len() {
-                0 => dst_filename = child_name,
-                _ => dst_filename = format!("{}-{}", dirs.join("-"), child_name),
-            }
-
-            let dst_path_buf = dst_work_dir_path.join(path::Path::new(&dst_filename));
-            let dst_path = dst_path_buf.as_path();
-            fs::copy(child_path, dst_path)?;
-        }
-    }
     Ok(())
 }

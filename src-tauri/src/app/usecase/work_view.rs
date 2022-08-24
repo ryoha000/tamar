@@ -47,6 +47,7 @@ impl<R: RepositoriesModuleExt> WorkViewUseCase<R> {
             .map(|v| TagView::new(v))
             .collect();
 
+        // TODO: dirverのほうでこの処理をやってusecaseの処理を使う
         let dir_path = path::Path::new("../tamar_content");
         let dir_path = dir_path.join(path::Path::new(&work.id.value.to_string()));
 

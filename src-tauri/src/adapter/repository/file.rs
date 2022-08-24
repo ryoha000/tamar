@@ -103,6 +103,13 @@ impl FileRepository for RepositoryImpl<File> {
         Ok(())
     }
 
+    fn delete_file(&self, file: String) -> anyhow::Result<()> {
+        let file_path = path::Path::new(&file);
+
+        fs::remove_file(file_path)?;
+        Ok(())
+    }
+
     fn rotate_90_image_file(&self, file: String) -> anyhow::Result<()> {
         let img = image::open(file.clone())?;
         let img = img.rotate90();

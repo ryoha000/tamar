@@ -1,7 +1,8 @@
 use crate::kernel::model::{
     artist::Artist,
     work::{
-        NewWork, NewerTitleWork, SearchAroundTitleWork, SearchAroundUpdatedAtWork, SearchWork, Work, NewerArtistIdWork,
+        NewWork, NewerArtistIdWork, NewerTitleWork, SearchAroundTitleWork,
+        SearchAroundUpdatedAtWork, SearchWork, Work,
     },
     Id,
 };
@@ -26,4 +27,5 @@ pub trait WorkRepository {
     async fn insert(&self, source: NewWork) -> anyhow::Result<()>;
     async fn update_title(&self, source: NewerTitleWork) -> anyhow::Result<()>;
     async fn update_artist_id(&self, source: NewerArtistIdWork) -> anyhow::Result<()>;
+    async fn delete(&self, id: &Id<Work>) -> anyhow::Result<()>;
 }

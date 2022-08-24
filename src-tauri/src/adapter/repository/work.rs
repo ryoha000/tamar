@@ -218,6 +218,15 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
 
         Ok(())
     }
+
+    async fn delete(&self, id: &Id<Work>) -> anyhow::Result<()> {
+        let pool = self.pool.0.clone();
+        let _ = sqlx::query("DELETE FROM work WHERE id = ?")
+            .bind(id.value.to_string())
+            .execute(&*pool)
+            .await?;
+        Ok(())
+    }
 }
 
 #[cfg(test)]

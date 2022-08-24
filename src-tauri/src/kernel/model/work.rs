@@ -19,6 +19,12 @@ pub struct NewWork {
 }
 
 #[derive(new, Debug)]
+pub struct NewerWork {
+    pub id: Id<Work>,
+    pub title: String,
+}
+
+#[derive(new, Debug)]
 pub struct SearchWork {
     pub limit: u8,
     pub offset: u8,

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::app::model::tag_view::SearchByNameTagView;
+use crate::app::model::tag_view::{SearchByNameTagView, SelectTagView};
 use crate::kernel::model::tag::Tag;
 use crate::kernel::repository::tag::TagRepository;
 use crate::{adapter::modules::RepositoriesModuleExt, app::model::tag_view::TagView};
@@ -34,6 +34,19 @@ impl<R: RepositoriesModuleExt> TagUseCase<R> {
             .tag_repository()
             .find_by_name(source.name)
             .await
+    }
+
+    pub async fn select(&self, source: SelectTagView) -> anyhow::Result<Vec<TagView>> {
+        let tags = self
+            .repositories
+            .tag_repository()
+            .select(source.limit)
+            .await?
+            .into_iter()
+            .map(|v| TagView::new(v))
+            .collect();
+
+        Ok(tags)
     }
 
     pub async fn search_by_name(

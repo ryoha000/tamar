@@ -22,3 +22,8 @@ impl TagView {
 pub struct SearchByNameTagView<'a> {
     pub name: &'a str,
 }
+
+#[derive(new)]
+pub struct SelectTagView {
+    pub limit: u8,
+}

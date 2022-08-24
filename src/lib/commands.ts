@@ -6,6 +6,7 @@ import {
   SearchArtistRequest,
   SearchWorkRequest,
   Suggest,
+  Tag,
   Work,
 } from "./types";
 
@@ -77,4 +78,8 @@ export const commandGetArtist = async (artist_id: string) => {
 
 export const commandGetSuggest = async (text: string) => {
   return await invoke<Suggest>("get_suggest", { text });
+};
+
+export const commandSelectTag = async (limit: number) => {
+  return await invoke<Tag[]>("select_tag", { limit });
 };

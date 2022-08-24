@@ -80,6 +80,10 @@ export const commandGetSuggest = async (text: string) => {
   return await invoke<Suggest>("get_suggest", { text });
 };
 
+export const commandGetTagSuggest = async (text: string) => {
+  return await invoke<Tag[]>("get_tag_suggest", { text });
+};
+
 export const commandSelectTag = async (limit: number) => {
   return await invoke<Tag[]>("select_tag", { limit });
 };

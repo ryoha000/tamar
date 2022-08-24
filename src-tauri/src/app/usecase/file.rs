@@ -20,4 +20,9 @@ impl<R: RepositoriesModuleExt> FileUseCase<R> {
     pub fn save_original_files(&self, source: SaveOriginalFiles) -> anyhow::Result<()> {
         self.repositories.file_repository().save_work_files(source)
     }
+    pub fn rotate_image_file(&self, file: String) -> anyhow::Result<()> {
+        self.repositories
+            .file_repository()
+            .rotate_90_image_file(file)
+    }
 }

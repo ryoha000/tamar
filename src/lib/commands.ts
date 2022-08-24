@@ -108,10 +108,14 @@ export const commandUpdateWorkArtist = async (id: string, name: string) => {
   return await invoke<void>("update_work_artist", { id, name });
 };
 
-export const commandDeleteWorkArtist = async (id: string) => {
+export const commandDeleteWork = async (id: string) => {
   return await invoke<void>("delete_work", { id });
 };
 
 export const commandSelectArtistByName = async (name: string) => {
   return await invoke<Artist[]>("select_artist_by_name", { name });
+};
+
+export const commandRotateWorkFile = async (file: string) => {
+  return await invoke<void>("rotate_work_file", { file });
 };

@@ -69,8 +69,8 @@ const DialogBaseContent: ParentComponent<Props> = (props) => {
       ref={ele}
     >
       <div
-        class={`flex items-center ${
-          props.align === "left" ? "justify-end" : "justify-center"
+        class={`flex ${
+          props.align === "left" ? "justify-end" : "items-center justify-center"
         } px-12 py-8 h-full`}
       >
         <div

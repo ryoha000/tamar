@@ -1,12 +1,14 @@
 import { Link } from "@solidjs/router";
 import { AiOutlineHome } from "solid-icons/ai";
+import { FaSolidEllipsis } from "solid-icons/fa";
 import { IoGridOutline } from "solid-icons/io";
-import { Component, createSignal, onMount, Show } from "solid-js";
+import { Component } from "solid-js";
 import HeaderNextPrev from "../UI/HeaderNextPrev";
 import useHide from "./use/hide";
 
 interface Props {
   openListDialog: () => void;
+  openMenuDialog: () => void;
   workTitle: string;
 }
 
@@ -30,7 +32,10 @@ const Header: Component<Props> = (props) => {
         class="cursor-pointer"
         onclick={props.openListDialog}
       />
-      <div>{props.workTitle}</div>
+      <div class="ml-8">{props.workTitle}</div>
+      <button class="ml-auto" onclick={props.openMenuDialog}>
+        <FaSolidEllipsis size="1.2rem" />
+      </button>
     </div>
   );
 };

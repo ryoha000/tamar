@@ -12,24 +12,27 @@ const Header: Component = () => {
 
   return (
     <Show when={store}>
-      <div class="flex items-center bg-white px-4 py-2 gap-2 fixed top-0 left-0 w-full z-header h-header">
-        <HeaderNextPrev />
-        <SearchInput
-          setText={store!.setSearchText}
-          setTags={store!.setSearchTags}
-          tags={store!.setSearchTags}
-        />
-        <SortSelect
-          selected={store!.sortKind()}
-          select={store!.setSortKind}
-          isDesc={store!.isSortDesc()}
-          toggleDesc={() => store!.setIsSortDesc((prev) => !prev)}
-        />
-        <ByArtistToggle
-          isFilter={store!.isFilterArtist()}
-          toggle={() => store!.setIsFilterArtist((prev) => !prev)}
-        />
-        <FileImportButton />
+      <div class="fixed top-0 left-0 w-full z-header h-header px-4 py-2 bg-white">
+        <div class="grid grid-cols-top-header items-center w-full gap-2">
+          {/* <div class="flex items-center w-full gap-2"> */}
+          <HeaderNextPrev />
+          <SearchInput
+            setText={store!.setSearchText}
+            setTags={store!.setSearchTags}
+            tags={store!.searchTags()}
+          />
+          <SortSelect
+            selected={store!.sortKind()}
+            select={store!.setSortKind}
+            isDesc={store!.isSortDesc()}
+            toggleDesc={() => store!.setIsSortDesc((prev) => !prev)}
+          />
+          <ByArtistToggle
+            isFilter={store!.isFilterArtist()}
+            toggle={() => store!.setIsFilterArtist((prev) => !prev)}
+          />
+          <FileImportButton />
+        </div>
       </div>
     </Show>
   );

@@ -18,11 +18,7 @@ const SearchTagList: Component<Props> = (props) => {
         <div class="flex items-center gap-2">
           <For each={props.tags}>
             {(tag, i) => (
-              <Tag
-                tag={tag}
-                isCloseIcon={true}
-                close={() => props.removeTag(tag.id)}
-              />
+              <Tag tag={tag} close={() => props.removeTag(tag.id)} />
             )}
           </For>
         </div>

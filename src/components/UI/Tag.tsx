@@ -4,7 +4,6 @@ import type { Tag as TagI } from "../../lib/types";
 
 interface Props {
   tag: TagI;
-  isCloseIcon?: boolean;
   onclick?: () => void;
   close?: () => void;
 }
@@ -20,12 +19,15 @@ const Tag: Component<Props> = (props) => {
   });
   return (
     <div
-      class="whitespace-nowrap px-4 py-1 text-sm rounded-full flex items-center gap-2"
+      class={`whitespace-nowrap px-4 py-1 text-sm rounded-full flex items-center gap-2 ${
+        props.onclick ? "cursor-pointer" : ""
+      }`}
       style={bgColor()}
+      onclick={props.onclick}
     >
       {props.tag.name}
-      <Show when={props.isCloseIcon && props.close}>
-        <button class="flex items-center">
+      <Show when={props.close}>
+        <button class="flex items-center" onclick={props.close}>
           <AiOutlineCloseCircle />
         </button>
       </Show>

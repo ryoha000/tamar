@@ -1,6 +1,9 @@
 use crate::kernel::model::{
     artist::Artist,
-    work::{NewWork, NewerTitleWork, SearchAroundTitleWork, SearchAroundUpdatedAtWork, NewerArtistIdWork},
+    work::{
+        NewWork, NewerArtistIdWork, NewerTitleWork, SearchAroundTitleWork,
+        SearchAroundUpdatedAtWork,
+    },
     Id,
 };
 use derive_new::new;
@@ -52,7 +55,7 @@ impl TryFrom<UpdateArtistIdWork> for NewerArtistIdWork {
 }
 
 #[derive(new)]
-pub struct SearchEqualWork {
+pub struct GetByTitleWork {
     pub title: String,
     pub artist_id: Id<Artist>,
 }

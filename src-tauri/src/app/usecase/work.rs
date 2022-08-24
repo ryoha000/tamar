@@ -7,7 +7,7 @@ use crate::{adapter::modules::RepositoriesModuleExt, kernel::model::work::Work};
 use derive_new::new;
 
 use crate::app::model::work::{
-    CreateWork, SearchAroundTitleWorkView, SearchAroundUpdatedAtWorkView, SearchEqualWork,
+    CreateWork, GetByTitleWork, SearchAroundTitleWorkView, SearchAroundUpdatedAtWorkView,
     UpdateArtistIdWork, UpdateTitleWork,
 };
 
@@ -62,7 +62,7 @@ impl<R: RepositoriesModuleExt> WorkUseCase<R> {
             .await
     }
 
-    pub async fn search_equal_work(&self, source: SearchEqualWork) -> anyhow::Result<Option<Work>> {
+    pub async fn get_by_title_work(&self, source: GetByTitleWork) -> anyhow::Result<Option<Work>> {
         self.repositories
             .work_repository()
             .find_by_title_and_artist(source.title, &source.artist_id)

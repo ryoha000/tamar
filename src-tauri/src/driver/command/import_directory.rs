@@ -5,7 +5,7 @@ use crate::{
     app::model::{
         artist::{CreateArtist, GetByNameArtist},
         tag::{CreateTag, GetByNameTag},
-        work::{CreateWork, SearchEqualWork},
+        work::{CreateWork, GetByTitleWork},
         work_tag_map::CreateWorkTagMap,
     },
     driver::context::errors::CommandError,
@@ -127,7 +127,7 @@ pub async fn import_directory(
         // tag の insert に使うため insert したはずの work を取得
         let work = modules
             .work_use_case()
-            .search_equal_work(SearchEqualWork::new(work_title.clone(), artist.id))
+            .get_by_title_work(GetByTitleWork::new(work_title.clone(), artist.id))
             .await?;
 
         if work.is_none() {

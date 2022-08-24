@@ -178,10 +178,6 @@ pub async fn import_directory(
         // -------- tag に関係する処理 ここまで ---------
     }
 
-    println!(
-        "dir_path_info: {:#?}, usages: {:#?}",
-        dir_path_infos, usages
-    );
     Ok(())
 }
 

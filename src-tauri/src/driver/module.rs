@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use crate::app::usecase::artist::ArtistUseCase;
 use crate::app::usecase::artist_view::ArtistViewUseCase;
-use crate::app::usecase::file::FileUseCase;
 use crate::app::usecase::tag::TagUseCase;
 use crate::app::usecase::work_tag_map::WorkTagMapUseCase;
 use crate::app::usecase::work_view::WorkViewUseCase;
@@ -21,7 +20,6 @@ pub struct Modules {
     work_tag_map_use_case: WorkTagMapUseCase<RepositoriesModule>,
     work_view_use_case: WorkViewUseCase<RepositoriesModule>,
     artist_view_use_case: ArtistViewUseCase<RepositoriesModule>,
-    file_use_case: FileUseCase<RepositoriesModule>,
 }
 
 pub trait ModulesExt {
@@ -33,7 +31,6 @@ pub trait ModulesExt {
     fn work_tag_map_use_case(&self) -> &WorkTagMapUseCase<Self::RepositoriesModule>;
     fn work_view_use_case(&self) -> &WorkViewUseCase<Self::RepositoriesModule>;
     fn artist_view_use_case(&self) -> &ArtistViewUseCase<Self::RepositoriesModule>;
-    fn file_use_case(&self) -> &FileUseCase<Self::RepositoriesModule>;
 }
 
 impl ModulesExt for Modules {
@@ -57,9 +54,6 @@ impl ModulesExt for Modules {
     fn artist_view_use_case(&self) -> &ArtistViewUseCase<Self::RepositoriesModule> {
         &self.artist_view_use_case
     }
-    fn file_use_case(&self) -> &FileUseCase<Self::RepositoriesModule> {
-        &self.file_use_case
-    }
 }
 
 impl Modules {
@@ -74,7 +68,6 @@ impl Modules {
         let work_tag_map_use_case = WorkTagMapUseCase::new(repositories_module.clone());
         let work_view_use_case = WorkViewUseCase::new(repositories_module.clone());
         let artist_view_use_case = ArtistViewUseCase::new(repositories_module.clone());
-        let file_use_case = FileUseCase::new(repositories_module.clone());
 
         Self {
             artist_use_case,
@@ -83,7 +76,6 @@ impl Modules {
             work_tag_map_use_case,
             work_view_use_case,
             artist_view_use_case,
-            file_use_case,
         }
     }
 }

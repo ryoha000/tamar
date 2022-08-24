@@ -5,4 +5,3 @@ pub mod tag_view;
 pub mod work;
 pub mod work_tag_map;
 pub mod work_view;
-pub mod file;

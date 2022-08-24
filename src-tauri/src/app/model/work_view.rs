@@ -1,4 +1,5 @@
 use derive_new::new;
+use std::path;
 
 use crate::kernel::model::{
     work::{SearchWork, Work},
@@ -67,4 +68,17 @@ impl WorkView {
             updated_at: work.updated_at.to_string(),
         }
     }
+}
+
+#[derive(new)]
+pub struct SaveWorkFiles {
+    pub id: Id<Work>,
+    pub src_path: String,
+}
+
+#[derive(new)]
+pub struct CopyFiles<'a> {
+    pub dst_work_dir_path: &'a path::Path,
+    pub dir_path: &'a path::Path,
+    pub dirs: Vec<String>,
 }

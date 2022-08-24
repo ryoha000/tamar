@@ -94,6 +94,14 @@ impl FileRepository for RepositoryImpl<File> {
         }
         Ok(())
     }
+
+    fn delete_work_files(&self, id: &Id<Work>) -> anyhow::Result<()> {
+        let dir_path = path::Path::new(self.get_data_root_dir_path());
+        let dir_path = dir_path.join(path::Path::new(&id.value.to_string()));
+
+        fs::remove_dir_all(dir_path)?;
+        Ok(())
+    }
 }
 
 #[cfg(test)]

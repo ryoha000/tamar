@@ -7,4 +7,5 @@ pub trait FileRepository {
     fn get_work_paths(&self, id: &Id<Work>) -> anyhow::Result<Vec<String>>;
     fn save_work_files(&self, source: SaveWorkFiles) -> anyhow::Result<()>;
     fn copy_files(&self, source: CopyFiles) -> anyhow::Result<()>;
+    fn delete_work_files(&self, id: &Id<Work>) -> anyhow::Result<()>;
 }

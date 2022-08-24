@@ -34,10 +34,12 @@ const Editor: Component<Props & EditProps> = (props) => {
   const randomString = `editor-${Math.random()}`;
   const navigator = useNavigate();
   const clickInput = () => {
-    if (!editable() && props.link) {
-      navigator(props.link);
+    if (clickable()) {
+      navigator(props.link!);
     }
   };
+
+  const clickable = () => !editable() && props.link;
 
   const [isFocusInput, setIsFocusInput] = createSignal(false);
   return (
@@ -50,9 +52,9 @@ const Editor: Component<Props & EditProps> = (props) => {
       <div class="relative flex-1">
         <input
           id={randomString}
-          class={`flex-1 ${props.link ? "cursor-pointer" : ""} ${
-            props.inputClass ?? ""
-          }`}
+          class={`flex-1 transition-all ${
+            clickable() ? "hover:bg-secondary" : ""
+          } ${props.link ? "cursor-pointer" : ""} ${props.inputClass ?? ""}`}
           value={text()}
           oninput={input}
           readOnly={!editable()}

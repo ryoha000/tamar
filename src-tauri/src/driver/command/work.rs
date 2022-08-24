@@ -3,7 +3,7 @@ use tauri::State;
 
 use crate::{
     app::model::{
-        artist::{CreateArtist, SearchEqualArtist},
+        artist::{CreateArtist, GetByNameArtist},
         work::{
             SearchAroundTitleWorkView, SearchAroundUpdatedAtWorkView, UpdateArtistIdWork,
             UpdateTitleWork,
@@ -75,7 +75,7 @@ pub async fn update_work_artist(
     // artist の存在チェック
     let artist = modules
         .artist_use_case()
-        .search_equal_artist(SearchEqualArtist::new(name.clone()))
+        .find_artist_by_name(GetByNameArtist::new(name.clone()))
         .await?;
 
     let artist_id;
@@ -91,7 +91,7 @@ pub async fn update_work_artist(
 
         let artist = modules
             .artist_use_case()
-            .search_equal_artist(SearchEqualArtist::new(name))
+            .find_artist_by_name(GetByNameArtist::new(name))
             .await?
             .ok_or(anyhow::anyhow!("artist is not found(internal error)"))?;
 

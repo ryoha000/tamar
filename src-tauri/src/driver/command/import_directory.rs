@@ -3,7 +3,7 @@ use tauri::State;
 
 use crate::{
     app::model::{
-        artist::{CreateArtist, SearchEqualArtist},
+        artist::{CreateArtist, GetByNameArtist},
         tag::{CreateTag, GetByNameTag},
         work::{CreateWork, SearchEqualWork},
         work_tag_map::CreateWorkTagMap,
@@ -96,7 +96,7 @@ pub async fn import_directory(
         // work の insert に使うため insert したはずの artist を取得
         let artist = modules
             .artist_use_case()
-            .search_equal_artist(SearchEqualArtist::new(artist_name.clone()))
+            .find_artist_by_name(GetByNameArtist::new(artist_name.clone()))
             .await?;
         if artist.is_none() {
             return Err(CommandError::Anyhow(anyhow::anyhow!(

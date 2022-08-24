@@ -16,6 +16,6 @@ impl TryFrom<CreateArtist> for NewArtist {
 }
 
 #[derive(new)]
-pub struct SearchEqualArtist {
+pub struct GetByNameArtist {
     pub name: String,
 }

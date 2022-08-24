@@ -5,7 +5,7 @@ use crate::kernel::model::artist::Artist;
 use crate::kernel::repository::artist::ArtistRepository;
 use derive_new::new;
 
-use crate::app::model::artist::{CreateArtist, SearchEqualArtist};
+use crate::app::model::artist::{CreateArtist, GetByNameArtist};
 
 #[derive(new)]
 pub struct ArtistUseCase<R: RepositoriesModuleExt> {
@@ -28,9 +28,9 @@ impl<R: RepositoriesModuleExt> ArtistUseCase<R> {
             .await
     }
 
-    pub async fn search_equal_artist(
+    pub async fn find_artist_by_name(
         &self,
-        source: SearchEqualArtist,
+        source: GetByNameArtist,
     ) -> anyhow::Result<Option<Artist>> {
         self.repositories
             .artist_repository()

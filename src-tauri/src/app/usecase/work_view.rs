@@ -48,8 +48,7 @@ impl<R: RepositoriesModuleExt> WorkViewUseCase<R> {
             .collect();
 
         let dir_path = path::Path::new("../tamar_content");
-        let dir_path = dir_path.join(path::Path::new(&artist.name));
-        let dir_path = dir_path.join(path::Path::new(&work.title));
+        let dir_path = dir_path.join(path::Path::new(&work.id.value.to_string()));
 
         let paths = fs::read_dir(dir_path)?;
         let mut image_paths = Vec::new();

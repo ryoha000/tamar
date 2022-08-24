@@ -127,7 +127,7 @@ pub async fn import_directory(
         // tag の insert に使うため insert したはずの work を取得
         let work = modules
             .work_use_case()
-            .get_by_title_work(GetByTitleWork::new(work_title.clone(), artist.id))
+            .get_by_title_work(GetByTitleWork::new(work_title.clone(), artist.id.clone()))
             .await?;
 
         if work.is_none() {
@@ -139,7 +139,7 @@ pub async fn import_directory(
         // -------- work に関係する処理 ここまで ---------
 
         // ファイルコピー
-        copy_work_files(&work_title, &artist_name, &dir_path_info.path)?; // TODO: 全然並列じゃない
+        copy_work_files(&work.id.value.to_string(), &dir_path_info.path)?; // TODO: 全然並列じゃない
 
         // -------- tag に関係する処理 ここから ---------
         match tag_usage_map.get(max_deps) {
@@ -185,11 +185,11 @@ pub async fn import_directory(
     Ok(())
 }
 
-fn copy_work_files(work_title: &str, artist_name: &str, work_path: &str) -> anyhow::Result<()> {
+fn copy_work_files(work_id: &str, work_path: &str) -> anyhow::Result<()> {
     let copy_root_dir = "../tamar_content";
 
-    let artist_dir_path_buf = path::Path::new(copy_root_dir).join(path::Path::new(artist_name));
-    let dst_work_dir_path_buf = artist_dir_path_buf.join(path::Path::new(work_title));
+    let dir_path = path::Path::new(copy_root_dir);
+    let dst_work_dir_path_buf = dir_path.join(path::Path::new(work_id));
     let dst_work_dir_path = dst_work_dir_path_buf.as_path();
     // コピー先のディレクトリをつくる
     fs::create_dir_all(dst_work_dir_path)?;

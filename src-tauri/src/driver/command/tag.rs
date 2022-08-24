@@ -1,4 +1,4 @@
-use std::{f32::consts::E, sync::Arc};
+use std::sync::Arc;
 use tauri::State;
 
 use crate::{

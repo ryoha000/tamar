@@ -119,3 +119,7 @@ export const commandSelectArtistByName = async (name: string) => {
 export const commandRotateWorkFile = async (file: string) => {
   return await invoke<void>("rotate_work_file", { file });
 };
+
+export const commandDeleteWorkFile = async (file: string) => {
+  return await invoke<void>("delete_work_file", { file });
+};

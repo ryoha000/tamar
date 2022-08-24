@@ -25,4 +25,7 @@ impl<R: RepositoriesModuleExt> FileUseCase<R> {
             .file_repository()
             .rotate_90_image_file(file)
     }
+    pub fn delete_work_file(&self, file: String) -> anyhow::Result<()> {
+        self.repositories.file_repository().delete_file(file)
+    }
 }

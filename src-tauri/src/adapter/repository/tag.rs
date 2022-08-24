@@ -81,6 +81,9 @@ impl TagRepository for DatabaseRepositoryImpl<Tag> {
     }
 
     async fn insert(&self, source: NewTag) -> anyhow::Result<()> {
+        if source.name.len() == 0 {
+            anyhow::bail!("name is required")
+        }
         let pool = self.pool.0.clone();
         let tag_table: TagTable = source.try_into()?;
         let _ =

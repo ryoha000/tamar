@@ -177,6 +177,9 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
     }
 
     async fn insert(&self, source: NewWork) -> anyhow::Result<()> {
+        if source.title.len() == 0 {
+            anyhow::bail!("title is required")
+        }
         let pool = self.pool.0.clone();
         let work_table: WorkTable = source.try_into()?;
         let _ = sqlx::query(

@@ -112,6 +112,10 @@ impl ArtistRepository for DatabaseRepositoryImpl<Artist> {
     }
 
     async fn insert(&self, source: NewArtist) -> anyhow::Result<()> {
+        if source.name.len() == 0 {
+            anyhow::bail!("name is required")
+        }
+
         let pool = self.pool.0.clone();
         let artist_table: ArtistTable = source.try_into()?;
         let _ = sqlx::query(

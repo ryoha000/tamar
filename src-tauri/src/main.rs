@@ -39,6 +39,7 @@ fn main() {
             driver::command::work_view::select_work_by_artist,
             driver::command::work::search_around_title_work,
             driver::command::work::search_around_updated_at_work,
+            driver::command::work::update_work_title,
             driver::command::artist_view::search_artist,
             driver::command::artist_view::get_artist,
             driver::command::tag_view::select_tag,

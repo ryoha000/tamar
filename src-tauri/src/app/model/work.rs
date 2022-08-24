@@ -1,6 +1,6 @@
 use crate::kernel::model::{
     artist::Artist,
-    work::{NewWork, SearchAroundTitleWork, SearchAroundUpdatedAtWork},
+    work::{NewWork, NewerWork, SearchAroundTitleWork, SearchAroundUpdatedAtWork},
     Id,
 };
 use derive_new::new;
@@ -18,6 +18,21 @@ impl TryFrom<CreateWork> for NewWork {
     fn try_from(c: CreateWork) -> anyhow::Result<Self> {
         let work_id = Id::gen();
         Ok(NewWork::new(work_id, c.title, c.artist_id))
+    }
+}
+
+#[derive(new)]
+pub struct UpdateTitleWork {
+    pub id: String,
+    pub title: String,
+}
+
+impl TryFrom<UpdateTitleWork> for NewerWork {
+    type Error = anyhow::Error;
+
+    fn try_from(c: UpdateTitleWork) -> anyhow::Result<Self> {
+        let work_id = ulid::Ulid::from_string(&c.id)?;
+        Ok(NewerWork::new(Id::new(work_id), c.title))
     }
 }
 

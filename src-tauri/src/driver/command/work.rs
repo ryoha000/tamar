@@ -2,7 +2,7 @@ use std::sync::Arc;
 use tauri::State;
 
 use crate::{
-    app::model::work::{SearchAroundTitleWorkView, SearchAroundUpdatedAtWorkView},
+    app::model::work::{SearchAroundTitleWorkView, SearchAroundUpdatedAtWorkView, UpdateTitleWork},
     driver::{
         context::errors::CommandError,
         module::{Modules, ModulesExt},
@@ -45,4 +45,17 @@ pub async fn search_around_updated_at_work(
         .collect();
 
     Ok(works)
+}
+
+#[tauri::command]
+pub async fn update_work_title(
+    modules: State<'_, Arc<Modules>>,
+    id: String,
+    title: String,
+) -> anyhow::Result<(), CommandError> {
+    modules
+        .work_use_case()
+        .update_work_title(UpdateTitleWork::new(id, title))
+        .await?;
+    Ok(())
 }

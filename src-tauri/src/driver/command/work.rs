@@ -2,7 +2,13 @@ use std::sync::Arc;
 use tauri::State;
 
 use crate::{
-    app::model::work::{SearchAroundTitleWorkView, SearchAroundUpdatedAtWorkView, UpdateTitleWork},
+    app::model::{
+        artist::{CreateArtist, SearchEqualArtist},
+        work::{
+            SearchAroundTitleWorkView, SearchAroundUpdatedAtWorkView, UpdateArtistIdWork,
+            UpdateTitleWork,
+        },
+    },
     driver::{
         context::errors::CommandError,
         module::{Modules, ModulesExt},
@@ -56,6 +62,45 @@ pub async fn update_work_title(
     modules
         .work_use_case()
         .update_work_title(UpdateTitleWork::new(id, title))
+        .await?;
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn update_work_artist(
+    modules: State<'_, Arc<Modules>>,
+    id: String,
+    name: String,
+) -> anyhow::Result<(), CommandError> {
+    // artist の存在チェック
+    let artist = modules
+        .artist_use_case()
+        .search_equal_artist(SearchEqualArtist::new(name.clone()))
+        .await?;
+
+    let artist_id;
+
+    if let Some(artist) = artist {
+        artist_id = artist.id;
+    } else {
+        // ないならつくる
+        modules
+            .artist_use_case()
+            .register_artist(CreateArtist::new(name.clone()))
+            .await?;
+
+        let artist = modules
+            .artist_use_case()
+            .search_equal_artist(SearchEqualArtist::new(name))
+            .await?
+            .ok_or(anyhow::anyhow!("artist is not found(internal error)"))?;
+
+        artist_id = artist.id;
+    }
+
+    modules
+        .work_use_case()
+        .update_work_artist_id(UpdateArtistIdWork::new(id, artist_id))
         .await?;
     Ok(())
 }

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::kernel::model::work::NewerTitleWork;
+use crate::kernel::model::work::{NewerArtistIdWork, NewerTitleWork};
 use crate::kernel::model::Id;
 use crate::kernel::repository::work::WorkRepository;
 use crate::{adapter::modules::RepositoriesModuleExt, kernel::model::work::Work};
@@ -8,7 +8,7 @@ use derive_new::new;
 
 use crate::app::model::work::{
     CreateWork, SearchAroundTitleWorkView, SearchAroundUpdatedAtWorkView, SearchEqualWork,
-    UpdateTitleWork,
+    UpdateArtistIdWork, UpdateTitleWork,
 };
 
 #[derive(new)]
@@ -44,6 +44,21 @@ impl<R: RepositoriesModuleExt> WorkUseCase<R> {
         self.repositories
             .work_repository()
             .update_title(source)
+            .await
+    }
+
+    pub async fn update_work_artist_id(&self, source: UpdateArtistIdWork) -> anyhow::Result<()> {
+        let source: NewerArtistIdWork = source.try_into()?;
+        let _ = self
+            .repositories
+            .work_repository()
+            .find(&source.id)
+            .await?
+            .ok_or(anyhow::anyhow!("work is not found"));
+
+        self.repositories
+            .work_repository()
+            .update_artist_id(source)
             .await
     }
 

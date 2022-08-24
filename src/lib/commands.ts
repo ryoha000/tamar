@@ -103,3 +103,7 @@ export const commandAttachTagByName = async (workId: string, name: string) => {
 export const commandUpdateWorkTitle = async (workId: string, title: string) => {
   return await invoke<void>("update_work_title", { workId, title });
 };
+
+export const commandUpdateWorkArtist = async (id: string, name: string) => {
+  return await invoke<void>("update_work_artist", { id, name });
+};

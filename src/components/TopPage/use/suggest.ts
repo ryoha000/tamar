@@ -1,5 +1,6 @@
 import { Accessor, createResource, createSignal, Setter } from "solid-js";
 import { commandGetSuggest } from "../../../lib/commands";
+import useInputList from "../../../lib/inputList";
 import { Suggest, Tag } from "../../../lib/types";
 
 const INITIAL_SUGGEST: Suggest = { tags: [], artists: [] };
@@ -72,29 +73,6 @@ const useSuggest = (props: UseSuggestProps) => {
     props.setText(e.target.value);
   };
   return { keydown, input, change, options };
-};
-
-// https://stackoverflow.com/a/65073572
-const useInputList = (
-  inputCallback: (e: HTMLInputElement) => void,
-  listCallback: (e: HTMLInputElement) => void
-) => {
-  let eventSource: "input" | "list" | null = null;
-  const keydown = (e: KeyboardEvent) => {
-    eventSource = e.key ? "input" : "list";
-  };
-  const input = (e: InputEvent) => {
-    if (!e.target || !(e.target instanceof HTMLInputElement)) {
-      return;
-    }
-    if (eventSource === "list") {
-      listCallback(e.target);
-    } else {
-      inputCallback(e.target);
-    }
-  };
-
-  return { keydown, input };
 };
 
 export default useSuggest;

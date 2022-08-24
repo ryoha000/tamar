@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::kernel::model::work::NewerWork;
+use crate::kernel::model::work::NewerTitleWork;
 use crate::kernel::model::Id;
 use crate::kernel::repository::work::WorkRepository;
 use crate::{adapter::modules::RepositoriesModuleExt, kernel::model::work::Work};
@@ -33,7 +33,7 @@ impl<R: RepositoriesModuleExt> WorkUseCase<R> {
     }
 
     pub async fn update_work_title(&self, source: UpdateTitleWork) -> anyhow::Result<()> {
-        let source: NewerWork = source.try_into()?;
+        let source: NewerTitleWork = source.try_into()?;
         let _ = self
             .repositories
             .work_repository()

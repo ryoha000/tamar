@@ -1,7 +1,7 @@
 use crate::adapter::model::work::WorkTable;
 use crate::kernel::model::artist::Artist;
 use crate::kernel::model::work::{
-    NewerWork, SearchAroundTitleWork, SearchAroundUpdatedAtWork, SearchWork,
+    NewerTitleWork, SearchAroundTitleWork, SearchAroundUpdatedAtWork, SearchWork,
 };
 use crate::kernel::{
     model::{
@@ -192,7 +192,7 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
         Ok(())
     }
 
-    async fn update_title(&self, source: NewerWork) -> anyhow::Result<()> {
+    async fn update_title(&self, source: NewerTitleWork) -> anyhow::Result<()> {
         let pool = self.pool.0.clone();
         sqlx::query("UPDATE work SET title = ? where id = ?")
             .bind(source.title)
@@ -212,7 +212,7 @@ mod test {
 
     use crate::kernel::model::artist::{Artist, NewArtist};
     use crate::kernel::model::work::{
-        NewWork, NewerWork, SearchAroundTitleWork, SearchAroundUpdatedAtWork, SearchWork, Work,
+        NewWork, NewerTitleWork, SearchAroundTitleWork, SearchAroundUpdatedAtWork, SearchWork, Work,
     };
     use crate::kernel::model::Id;
     use crate::kernel::repository::artist::ArtistRepository;
@@ -271,7 +271,7 @@ mod test {
 
         update_work_title(
             db.clone(),
-            NewerWork::new(Id::new(work_id), new_title.clone()),
+            NewerTitleWork::new(Id::new(work_id), new_title.clone()),
         );
 
         let found = find_work(db.clone(), Id::new(work_id)).unwrap();
@@ -566,7 +566,7 @@ mod test {
         block_on(repository.insert(new_work)).unwrap()
     }
 
-    fn update_work_title(db: Db, newer_work: NewerWork) {
+    fn update_work_title(db: Db, newer_work: NewerTitleWork) {
         let repository = DatabaseRepositoryImpl::<Work>::new(db);
         block_on(repository.update_title(newer_work)).unwrap()
     }

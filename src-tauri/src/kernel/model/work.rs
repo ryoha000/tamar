@@ -19,7 +19,7 @@ pub struct NewWork {
 }
 
 #[derive(new, Debug)]
-pub struct NewerWork {
+pub struct NewerTitleWork {
     pub id: Id<Work>,
     pub title: String,
 }

@@ -89,5 +89,9 @@ export const commandSelectTag = async (limit: number) => {
 };
 
 export const commandAttachTag = async (workId: string, tagId: string) => {
-  return await invoke<Tag[]>("attach_tag", { workId, tagId });
+  return await invoke<void>("attach_tag", { workId, tagId });
+};
+
+export const commandDetachTag = async (workId: string, tagId: string) => {
+  return await invoke<void>("detach_tag", { workId, tagId });
 };

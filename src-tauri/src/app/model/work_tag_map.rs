@@ -1,6 +1,11 @@
 use derive_new::new;
 
-use crate::kernel::model::{tag::Tag, work::Work, work_tag_map::NewWorkTagMap, Id};
+use crate::kernel::model::{
+    tag::Tag,
+    work::Work,
+    work_tag_map::{DeleteWorkTagMap, NewWorkTagMap},
+    Id,
+};
 
 #[derive(new)]
 pub struct CreateWorkTagMap {
@@ -25,5 +30,15 @@ impl TryFrom<CreateWorkTagMap> for NewWorkTagMap {
     fn try_from(c: CreateWorkTagMap) -> anyhow::Result<Self> {
         let work_tag_map_id = Id::gen();
         Ok(NewWorkTagMap::new(work_tag_map_id, c.work_id, c.tag_id))
+    }
+}
+
+pub type DetachWorkTagMap = CreateWorkTagMap;
+
+impl TryFrom<DetachWorkTagMap> for DeleteWorkTagMap {
+    type Error = anyhow::Error;
+
+    fn try_from(c: DetachWorkTagMap) -> anyhow::Result<Self> {
+        Ok(DeleteWorkTagMap::new(c.work_id, c.tag_id))
     }
 }

@@ -95,3 +95,7 @@ export const commandAttachTag = async (workId: string, tagId: string) => {
 export const commandDetachTag = async (workId: string, tagId: string) => {
   return await invoke<void>("detach_tag", { workId, tagId });
 };
+
+export const commandAttachTagByName = async (workId: string, name: string) => {
+  return await invoke<void>("attach_tag_by_name", { workId, name });
+};

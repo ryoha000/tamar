@@ -44,6 +44,7 @@ fn main() {
             driver::command::tag_view::select_tag,
             driver::command::tag::attach_tag,
             driver::command::tag::detach_tag,
+            driver::command::tag::attach_tag_by_name,
             driver::command::suggest::get_suggest,
             driver::command::suggest::get_tag_suggest,
         ])

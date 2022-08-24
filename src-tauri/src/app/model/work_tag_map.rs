@@ -1,10 +1,22 @@
-use crate::kernel::model::{tag::Tag, work::Work, work_tag_map::NewWorkTagMap, Id};
 use derive_new::new;
+
+use crate::kernel::model::{tag::Tag, work::Work, work_tag_map::NewWorkTagMap, Id};
 
 #[derive(new)]
 pub struct CreateWorkTagMap {
     pub work_id: Id<Work>,
     pub tag_id: Id<Tag>,
+}
+
+impl CreateWorkTagMap {
+    pub fn from_raw(work_id: String, tag_id: String) -> anyhow::Result<Self> {
+        let w = Id::<Work>::new(ulid::Ulid::from_string(&work_id)?);
+        let t = Id::<Tag>::new(ulid::Ulid::from_string(&tag_id)?);
+        Ok(Self {
+            work_id: w,
+            tag_id: t,
+        })
+    }
 }
 
 impl TryFrom<CreateWorkTagMap> for NewWorkTagMap {

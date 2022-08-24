@@ -87,3 +87,7 @@ export const commandGetTagSuggest = async (text: string) => {
 export const commandSelectTag = async (limit: number) => {
   return await invoke<Tag[]>("select_tag", { limit });
 };
+
+export const commandAttachTag = async (workId: string, tagId: string) => {
+  return await invoke<Tag[]>("attach_tag", { workId, tagId });
+};

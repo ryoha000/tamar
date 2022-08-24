@@ -42,6 +42,7 @@ fn main() {
             driver::command::artist_view::search_artist,
             driver::command::artist_view::get_artist,
             driver::command::tag_view::select_tag,
+            driver::command::tag::attach_tag,
             driver::command::suggest::get_suggest,
             driver::command::suggest::get_tag_suggest,
         ])

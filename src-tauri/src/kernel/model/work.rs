@@ -25,6 +25,12 @@ pub struct NewerTitleWork {
 }
 
 #[derive(new, Debug)]
+pub struct NewerArtistIdWork {
+    pub id: Id<Work>,
+    pub artist_id: Id<Artist>,
+}
+
+#[derive(new, Debug)]
 pub struct SearchWork {
     pub limit: u8,
     pub offset: u8,

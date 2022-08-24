@@ -1,7 +1,7 @@
 use crate::adapter::model::work::WorkTable;
 use crate::kernel::model::artist::Artist;
 use crate::kernel::model::work::{
-    NewerTitleWork, SearchAroundTitleWork, SearchAroundUpdatedAtWork, SearchWork,
+    NewerArtistIdWork, NewerTitleWork, SearchAroundTitleWork, SearchAroundUpdatedAtWork, SearchWork,
 };
 use crate::kernel::{
     model::{
@@ -203,6 +203,18 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
 
         Ok(())
     }
+
+    async fn update_artist_id(&self, source: NewerArtistIdWork) -> anyhow::Result<()> {
+        let pool = self.pool.0.clone();
+        sqlx::query("UPDATE work SET artist_id = ? where id = ?")
+            .bind(source.artist_id.value.to_string())
+            .bind(source.id.value.to_string())
+            .execute(&*pool)
+            .await
+            .ok();
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -212,7 +224,8 @@ mod test {
 
     use crate::kernel::model::artist::{Artist, NewArtist};
     use crate::kernel::model::work::{
-        NewWork, NewerTitleWork, SearchAroundTitleWork, SearchAroundUpdatedAtWork, SearchWork, Work,
+        NewWork, NewerArtistIdWork, NewerTitleWork, SearchAroundTitleWork,
+        SearchAroundUpdatedAtWork, SearchWork, Work,
     };
     use crate::kernel::model::Id;
     use crate::kernel::repository::artist::ArtistRepository;
@@ -278,6 +291,44 @@ mod test {
         assert_eq!(found.id.value, work_id);
         // 変わった
         assert_eq!(found.title, new_title);
+    }
+
+    #[test]
+    fn test_update_work_artist_id() {
+        let db = get_test_db();
+
+        let old_artist_id = Ulid::new();
+        insert_artist(
+            db.clone(),
+            NewArtist::new(Id::new(old_artist_id), random_string()),
+        );
+
+        let new_artist_id = Ulid::new();
+        insert_artist(
+            db.clone(),
+            NewArtist::new(Id::new(new_artist_id), random_string()),
+        );
+
+        let work_id = Ulid::new();
+        insert_work(
+            db.clone(),
+            NewWork::new(Id::new(work_id), random_string(), Id::new(old_artist_id)),
+        );
+
+        let found = find_work(db.clone(), Id::new(work_id)).unwrap();
+        assert_eq!(found.id.value, work_id);
+        // まだ変わってない
+        assert_ne!(found.artist_id.value, new_artist_id);
+
+        update_work_artist_id(
+            db.clone(),
+            NewerArtistIdWork::new(Id::new(work_id), Id::new(new_artist_id)),
+        );
+
+        let found = find_work(db.clone(), Id::new(work_id)).unwrap();
+        assert_eq!(found.id.value, work_id);
+        // 変わった
+        assert_eq!(found.artist_id.value, new_artist_id);
     }
 
     #[test]
@@ -569,6 +620,11 @@ mod test {
     fn update_work_title(db: Db, newer_work: NewerTitleWork) {
         let repository = DatabaseRepositoryImpl::<Work>::new(db);
         block_on(repository.update_title(newer_work)).unwrap()
+    }
+
+    fn update_work_artist_id(db: Db, newer_work: NewerArtistIdWork) {
+        let repository = DatabaseRepositoryImpl::<Work>::new(db);
+        block_on(repository.update_artist_id(newer_work)).unwrap()
     }
 
     fn find_work(db: Db, id: Id<Work>) -> Option<Work> {

@@ -1,8 +1,8 @@
 import { Component, createResource, For } from "solid-js";
 import { commandSelectWorkByArtist } from "../../lib/commands";
 import type { Artist as ArtistI } from "../../lib/types";
-import ArtistScroller from "./ArtistScroller";
 import ArtistWork from "./ArtistWork";
+import HorizontalScroller from "./HorizontalScroller";
 
 interface Props {
   artist: ArtistI;
@@ -24,15 +24,21 @@ const Artist: Component<Props> = (props) => {
     <div class="w-full flex flex-col gap-2">
       <div class="font-bold text-lg">{props.artist.name}</div>
       <div class="">
-        <ArtistScroller>
-          <For each={debugWorks()}>
-            {(work, i) => (
-              <div class="w-32 h-32 flex-shrink-0">
-                <ArtistWork work={work} />
-              </div>
-            )}
-          </For>
-        </ArtistScroller>
+        <HorizontalScroller
+          isGradientFader={true}
+          scrollStep={300}
+          iconSize="md"
+        >
+          <div class="flex gap-4 p-4">
+            <For each={debugWorks()}>
+              {(work, i) => (
+                <div class="w-32 h-32 flex-shrink-0">
+                  <ArtistWork work={work} />
+                </div>
+              )}
+            </For>
+          </div>
+        </HorizontalScroller>
       </div>
     </div>
   );

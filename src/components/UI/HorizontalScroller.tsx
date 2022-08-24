@@ -1,19 +1,31 @@
 import { IconTypes } from "solid-icons";
 import { FaSolidAngleLeft, FaSolidAngleRight } from "solid-icons/fa";
-import { Component, createSignal, onMount, ParentComponent } from "solid-js";
+import {
+  Component,
+  createSignal,
+  onMount,
+  ParentComponent,
+  Show,
+} from "solid-js";
 
-interface Props {
+type ControllerProps = {
   class: string;
   gradientClass: string;
   icon: IconTypes;
-}
+} & Pick<Props, "iconSize" | "isGradientFader">;
 
-interface ClickProps {
+type ClickProps = {
   onclick: () => void;
   canScroll: boolean;
+} & Pick<Props, "iconSize" | "isGradientFader">;
+
+interface Props {
+  isGradientFader: boolean;
+  scrollStep: number;
+  iconSize: "sm" | "md";
 }
 
-const ArtistScroller: ParentComponent = (props) => {
+const HorizontalScroller: ParentComponent<Props> = (props) => {
   let container: HTMLDivElement | undefined = undefined;
 
   const [canLeft, setCanLeft] = createSignal(false);
@@ -54,30 +66,43 @@ const ArtistScroller: ParentComponent = (props) => {
 
   const left = () => {
     if (container) {
-      container.scrollBy(-300, 0);
+      container.scrollBy(-1 * props.scrollStep, 0);
     }
   };
   const right = () => {
     if (container) {
-      container.scrollBy(300, 0);
+      container.scrollBy(props.scrollStep, 0);
     }
   };
   return (
-    <div class="relative">
+    <div class="relative w-full">
       <div
-        class="flex overflow-x-auto gap-4 p-4 hidden-scrollbar group scroll-smooth"
+        class="overflow-x-auto hidden-scrollbar group scroll-smooth"
         ref={container}
         onscroll={setCanScroll}
       >
-        <ArtistScrollerLeft onclick={left} canScroll={canLeft()} />
-        <ArtistScrollerRight onclick={right} canScroll={canRight()} />
+        <HorizontalScrollerLeft
+          onclick={left}
+          canScroll={canLeft()}
+          isGradientFader={props.isGradientFader}
+          iconSize={props.iconSize}
+        />
+        <HorizontalScrollerRight
+          onclick={right}
+          canScroll={canRight()}
+          isGradientFader={props.isGradientFader}
+          iconSize={props.iconSize}
+        />
         {props.children}
       </div>
     </div>
   );
 };
 
-const ArtistScrollerControl: Component<Props & ClickProps> = (props) => {
+const HorizontalScrollerControl: Component<ControllerProps & ClickProps> = (
+  props
+) => {
+  const iconSize = () => (props.iconSize === "md" ? "1.2rem" : "1.0rem");
   return (
     <button
       class={`absolute top-0 h-full z-artist-navigation-overlay cursor-pointer ${props.class}`}
@@ -85,25 +110,30 @@ const ArtistScrollerControl: Component<Props & ClickProps> = (props) => {
     >
       <div class="relative flex items-center h-full p-2">
         <div
-          classList={{ hidden: !props.canScroll }}
-          class="p-2 rounded-full bg-white-opacity-70 transition-all duration-500 opacity-0 group-hover:opacity-100"
+          class={`${props.iconSize === "md" ? "p-2" : "p-1"} ${
+            props.canScroll ? "" : "hidden"
+          } rounded-full bg-white-opacity-70 transition-all duration-500 opacity-0 group-hover:opacity-100`}
         >
           {props.icon({
-            size: "1.2rem",
+            size: iconSize(),
             class: "opacity-70",
           })}
         </div>
-        <div
-          class={`absolute top-0 h-full w-1/2 ${props.gradientClass} ${props.class}`}
-        />
+        <Show when={props.isGradientFader}>
+          <div
+            class={`absolute top-0 h-full w-1/2 ${props.gradientClass} ${props.class}`}
+          />
+        </Show>
       </div>
     </button>
   );
 };
 
-const ArtistScrollerLeft: Component<ClickProps> = (props) => {
+const HorizontalScrollerLeft: Component<ClickProps> = (props) => {
   return (
-    <ArtistScrollerControl
+    <HorizontalScrollerControl
+      isGradientFader={props.isGradientFader}
+      iconSize={props.iconSize}
       canScroll={props.canScroll}
       onclick={props.onclick}
       class="left-0"
@@ -113,9 +143,11 @@ const ArtistScrollerLeft: Component<ClickProps> = (props) => {
   );
 };
 
-const ArtistScrollerRight: Component<ClickProps> = (props) => {
+const HorizontalScrollerRight: Component<ClickProps> = (props) => {
   return (
-    <ArtistScrollerControl
+    <HorizontalScrollerControl
+      isGradientFader={props.isGradientFader}
+      iconSize={props.iconSize}
       canScroll={props.canScroll}
       onclick={props.onclick}
       class="right-0"
@@ -125,4 +157,4 @@ const ArtistScrollerRight: Component<ClickProps> = (props) => {
   );
 };
 
-export default ArtistScroller;
+export default HorizontalScroller;

@@ -1,10 +1,10 @@
-use std::{collections::HashMap, fs, path, sync::Arc};
+use std::{collections::HashMap, sync::Arc};
 use tauri::State;
 
 use crate::{
     app::model::{
         artist::{CreateArtist, GetByNameArtist},
-        file::SaveWorkFiles,
+        file::SaveOriginalFiles,
         tag::{CreateTag, GetByNameTag},
         work::{CreateWork, GetByTitleWork},
         work_tag_map::CreateWorkTagMap,
@@ -140,10 +140,12 @@ pub async fn import_directory(
         // -------- work に関係する処理 ここまで ---------
 
         // ファイルコピー
-        modules.file_use_case().save_work_files(SaveWorkFiles::new(
-            work.id.clone(),
-            dir_path_info.path.clone(),
-        ))?;
+        modules
+            .file_use_case()
+            .save_original_files(SaveOriginalFiles::new(
+                work.id.clone(),
+                dir_path_info.path.clone(),
+            ))?;
 
         // -------- tag に関係する処理 ここから ---------
         match tag_usage_map.get(max_deps) {

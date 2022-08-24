@@ -1,11 +1,11 @@
 use std::sync::Arc;
-use std::{fs, path};
 
 use crate::app::model::artist_view::ArtistView;
 use crate::app::model::tag_view::TagView;
 use crate::kernel::model::artist::Artist;
 use crate::kernel::model::work::Work;
 use crate::kernel::model::Id;
+use crate::kernel::repository::file::FileRepository;
 use crate::kernel::repository::tag::TagRepository;
 use crate::kernel::repository::work::WorkRepository;
 use crate::kernel::repository::work_tag_map::WorkTagMapRepository;
@@ -47,20 +47,10 @@ impl<R: RepositoriesModuleExt> WorkViewUseCase<R> {
             .map(|v| TagView::new(v))
             .collect();
 
-        // TODO: dirverのほうでこの処理をやってusecaseの処理を使う
-        let dir_path = path::Path::new("../tamar_content");
-        let dir_path = dir_path.join(path::Path::new(&work.id.value.to_string()));
-
-        let paths = fs::read_dir(dir_path)?;
-        let mut image_paths = Vec::new();
-        for path in paths {
-            image_paths.push(
-                fs::canonicalize(path?.path())?
-                    .to_str()
-                    .ok_or(anyhow::anyhow!("can't encode pathbuf -> str"))?
-                    .to_string(),
-            );
-        }
+        let image_paths = self
+            .repositories
+            .file_repository()
+            .get_work_paths(&work.id)?;
 
         Ok(WorkView::new(
             work,

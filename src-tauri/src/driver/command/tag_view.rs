@@ -13,7 +13,7 @@ use crate::{
 #[tauri::command]
 pub async fn select_tag(
     modules: State<'_, Arc<Modules>>,
-    limit: u8,
+    limit: u16,
 ) -> anyhow::Result<Vec<JsonTagView>, CommandError> {
     let tags = modules
         .tag_use_case()

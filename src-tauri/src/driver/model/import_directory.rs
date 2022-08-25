@@ -11,6 +11,6 @@ pub struct DirPathInfo {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct DirDeps {
-    pub deps: u8,
+    pub deps: u16,
     pub name: String,
 }

@@ -17,7 +17,7 @@ use super::DatabaseRepositoryImpl;
 
 fn get_search_around_query(
     builder: &mut sqlx::QueryBuilder<Sqlite>,
-    limit: u8,
+    limit: u16,
     is_before: bool,
     col: String,
     value: String,

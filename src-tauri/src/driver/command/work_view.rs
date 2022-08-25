@@ -13,8 +13,8 @@ use crate::{
 #[tauri::command]
 pub async fn search_work(
     modules: State<'_, Arc<Modules>>,
-    limit: u8,
-    offset: u8,
+    limit: u16,
+    offset: u16,
     search: String,
     tags: Vec<String>,
     sort_col: String,

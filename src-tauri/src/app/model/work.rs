@@ -73,7 +73,7 @@ pub struct GetByTitleWork {
 
 #[derive(new)]
 pub struct SearchAroundTitleWorkView {
-    pub limit: u8,
+    pub limit: u16,
     pub is_before: bool,
     pub title: String,
 }
@@ -88,7 +88,7 @@ impl TryFrom<SearchAroundTitleWorkView> for SearchAroundTitleWork {
 
 #[derive(new)]
 pub struct SearchAroundUpdatedAtWorkView {
-    pub limit: u8,
+    pub limit: u16,
     pub is_before: bool,
     pub updated_at: String,
 }

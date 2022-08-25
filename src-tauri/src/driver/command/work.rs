@@ -18,7 +18,7 @@ use crate::{
 #[tauri::command]
 pub async fn search_around_title_work(
     modules: State<'_, Arc<Modules>>,
-    limit: u8,
+    limit: u16,
     is_before: bool,
     title: String,
 ) -> anyhow::Result<Vec<String>, CommandError> {
@@ -36,7 +36,7 @@ pub async fn search_around_title_work(
 #[tauri::command]
 pub async fn search_around_updated_at_work(
     modules: State<'_, Arc<Modules>>,
-    limit: u8,
+    limit: u16,
     is_before: bool,
     updated_at: String,
 ) -> anyhow::Result<Vec<String>, CommandError> {

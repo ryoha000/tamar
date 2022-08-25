@@ -20,8 +20,8 @@ impl ArtistView {
 
 #[derive(new)]
 pub struct SearchArtistView {
-    pub limit: u8,
-    pub offset: u8,
+    pub limit: u16,
+    pub offset: u16,
     pub sort_col: String,
     pub sort_desc: bool,
     pub text: String,

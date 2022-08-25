@@ -13,8 +13,8 @@ use crate::{
 #[tauri::command]
 pub async fn search_artist(
     modules: State<'_, Arc<Modules>>,
-    limit: u8,
-    offset: u8,
+    limit: u16,
+    offset: u16,
     search: String,
     sort_col: String,
     sort_desc: bool,

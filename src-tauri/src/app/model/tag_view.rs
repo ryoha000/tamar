@@ -25,5 +25,5 @@ pub struct SearchByNameTagView<'a> {
 
 #[derive(new)]
 pub struct SelectTagView {
-    pub limit: u8,
+    pub limit: u16,
 }

@@ -32,8 +32,8 @@ pub struct NewerArtistIdWork {
 
 #[derive(new, Debug)]
 pub struct SearchWork {
-    pub limit: u8,
-    pub offset: u8,
+    pub limit: u16,
+    pub offset: u16,
     pub sort_col: String,
     pub sort_desc: bool,
     pub text: String,
@@ -41,14 +41,14 @@ pub struct SearchWork {
 
 #[derive(new, Debug)]
 pub struct SearchAroundTitleWork {
-    pub limit: u8,
+    pub limit: u16,
     pub is_before: bool,
     pub title: String,
 }
 
 #[derive(new, Debug)]
 pub struct SearchAroundUpdatedAtWork {
-    pub limit: u8,
+    pub limit: u16,
     pub is_before: bool,
     pub updated_at: NaiveDateTime,
 }

@@ -56,7 +56,7 @@ impl TagRepository for DatabaseRepositoryImpl<Tag> {
         }
     }
 
-    async fn select(&self, limit: u8) -> anyhow::Result<Vec<Tag>> {
+    async fn select(&self, limit: u16) -> anyhow::Result<Vec<Tag>> {
         let pool = self.pool.0.clone();
         let tag_table = query_as::<_, TagTable>("select * from tag LIMIT ?")
             .bind(limit)
@@ -225,7 +225,7 @@ mod test {
         block_on(repository.search_by_name(name)).unwrap()
     }
 
-    fn select_tag(db: Db, limit: u8) -> Vec<Tag> {
+    fn select_tag(db: Db, limit: u16) -> Vec<Tag> {
         let repository = DatabaseRepositoryImpl::new(db);
         block_on(repository.select(limit)).unwrap()
     }

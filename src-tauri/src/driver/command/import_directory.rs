@@ -19,7 +19,7 @@ use crate::{
 pub async fn import_directory(
     modules: State<'_, Arc<Modules>>,
     dir_path_infos: Vec<DirPathInfo>,
-    usages: HashMap<u8, HashMap<u8, String>>,
+    usages: HashMap<u16, HashMap<u16, String>>,
 ) -> anyhow::Result<(), CommandError> {
     let mut artist_usage_map = HashMap::new();
     let mut title_usage_map = HashMap::new();
@@ -76,8 +76,8 @@ pub async fn import_directory(
     }
 
     for dir_path_info in dir_path_infos.iter() {
-        let max_deps = &(dir_path_info.dir_deps.len() as u8);
-        let get_name = |deps: &&u8| dir_path_info.dir_deps[(**deps - 1) as usize].name.clone();
+        let max_deps = &(dir_path_info.dir_deps.len() as u16);
+        let get_name = |deps: &&u16| dir_path_info.dir_deps[(**deps - 1) as usize].name.clone();
 
         // -------- artist に関係する処理 ここから ---------
         // artist を insert

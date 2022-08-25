@@ -7,7 +7,7 @@ import {
   SearchWorkRequest,
 } from "./types";
 
-const SEARCH_LIMIT = 30;
+export const SEARCH_LIMIT = 30;
 
 const useOption = () => {
   const [offset, setOffset] = createSignal(0);

@@ -29,7 +29,7 @@ const ArtistWork: Component<Props> = (props) => {
           tabIndex={0}
           href={`/work/${props.work.id}/${workPageMap.get(props.work.id) ?? 0}`}
         >
-          <img class="object-cover w-full h-full rounded-lg" src={imageSrc()} />
+          <img loading="lazy" decoding="async" class="object-cover w-full h-full rounded-lg" src={imageSrc()} />
         </Link>
       </Show>
     </div>

@@ -17,16 +17,9 @@ const ArtistList: Component = () => {
     }
   );
 
-  const debugArtists = () => {
-    const res = [];
-    for (let i = 0; i < 10; i++) {
-      res.push(...artists());
-    }
-    return res;
-  };
   return (
     <div class="flex flex-col items-center w-full gap-4">
-      <For each={debugArtists()}>
+      <For each={artists()}>
         {(artist, i) => <Artist artist={artist} />}
       </For>
     </div>

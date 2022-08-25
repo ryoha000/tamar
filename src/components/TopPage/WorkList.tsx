@@ -12,14 +12,6 @@ const WorkList: Component = () => {
     return <div>loading</div>;
   }
 
-  const debugWorks = () => {
-    const res = [];
-    for (let i = 0; i < 10; i++) {
-      res.push(...works());
-    }
-    return res;
-  };
-
   const [works, { mutate, refetch }] = createResource(
     store.searchRequest,
     commandSearchWork,
@@ -45,7 +37,7 @@ const WorkList: Component = () => {
   };
   return (
     <div>
-      <MasonryWrapper each={debugWorks()}>
+      <MasonryWrapper each={works()}>
         {(work, i) => <Work work={work} />}
       </MasonryWrapper>
       <ScrollObserber

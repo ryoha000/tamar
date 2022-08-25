@@ -29,7 +29,7 @@ const Work: Component<Props> = (props) => {
           tabIndex={0}
           href={`/work/${props.work.id}/${workPageMap.get(props.work.id) ?? 0}`}
         >
-          <img class="object-contain rounded" src={imageSrc()} />
+          <img decoding="async" class="object-contain rounded" src={imageSrc()} loading="lazy" />
         </Link>
       </Show>
     </div>

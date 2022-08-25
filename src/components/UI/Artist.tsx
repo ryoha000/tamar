@@ -12,14 +12,6 @@ const Artist: Component<Props> = (props) => {
     initialValue: [],
   });
 
-  const debugWorks = () => {
-    const res = [];
-    for (let i = 0; i < 10; i++) {
-      res.push(...works());
-    }
-    return res;
-  };
-
   return (
     <div class="w-full flex flex-col gap-2">
       <div class="font-bold text-lg">{props.artist.name}</div>
@@ -30,9 +22,9 @@ const Artist: Component<Props> = (props) => {
           iconSize="md"
         >
           <div class="flex gap-4 p-4">
-            <For each={debugWorks()}>
+            <For each={works()}>
               {(work, i) => (
-                <div class="w-32 h-32 flex-shrink-0">
+                <div class="w-44 h-44 p-2 flex-shrink-0" style="content-visibility: auto;contain-intrinsic-size: 11rem;">
                   <ArtistWork work={work} />
                 </div>
               )}

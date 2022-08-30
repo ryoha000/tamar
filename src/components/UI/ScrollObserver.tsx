@@ -41,7 +41,7 @@ const ScrollObserberMarker: Component<MarkerProps> = (props) => {
     }
   });
   return (
-    <div ref={marker} class="w-full h-2 bg-red-700">
+    <div ref={marker} class="w-full h-1">
       <Show when={props.isLoading}>
         <Loading />
       </Show>

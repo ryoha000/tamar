@@ -576,13 +576,21 @@ mod test {
             );
         }
 
+        let source = SearchAroundTitleWork::new(10, true, titles[0].clone());
+        let found = search_around_title(db.clone(), source).unwrap();
+        assert_eq!(found.len(), 0);
+
         let source = SearchAroundTitleWork::new(10, true, titles[1].clone());
         let found = search_around_title(db.clone(), source).unwrap();
         assert_eq!(found[0].title, titles[0]);
 
         let source = SearchAroundTitleWork::new(10, false, titles[1].clone());
-        let found = search_around_title(db, source).unwrap();
+        let found = search_around_title(db.clone(), source).unwrap();
         assert_eq!(found[0].title, titles[2]);
+
+        let source = SearchAroundTitleWork::new(10, false, titles[2].clone());
+        let found = search_around_title(db, source).unwrap();
+        assert_eq!(found.len(), 0);
     }
 
     #[test]
@@ -607,16 +615,23 @@ mod test {
             thread::sleep(ten_millis);
         }
 
+        let source = SearchAroundUpdatedAtWork::new(10, true, updated_at_vec[0].clone());
+        let found = search_around_updated_at(db.clone(), source).unwrap();
+        assert_eq!(found.len(), 0);
+
         let source = SearchAroundUpdatedAtWork::new(10, true, updated_at_vec[1].clone());
         let found = search_around_updated_at(db.clone(), source).unwrap();
-
         assert_eq!(found.len(), 1);
         assert_eq!(found[0].updated_at, updated_at_vec[0]);
 
         let source = SearchAroundUpdatedAtWork::new(10, false, updated_at_vec[1].clone());
-        let found = search_around_updated_at(db, source).unwrap();
+        let found = search_around_updated_at(db.clone(), source).unwrap();
         assert_eq!(found.len(), 1);
         assert_eq!(found[0].updated_at, updated_at_vec[2]);
+
+        let source = SearchAroundUpdatedAtWork::new(10, false, updated_at_vec[2].clone());
+        let found = search_around_updated_at(db, source).unwrap();
+        assert_eq!(found.len(), 0);
     }
 
     fn insert_artist(db: Db, new_artist: NewArtist) {

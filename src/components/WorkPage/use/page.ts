@@ -1,5 +1,4 @@
 import { useNavigate, useParams } from "@solidjs/router";
-import { convertFileSrc } from "@tauri-apps/api/tauri";
 import { Accessor, createSignal } from "solid-js";
 import type { SortColumnKind, Work } from "../../../lib/types";
 import useWorkIdsCache from "./workIdsCache";
@@ -9,7 +8,8 @@ const usePage = (
   work: Accessor<Work | null>,
   workPageMap: Map<string, number>,
   isSortDesc: Accessor<boolean>,
-  sortCol: Accessor<SortColumnKind>
+  sortCol: Accessor<SortColumnKind>,
+  imageSrcArray: Accessor<string[]>,
 ) => {
   const params = useParams();
   const navigator = useNavigate();
@@ -20,34 +20,6 @@ const usePage = (
       throw Error("page param is NaN");
     }
     return page;
-  };
-
-  const originalImageSrcArray = () => {
-    const _work = work();
-    if (!_work) {
-      return [];
-    }
-    const sortedPaths = [..._work.paths];
-    sortedPaths.sort(); // TODO: ソートがこれでいいのか考える
-    return sortedPaths;
-  };
-
-  const imageSrcArray = () => {
-    return originalImageSrcArray().map((v) => convertFileSrc(v));
-  };
-
-  const imageSrc = () => {
-    if (page() < 0 || page() >= imageSrcArray().length) {
-      return "";
-    }
-    return imageSrcArray()[page()];
-  };
-
-  const originalImageSrc = () => {
-    if (page() < 0 || page() >= originalImageSrcArray().length) {
-      return "";
-    }
-    return originalImageSrcArray()[page()];
   };
 
   const { workIds, fetchWorkIds, loading } = useWorkIdsCache();
@@ -171,13 +143,10 @@ const usePage = (
   };
 
   return {
-    imageSrc,
-    imageSrcArray,
     prev,
     next,
     keyDown,
     wheel,
-    originalImageSrc,
   };
 };
 

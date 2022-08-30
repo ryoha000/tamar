@@ -16,6 +16,7 @@ import usePage from "../components/WorkPage/use/page";
 import MenuDialog from "../components/WorkPage/MenuDialog";
 import { commandGetWork } from "../lib/commands";
 import { useStore } from "../lib/store";
+import useImage from "../components/WorkPage/use/image";
 
 const WorkPage: Component = () => {
   const store = useStore();
@@ -38,15 +39,15 @@ const WorkPage: Component = () => {
     }
   );
 
-  const {
-    imageSrc,
-    imageSrcArray,
-    next,
-    prev,
-    keyDown,
-    wheel,
-    originalImageSrc,
-  } = usePage(work, workPageMap, isSortDesc, sortCol);
+  const { imageSrc, imageSrcArray, originalImageSrc } = useImage(work);
+
+  const { next, prev, keyDown, wheel } = usePage(
+    work,
+    workPageMap,
+    isSortDesc,
+    sortCol,
+    imageSrcArray
+  );
 
   const [isListOpen, setIsListOpen] = createSignal(false);
 

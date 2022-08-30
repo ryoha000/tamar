@@ -2,7 +2,7 @@ import { createResource, createSignal } from "solid-js";
 import { errorToast } from "../../../lib/toast";
 
 export interface EditProps {
-  initialText: string;
+  initialText:() => string;
   command: (text: string) => Promise<void>;
   refetch: () => void;
   fetchSuggests?: (text: string) => Promise<string[]>;
@@ -10,7 +10,7 @@ export interface EditProps {
 }
 
 const useEdit = (props: EditProps) => {
-  const [text, setText] = createSignal(props.initialText);
+  const [text, { mutate }] = createResource(props.initialText, (s: string) => s, { initialValue: props.initialText()})
   const [editable, setEditable] = createSignal(false);
 
   const fetchSuggestsWrapper = async (s: string) => {
@@ -28,7 +28,7 @@ const useEdit = (props: EditProps) => {
     if (!e.target || !(e.target instanceof HTMLInputElement)) {
       return;
     }
-    setText(e.target.value);
+    mutate(e.target.value);
   };
   const confirmEdit = async () => {
     try {
@@ -42,7 +42,7 @@ const useEdit = (props: EditProps) => {
     }
   };
   const cancelEdit = () => {
-    setText(props.initialText);
+    mutate(props.initialText());
     setEditable(false);
   };
   const keydownInput = (e: KeyboardEvent) => {

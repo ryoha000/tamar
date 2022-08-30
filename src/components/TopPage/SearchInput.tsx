@@ -1,6 +1,5 @@
-import { Accessor, Component, For, Setter } from "solid-js";
+import { Component, For } from "solid-js";
 import { AiOutlineSearch } from "solid-icons/ai";
-import Tag from "../UI/Tag";
 import useSuggest, { UseSuggestProps } from "./use/suggest";
 import { Tag as TagI } from "../../lib/types";
 import SearchTagList from "./SearchTagList";

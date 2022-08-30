@@ -1,4 +1,5 @@
-import { Accessor, createResource, createSignal, Setter } from "solid-js";
+import { useNavigate } from "@solidjs/router";
+import { createResource, createSignal, Setter } from "solid-js";
 import { commandGetSuggest } from "../../../lib/commands";
 import useInputList from "../../../lib/inputList";
 import { Suggest, Tag } from "../../../lib/types";
@@ -11,6 +12,7 @@ export interface UseSuggestProps {
 }
 
 const useSuggest = (props: UseSuggestProps) => {
+  const navigator = useNavigate()
   const [tempText, setTempText] = createSignal("");
 
   const fetchOption = async (text: string) => {
@@ -30,7 +32,7 @@ const useSuggest = (props: UseSuggestProps) => {
       opts.push({ id: tag.id, type: "tag", value: tag.name });
     }
     for (const artist of suggest().artists) {
-      opts.push({ id: artist.id, type: "tag", value: artist.name });
+      opts.push({ id: artist.id, type: "artist", value: artist.name });
     }
     return opts;
   };
@@ -52,7 +54,11 @@ const useSuggest = (props: UseSuggestProps) => {
     props.setText("");
     ele.value = "";
 
-    // TODO: artist が選択されたときは /artist/:id に飛ばす
+    console.log(option)
+
+    if (option.type === "artist") {
+      navigator(`/artist/${option.id}`)
+    }
 
     if (option.type === "tag") {
       props.setTags((prev) => [

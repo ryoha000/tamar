@@ -95,7 +95,7 @@ const MenuDialog: Component<Props> = (props) => {
       <div class="flex gap-2 flex-col h-full">
         <MenuDialogSection label="タイトル">
           <Editor
-            initialText={props.work.title}
+            initialText={() => props.work.title}
             command={titleCommand}
             refetch={props.refetch}
             inputClass="text-lg"
@@ -104,7 +104,7 @@ const MenuDialog: Component<Props> = (props) => {
 
         <MenuDialogSection label="作者">
           <Editor
-            initialText={props.work.artist.name}
+            initialText={() => props.work.artist.name}
             command={artistCommand}
             fetchSuggests={fetchArtistSuggest}
             refetch={props.refetch}
@@ -164,8 +164,9 @@ const MenuDialogIconButton: ParentComponent<{
   return (
     <button
       onclick={props.click}
-      class={`rounded px-4 py-2 hover:bg-secondary transition-all ${props.buttonClass ?? ""
-        }`}
+      class={`rounded px-4 py-2 hover:bg-secondary transition-all ${
+        props.buttonClass ?? ""
+      }`}
     >
       <div class="flex items-center gap-2">
         {props.icon({ size: "1.5rem" })}

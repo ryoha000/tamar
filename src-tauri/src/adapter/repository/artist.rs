@@ -1,5 +1,5 @@
 use crate::adapter::model::artist::ArtistTable;
-use crate::kernel::model::artist::SearchAlsoUsingWorkArtist;
+use crate::kernel::model::artist::{SearchAlsoUsingWorkArtist, UpdateNameArtist};
 use crate::kernel::{
     model::{
         artist::{Artist, NewArtist},
@@ -130,7 +130,7 @@ impl ArtistRepository for DatabaseRepositoryImpl<Artist> {
         Ok(())
     }
 
-    async fn update_name(&self, source: NewArtist) -> anyhow::Result<()> {
+    async fn update_name(&self, source: UpdateNameArtist) -> anyhow::Result<()> {
         if source.name.len() == 0 {
             anyhow::bail!("name is required")
         }
@@ -150,7 +150,9 @@ impl ArtistRepository for DatabaseRepositoryImpl<Artist> {
 
 #[cfg(test)]
 mod test {
-    use crate::kernel::model::artist::{Artist, NewArtist, SearchAlsoUsingWorkArtist};
+    use crate::kernel::model::artist::{
+        Artist, NewArtist, SearchAlsoUsingWorkArtist, UpdateNameArtist,
+    };
     use crate::kernel::model::work::{NewWork, Work};
     use crate::kernel::model::Id;
     use crate::kernel::repository::artist::ArtistRepository;
@@ -194,7 +196,7 @@ mod test {
         let new_name = random_string();
         update_artist_name(
             db.clone(),
-            NewArtist::new(Id::new(id), new_name.to_string()),
+            UpdateNameArtist::new(Id::new(id), new_name.to_string()),
         );
         let found = find_artist(db.clone(), Id::new(id)).unwrap();
 
@@ -390,7 +392,7 @@ mod test {
         block_on(repository.search_also_using_work(source)).unwrap()
     }
 
-    fn update_artist_name(db: Db, source: NewArtist) {
+    fn update_artist_name(db: Db, source: UpdateNameArtist) {
         let repository = DatabaseRepositoryImpl::<Artist>::new(db);
         block_on(repository.update_name(source)).unwrap()
     }

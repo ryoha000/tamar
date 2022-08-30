@@ -16,6 +16,8 @@ pub struct NewArtist {
     pub name: String,
 }
 
+pub type UpdateNameArtist = NewArtist;
+
 #[derive(new, Debug)]
 pub struct SearchAlsoUsingWorkArtist {
     pub limit: u16,

@@ -1,5 +1,5 @@
 use crate::kernel::model::{
-    artist::{Artist, NewArtist, SearchAlsoUsingWorkArtist},
+    artist::{Artist, NewArtist, SearchAlsoUsingWorkArtist, UpdateNameArtist},
     Id,
 };
 use async_trait::async_trait;
@@ -14,5 +14,5 @@ pub trait ArtistRepository {
         source: SearchAlsoUsingWorkArtist,
     ) -> anyhow::Result<Vec<Artist>>;
     async fn insert(&self, source: NewArtist) -> anyhow::Result<()>;
-    async fn update_name(&self, source: NewArtist) -> anyhow::Result<()>;
+    async fn update_name(&self, source: UpdateNameArtist) -> anyhow::Result<()>;
 }

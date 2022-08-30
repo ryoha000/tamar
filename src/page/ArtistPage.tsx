@@ -6,13 +6,13 @@ import { commandGetArtist } from "../lib/commands";
 
 const ArtistPage: Component = () => {
   const params = useParams()
-  const [artist] = createResource(() => params["id"], commandGetArtist, { initialValue: null })
+  const [artist, { refetch }] = createResource(() => params["id"], commandGetArtist, { initialValue: null })
 
   return (
     <Show when={artist()}>
       <div class="flex p-4 pt-14">
         <Header />
-        <Artist artist={artist()!} />
+        <Artist artist={artist()!} refetch={refetch} />
       </div>
     </Show>
   );

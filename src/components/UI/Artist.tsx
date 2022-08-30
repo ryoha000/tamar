@@ -1,20 +1,36 @@
 import { Component, createResource, For } from "solid-js";
-import { commandSelectWorkByArtist } from "../../lib/commands";
+import { commandSelectWorkByArtist, commandUpdateArtistName } from "../../lib/commands";
+import { errorToast } from "../../lib/toast";
 import type { Artist as ArtistI } from "../../lib/types";
 import ArtistWork from "./ArtistWork";
+import Editor from "./Editor";
 import HorizontalScroller from "./HorizontalScroller";
 
 interface Props {
   artist: ArtistI;
+  refetch: () => void
 }
 const Artist: Component<Props> = (props) => {
   const [works] = createResource(props.artist.id, commandSelectWorkByArtist, {
     initialValue: [],
   });
+  const updateNameCommand = async (name: string) => {
+    if (name === "") {
+      throw Error("更新後の作者名が空文字です")
+    }
+    await commandUpdateArtistName({ id: props.artist.id, name })
+  }
 
   return (
     <div class="w-full flex flex-col gap-2">
-      <div class="font-bold text-lg">{props.artist.name}</div>
+      <div class="flex w-60">
+        <Editor
+          initialText={props.artist.name}
+          command={updateNameCommand}
+          refetch={props.refetch}
+          inputClass="font-bold text-lg"
+        />
+      </div>
       <div class="">
         <HorizontalScroller
           isGradientFader={true}

@@ -1,4 +1,5 @@
 import { createResource, createSignal } from "solid-js";
+import { errorToast } from "../../../lib/toast";
 
 export interface EditProps {
   initialText: string;
@@ -30,9 +31,15 @@ const useEdit = (props: EditProps) => {
     setText(e.target.value);
   };
   const confirmEdit = async () => {
-    await props.command(text());
-    props.refetch();
-    setEditable(false);
+    try {
+      await props.command(text());
+      props.refetch();
+      setEditable(false);
+    } catch (e) {
+      if (e instanceof Error) {
+        errorToast(e.message)
+      }
+    }
   };
   const cancelEdit = () => {
     setText(props.initialText);

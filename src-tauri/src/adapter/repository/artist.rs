@@ -129,6 +129,23 @@ impl ArtistRepository for DatabaseRepositoryImpl<Artist> {
         .await?;
         Ok(())
     }
+
+    async fn update_name(&self, source: NewArtist) -> anyhow::Result<()> {
+        if source.name.len() == 0 {
+            anyhow::bail!("name is required")
+        }
+        let artist_table: ArtistTable = source.try_into()?;
+
+        let pool = self.pool.0.clone();
+        sqlx::query("UPDATE artist SET name = ?, updated_at = ? where id = ?")
+            .bind(artist_table.name)
+            .bind(artist_table.updated_at)
+            .bind(artist_table.id)
+            .execute(&*pool)
+            .await?;
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -157,6 +174,32 @@ mod test {
 
         assert_eq!(found.id.value, id);
         assert_eq!(found.name, name.to_string());
+    }
+
+    #[test]
+    fn test_update_artist_name() {
+        let db = get_test_db();
+        let id = Ulid::new();
+        let old_name = random_string();
+
+        insert_artist(
+            db.clone(),
+            NewArtist::new(Id::new(id), old_name.to_string()),
+        );
+        let found = find_artist(db.clone(), Id::new(id)).unwrap();
+
+        assert_eq!(found.id.value, id);
+        assert_eq!(found.name, old_name.to_string());
+
+        let new_name = random_string();
+        update_artist_name(
+            db.clone(),
+            NewArtist::new(Id::new(id), new_name.to_string()),
+        );
+        let found = find_artist(db.clone(), Id::new(id)).unwrap();
+
+        assert_eq!(found.id.value, id);
+        assert_eq!(found.name, new_name.to_string());
     }
 
     #[test]
@@ -345,5 +388,10 @@ mod test {
     fn search_artist_also_using_work(db: Db, source: SearchAlsoUsingWorkArtist) -> Vec<Artist> {
         let repository = DatabaseRepositoryImpl::<Artist>::new(db);
         block_on(repository.search_also_using_work(source)).unwrap()
+    }
+
+    fn update_artist_name(db: Db, source: NewArtist) {
+        let repository = DatabaseRepositoryImpl::<Artist>::new(db);
+        block_on(repository.update_name(source)).unwrap()
     }
 }

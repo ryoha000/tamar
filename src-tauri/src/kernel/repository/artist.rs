@@ -14,4 +14,5 @@ pub trait ArtistRepository {
         source: SearchAlsoUsingWorkArtist,
     ) -> anyhow::Result<Vec<Artist>>;
     async fn insert(&self, source: NewArtist) -> anyhow::Result<()>;
+    async fn update_name(&self, source: NewArtist) -> anyhow::Result<()>;
 }

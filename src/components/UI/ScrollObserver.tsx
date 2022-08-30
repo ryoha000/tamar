@@ -3,7 +3,7 @@ import Loading from "./Loading";
 
 type Props = {
   isActiveObserver: boolean;
-} & MarkerProps
+} & MarkerProps;
 
 interface MarkerProps {
   onIntersect: () => void;
@@ -13,7 +13,10 @@ interface MarkerProps {
 const ScrollObserber: Component<Props> = (props) => {
   return (
     <Show when={props.isActiveObserver}>
-      <ScrollObserberMarker onIntersect={props.onIntersect} isLoading={props.isLoading} />
+      <ScrollObserberMarker
+        onIntersect={props.onIntersect}
+        isLoading={props.isLoading}
+      />
     </Show>
   );
 };
@@ -29,7 +32,7 @@ const ScrollObserberMarker: Component<MarkerProps> = (props) => {
         props.onIntersect();
       }
     },
-    { threshold: 1 }
+    { threshold: 1, rootMargin: "100% 0px" }
   );
 
   onMount(() => {

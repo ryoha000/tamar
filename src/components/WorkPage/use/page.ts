@@ -48,19 +48,19 @@ const usePage = (
   };
   // 作品間の遷移
   const navigateBetweenWork = async (step: number) => {
-    if (loading()) {
-      return;
-    }
     const _work = work();
     const workId = _work?.id;
-    if (!workId) {
+
+    if (loading() || !workId) {
       return;
     }
 
-    const currentIndex = workIds().findIndex((v) => v === workId);
-    const nextIndex = currentIndex + step;
+    let currentIndex = workIds().findIndex((v) => v === workId);
+    let nextIndex = currentIndex + step;
+
     if (currentIndex === -1 || nextIndex < 0 || nextIndex >= workIds().length) {
       const value = sortCol() === "title" ? _work.title : _work.updatedAt;
+      
       // TODO: artist filter
       await fetchWorkIds({
         currentWorkId: workId,
@@ -70,8 +70,8 @@ const usePage = (
         value,
       });
 
-      const currentIndex = workIds().findIndex((v) => v === workId);
-      const nextIndex = currentIndex + step;
+      currentIndex = workIds().findIndex((v) => v === workId);
+      nextIndex = currentIndex + step;
       if (
         currentIndex === -1 ||
         nextIndex < 0 ||
@@ -81,10 +81,7 @@ const usePage = (
       }
     }
     const nextId = workIds()[nextIndex];
-    navigator(`/work/${nextId}/${workPageMap.get(nextId) ?? 0}`, {
-      resolve: false,
-      replace: true,
-    });
+    navigator(`/work/${nextId}/${workPageMap.get(nextId) ?? 0}`);
   };
   const up = async () => {
     await navigateBetweenWork(isSortDesc() ? -1 : 1);
@@ -106,7 +103,6 @@ const usePage = (
     if (e.key === "ArrowDown") {
       down();
     }
-    console.log(e.key);
   };
 
   const INITIAL_WHEEL_STATE = { x: 0, y: 0 };

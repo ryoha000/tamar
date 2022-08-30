@@ -1,4 +1,3 @@
-import { useParams } from "@solidjs/router";
 import { createSignal } from "solid-js";
 import {
   commandSearchAroundTitleWork,
@@ -43,10 +42,11 @@ const useWorkIdsCache = () => {
       if (prev.length === 0) {
         _prev.push(req.currentWorkId);
       }
+      // isBefore が true だと DESC, false だと ASC が帰ってくる
       if (req.isBefore) {
         newWorkIds = [..._prev, ...res];
       } else {
-        newWorkIds = [...res, ..._prev];
+        newWorkIds = [...res.reverse(), ..._prev];
       }
       return newWorkIds;
     });

@@ -108,6 +108,7 @@ const MenuDialog: Component<Props> = (props) => {
             command={artistCommand}
             fetchSuggests={fetchArtistSuggest}
             refetch={props.refetch}
+            link={`/artist/${props.work.artist.id}`}
           />
         </MenuDialogSection>
 
@@ -163,9 +164,8 @@ const MenuDialogIconButton: ParentComponent<{
   return (
     <button
       onclick={props.click}
-      class={`rounded px-4 py-2 hover:bg-secondary transition-all ${
-        props.buttonClass ?? ""
-      }`}
+      class={`rounded px-4 py-2 hover:bg-secondary transition-all ${props.buttonClass ?? ""
+        }`}
     >
       <div class="flex items-center gap-2">
         {props.icon({ size: "1.5rem" })}

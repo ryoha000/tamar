@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
-use crate::adapter::modules::RepositoriesModuleExt;
 use crate::kernel::model::artist::Artist;
 use crate::kernel::repository::artist::ArtistRepository;
+use crate::{adapter::modules::RepositoriesModuleExt, app::model::artist::UpdateArtistName};
 use derive_new::new;
 
 use crate::app::model::artist::{CreateArtist, GetByNameArtist};
@@ -35,6 +35,13 @@ impl<R: RepositoriesModuleExt> ArtistUseCase<R> {
         self.repositories
             .artist_repository()
             .find_by_name(source.name)
+            .await
+    }
+
+    pub async fn update_artist_name(&self, source: UpdateArtistName) -> anyhow::Result<()> {
+        self.repositories
+            .artist_repository()
+            .update_name(source.try_into()?)
             .await
     }
 }

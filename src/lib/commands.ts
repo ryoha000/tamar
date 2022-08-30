@@ -123,3 +123,7 @@ export const commandRotateWorkFile = async (file: string) => {
 export const commandDeleteWorkFile = async (file: string) => {
   return await invoke<void>("delete_work_file", { file });
 };
+
+export const commandUpdateArtistName = async (payload: { id: string, name: string }) => {
+  return await invoke<void>("update_artist_name", { id: payload.id, name: payload.name });
+};

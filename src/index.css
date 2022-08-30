@@ -3,7 +3,7 @@
   --color-primary: #F55C52;
   --color-secondary: #FFC9C9;
   --color-accent: #FCB173;
-  --color-error:#ff1744;
+  --color-error: #ff1744;
   --color-white: #FFFFFF;
 
   --color-white-opacity-10: rgba(255, 255, 255, 0.1);
@@ -14,7 +14,8 @@
   --color-white-opacity-80: rgba(255, 255, 255, 0.8);
   --color-white-opacity-90: rgba(255, 255, 255, 0.9);
 
-  --color-text: #000a12;
+  --color-text: rgb(0, 10, 18);
+  --color-text-opacity-50: rgba(0, 10, 18, 0.5);
 }
 
 body {

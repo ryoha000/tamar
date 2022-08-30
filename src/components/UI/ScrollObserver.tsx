@@ -1,4 +1,5 @@
 import { Component, onMount, Show } from "solid-js";
+import Loading from "./Loading";
 
 type Props = {
   isActiveObserver: boolean;
@@ -25,7 +26,6 @@ const ScrollObserberMarker: Component<MarkerProps> = (props) => {
         return;
       }
       if (!props.isLoading && entries[0].intersectionRatio >= 1) {
-        console.log(entries[0]);
         props.onIntersect();
       }
     },
@@ -40,7 +40,7 @@ const ScrollObserberMarker: Component<MarkerProps> = (props) => {
   return (
     <div ref={marker} class="w-full h-2 bg-red-700">
       <Show when={props.isLoading}>
-        <div>now loading</div>
+        <Loading />
       </Show>
     </div>
   );

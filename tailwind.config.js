@@ -14,6 +14,7 @@ module.exports = {
         error: "var(--color-error)",
         white: "var(--color-white)",
         text: "var(--color-text)",
+        "text-opacity-50": "var(--color-text-opacity-50)",
         // white opacity(for use bg)
         "white-opacity-10": "var(--color-white-opacity-10)",
         "white-opacity-20": "var(--color-white-opacity-20)",

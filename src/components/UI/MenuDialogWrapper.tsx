@@ -52,4 +52,19 @@ export const MenuDialogIconButton: ParentComponent<{
   );
 };
 
+export const MenuDialogDeleteIconButton: ParentComponent<{
+  label: string;
+  click: () => void;
+  icon: IconTypes;
+}> = (props) => {
+  return (
+    <MenuDialogIconButton
+      buttonClass="bg-error mt-auto text-slate-50 align-bottom hover:text-text" // TODO: 色大丈夫？
+      label={props.label}
+      icon={props.icon}
+      click={props.click}
+    />
+  );
+};
+
 export default MenuDialogWrapper;

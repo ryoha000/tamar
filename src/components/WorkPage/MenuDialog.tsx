@@ -16,6 +16,7 @@ import { errorToast } from "../../lib/toast";
 import { Work } from "../../lib/types";
 import Editor from "../UI/Editor";
 import MenuDialogWrapper, {
+  MenuDialogDeleteIconButton,
   MenuDialogIconButton,
   MenuDialogSection,
 } from "../UI/MenuDialogWrapper";
@@ -131,8 +132,7 @@ const MenuDialog: Component<Props> = (props) => {
         icon={BsFileEarmarkX}
         click={deleteFile}
       />
-      <MenuDialogIconButton
-        buttonClass="bg-error mt-auto text-slate-50 align-bottom hover:text-text" // TODO: 色大丈夫？
+      <MenuDialogDeleteIconButton
         label="作品を消す"
         icon={BsFolderX}
         click={deleteWork}

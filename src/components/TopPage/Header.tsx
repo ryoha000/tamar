@@ -3,7 +3,6 @@ import { Component, createSignal, Show } from "solid-js";
 import { useStore } from "../../lib/store";
 import HeaderNextPrev from "../UI/HeaderNextPrev";
 import ByArtistToggle from "./ByArtistToggle";
-import FileImportButton from "./FileImportButton";
 import MenuDialog from "./MenuDialog";
 import SearchInput from "./SearchInput";
 import SortSelect from "./SortSelect";

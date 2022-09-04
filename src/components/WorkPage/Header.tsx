@@ -17,25 +17,28 @@ const Header: Component<Props> = (props) => {
 
   return (
     <div
-      class="bg-opacity-50 bg-neutral-50 fixed z-header w-full flex items-center gap-2 px-4 py-2 transition-all duration-300 h-header"
+      class="bg-opacity-50 bg-neutral-50 fixed z-header w-full transition-all duration-300 h-header"
       tabIndex={-1}
       classList={{ "opacity-0": hidden(), "opacity-100": !hidden() }}
       onMouseEnter={actionStart}
       onMouseLeave={actionEnd}
+      data-fixed
     >
-      <Link href="/">
-        <AiOutlineHome size="1.2rem" />
-      </Link>
-      <HeaderNextPrev />
-      <IoGridOutline
-        size="1.2rem"
-        class="cursor-pointer"
-        onclick={props.openListDialog}
-      />
-      <div class="ml-8">{props.workTitle}</div>
-      <button class="ml-auto" onclick={props.openMenuDialog}>
-        <FaSolidEllipsis size="1.2rem" />
-      </button>
+      <div class="w-full flex items-center gap-2 px-4 py-2">
+        <Link href="/">
+          <AiOutlineHome size="1.2rem" />
+        </Link>
+        <HeaderNextPrev />
+        <IoGridOutline
+          size="1.2rem"
+          class="cursor-pointer"
+          onclick={props.openListDialog}
+        />
+        <div class="ml-8">{props.workTitle}</div>
+        <button class="ml-auto" onclick={props.openMenuDialog}>
+          <FaSolidEllipsis size="1.2rem" />
+        </button>
+      </div>
     </div>
   );
 };

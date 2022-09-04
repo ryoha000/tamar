@@ -46,12 +46,20 @@ const DialogBaseContent: ParentComponent<Props> = (props) => {
     ele?.focus();
     if (scrollbarVisible()) {
       document.body.style.paddingRight = `${getScrollbarWidth()}px`;
+      const fixedContainers = document.querySelectorAll("[data-fixed]");
+      for (const e of fixedContainers) {
+        e.setAttribute("style", `padding-right: ${getScrollbarWidth()}px;`);
+      }
     }
     window.document.body.style.overflowY = "hidden";
   });
   onCleanup(() => {
     window.document.body.style.overflowY = "auto";
     document.body.style.paddingRight = `0px`;
+    const fixedContainers = document.querySelectorAll("[data-fixed]");
+    for (const e of fixedContainers) {
+      e.setAttribute("style", `padding-right: 0px;`);
+    }
   });
 
   return (

@@ -49,6 +49,15 @@ impl FileRepository for RepositoryImpl<File> {
         Ok(image_paths)
     }
 
+    fn extract_zip_file(&self, file_path_str: &str, dir_path_str: &str) -> anyhow::Result<()> {
+        let fname = Path::new(file_path_str);
+        let file = fs::File::open(&fname)?;
+
+        let mut archive = zip::ZipArchive::new(file)?;
+        archive.extract(Path::new(dir_path_str))?;
+        Ok(())
+    }
+
     fn save_work_files(&self, source: SaveWorkFiles) -> anyhow::Result<()> {
         let copy_root_dir = self.get_data_root_dir_path();
 

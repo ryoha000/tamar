@@ -9,7 +9,7 @@ type Props = {
 };
 
 const Editor: Component<Props & EditProps> = (props) => {
-  let inputEle: HTMLInputElement | undefined = undefined
+  let inputEle: HTMLInputElement | undefined = undefined;
 
   const {
     startEdit,
@@ -30,7 +30,7 @@ const Editor: Component<Props & EditProps> = (props) => {
     } else {
       startEdit();
       if (inputEle) {
-        inputEle.focus()
+        inputEle.focus();
       }
     }
   };
@@ -61,8 +61,9 @@ const Editor: Component<Props & EditProps> = (props) => {
       <div class="relative flex-1">
         <input
           list={randomString}
-          class={`flex-1 transition-all ${clickable() ? "hover:bg-secondary" : ""
-            } ${props.link ? "cursor-pointer" : ""} ${props.inputClass ?? ""}`}
+          class={`flex-1 rounded transition-all ${
+            clickable() ? "hover:bg-secondary" : ""
+          } ${clickable() ? "cursor-pointer" : ""} ${props.inputClass ?? ""}`}
           value={text()}
           oninput={input}
           readOnly={!editable()}

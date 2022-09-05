@@ -2,6 +2,7 @@ import { fs, path } from "@tauri-apps/api";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
 import { Accessor, createEffect, createSignal } from "solid-js";
 import { commandImportDirectory } from "../../../lib/commands";
+import { Tag, UNKNOWN_ARTIST_NAME } from "../../../lib/types";
 import { DirPathInfo } from "./exploreDir";
 
 export interface Usages {
@@ -123,6 +124,29 @@ const useDirUsage = (
     await commandImportDirectory(paths(), usages());
   };
 
+  const preview = () => {
+    const maxDeps = targetMaxDeps()
+    const usage = usages()[maxDeps]
+    let artist = UNKNOWN_ARTIST_NAME
+    let title = ""
+    const tags: Tag[]  = []
+    const deps = eachDepsSample()
+    for (let i = 1; i < maxDeps + 1; i++) {
+      const u = usage[i]
+      const name = deps[i - 1].name
+      if (u === "作品名") {
+        title = name
+      }
+      if (u === "作者名") {
+        artist = name
+      }
+      if (u === "タグ") {
+        tags.push({name: name, id: "", updatedAt: ""})
+      }
+    }
+    return { title, artist, tags }
+  }
+
   return {
     eachDepsSample,
     getUsage,
@@ -130,6 +154,7 @@ const useDirUsage = (
     sampleSrc,
     dirDepsLengthKindOnlyDeps,
     confirm,
+    preview,
   };
 };
 

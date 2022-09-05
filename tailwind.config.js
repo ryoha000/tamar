@@ -46,6 +46,9 @@ module.exports = {
         "image-list": "repeat(auto-fill, minmax(5rem, 1fr))",
         "top-header": "min-content minmax(0, 1fr) repeat(3, min-content)",
       },
+      gridTemplateRows: {
+        "import-preview": "repeat(auto-fill, 1.5rem)",
+      },
       gridAutoRows: {
         0: 1,
       },

@@ -1,6 +1,8 @@
 import { Component, createEffect, createSignal, For } from "solid-js";
 import Dialog from "../UI/Dialog";
 import DropDownMenu from "../UI/DropDownMenu";
+import { MenuDialogSection } from "../UI/MenuDialogWrapper";
+import Tag from "../UI/Tag";
 import FileImportEachDeps from "./FileImportEachDeps";
 import useDirUsage, { DepsUsageKind } from "./use/dirUsage";
 import useExplorDir from "./use/exploreDir";
@@ -30,6 +32,7 @@ const FolderImportDialog: Component<Props> = (props) => {
     sampleSrc,
     dirDepsLengthKindOnlyDeps,
     confirm,
+    preview,
   } = useDirUsage(paths, selectedDirDepsNumber);
 
   return (
@@ -37,10 +40,9 @@ const FolderImportDialog: Component<Props> = (props) => {
       <div class="flex flex-col gap-2">
         <div class="text-xl font-bold">フォルダからインポート</div>
         <div class="flex flex-col gap-4 pl-4">
-          <div>
-            <div>選択したフォルダ</div>
+          <MenuDialogSection label="選択したフォルダ">
             <code class="text-sm">{props.dir}</code>
-          </div>
+          </MenuDialogSection>
           <div class="flex flex-col">
             <div class="flex items-center gap-2">
               <DropDownMenu
@@ -49,9 +51,9 @@ const FolderImportDialog: Component<Props> = (props) => {
                 onChange={(opt) => setSelectedDirDeps(opt)}
                 width="3rem"
               />
-              <div>階層ある場合の設定</div>
+              <div class="text-xl font-bold">階層ある場合の設定</div>
             </div>
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-2  pl-4">
               <For each={eachDepsSample()}>
                 {(deps, i) => (
                   <FileImportEachDeps
@@ -65,17 +67,23 @@ const FolderImportDialog: Component<Props> = (props) => {
               </For>
             </div>
           </div>
-          <div class="flex flex-col gap-2">
-            <div>プレビュー</div>
+          <MenuDialogSection label="プレビュー">
             <div class="flex gap-4">
               <img class="h-40 object-contain" src={sampleSrc()} />
-              <div>
-                <div>作品名: {"aa"}</div>
-                <div>作者名: {"aa"}</div>
-                <div>タグ: {"aa"}</div>
+              <div class="grid grid-cols-2 gap-x-4 grid-rows-import-preview">
+                <div>作品名</div>
+                <div>{preview().title}</div>
+                <div>作者名</div>
+                <div>{preview().artist}</div>
+                <div>タグ</div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <For each={preview().tags}>
+                    {(tag, i) => <Tag tag={tag} />}
+                  </For>
+                </div>
               </div>
             </div>
-          </div>
+          </MenuDialogSection>
           <div class="flex justify-center">
             <button
               onclick={confirm}

@@ -1,9 +1,12 @@
 import { useParams } from "@solidjs/router";
 import {
+  Accessor,
   Component,
   createResource,
   createSignal,
   onMount,
+  Resource,
+  Setter,
   Show,
 } from "solid-js";
 import Header from "../components/WorkPage/Header";
@@ -17,20 +20,11 @@ import MenuDialog from "../components/WorkPage/MenuDialog";
 import { commandGetWork } from "../lib/commands";
 import { useStore } from "../lib/store";
 import useImage from "../components/WorkPage/use/image";
+import { Work } from "../lib/types";
 
 const WorkPage: Component = () => {
-  const store = useStore();
-  if (!store) {
-    return <div>loading</div>;
-  }
   const params = useParams();
 
-  onMount(() => {
-    console.log("onMount WorkPage");
-    // TODO: 閲覧履歴を insert する
-  });
-
-  const { workPageMap, isSortDesc, sortCol } = store;
   const [work, { refetch }] = createResource(
     () => params["id"],
     commandGetWork,
@@ -39,19 +33,65 @@ const WorkPage: Component = () => {
     }
   );
 
-  const { imageSrc, imageSrcArray, originalImageSrc } = useImage(work);
+  const [isListOpen, setIsListOpen] = createSignal(false);
+  const [isOpenMenuDialog, setIsOpenMenuDialog] = createSignal(false);
+
+  return (
+    <div class="flex">
+      <Header
+        openListDialog={() => setIsListOpen(true)}
+        openMenuDialog={() => setIsOpenMenuDialog(true)}
+        workTitle={work()?.title ?? ""}
+      />
+      <Show when={work()}>
+        <WorkPageContent
+          work={work}
+          refetch={refetch}
+          isListOpen={isListOpen}
+          setIsListOpen={setIsListOpen}
+          isOpenMenuDialog={isOpenMenuDialog}
+          setIsOpenMenuDialog={setIsOpenMenuDialog}
+        />
+      </Show>
+    </div>
+  );
+};
+
+interface ContentProps {
+  work: Resource<Work | null>;
+  refetch: () => void;
+  isListOpen: Accessor<boolean>;
+  setIsListOpen: Setter<boolean>;
+  isOpenMenuDialog: Accessor<boolean>;
+  setIsOpenMenuDialog: Setter<boolean>;
+}
+
+const WorkPageContent: Component<ContentProps> = (props) => {
+  let imgEle: HTMLImageElement | undefined = undefined;
+  const store = useStore();
+  if (!store) {
+    return <div>loading</div>;
+  }
+
+  onMount(() => {
+    // TODO: 閲覧履歴を insert する
+    if (imgEle) {
+      imgEle.click();
+      imgEle.focus();
+    }
+  });
+
+  const { workPageMap, isSortDesc, sortCol } = store;
+
+  const { imageSrc, imageSrcArray, originalImageSrc } = useImage(props.work);
 
   const { next, prev, keyDown, wheel } = usePage(
-    work,
+    props.work,
     workPageMap,
     isSortDesc,
     sortCol,
     imageSrcArray
   );
-
-  const [isListOpen, setIsListOpen] = createSignal(false);
-
-  const [isOpenMenuDialog, setIsOpenMenuDialog] = createSignal(false);
 
   const [imageCacheKey, setImageCacheKey] = createSignal("");
   const refreshImage = () => {
@@ -59,40 +99,34 @@ const WorkPage: Component = () => {
   };
 
   return (
-    <div class="flex" onkeydown={keyDown}>
-      <Header
-        openListDialog={() => setIsListOpen(true)}
-        openMenuDialog={() => setIsOpenMenuDialog(true)}
-        workTitle={work()?.title ?? ""}
+    <>
+      <img
+        src={`${imageSrc()}?${imageCacheKey()}`}
+        tabIndex={-1}
+        // @ts-ignore
+        autofocus
+        class="w-screen h-screen object-contain"
+        onwheel={wheel}
+        onKeyDown={keyDown}
+        ref={imgEle}
+      ></img>
+      <NextOverlay navigate={next} />
+      <PrevOverlay navigate={prev} />
+      <ImageListDialog
+        work={props.work()}
+        imageSrcArray={imageSrcArray()}
+        isOpen={props.isListOpen()}
+        close={() => props.setIsListOpen(false)}
       />
-      <Show when={work()}>
-        <img
-          src={`${imageSrc()}?${imageCacheKey()}`}
-          tabIndex={-1}
-          // @ts-ignore
-          autofocus
-          class="w-screen h-screen object-contain"
-          onwheel={wheel}
-          onKeyDown={keyDown}
-        ></img>
-        <NextOverlay navigate={next} />
-        <PrevOverlay navigate={prev} />
-        <ImageListDialog
-          work={work()}
-          imageSrcArray={imageSrcArray()}
-          isOpen={isListOpen()}
-          close={() => setIsListOpen(false)}
-        />
-        <MenuDialog
-          work={work()!}
-          imageSrc={originalImageSrc()}
-          isOpen={isOpenMenuDialog()}
-          close={() => setIsOpenMenuDialog(false)}
-          refetch={refetch}
-          refetchImage={refreshImage}
-        />
-      </Show>
-    </div>
+      <MenuDialog
+        work={props.work()!}
+        imageSrc={originalImageSrc()}
+        isOpen={props.isOpenMenuDialog()}
+        close={() => props.setIsOpenMenuDialog(false)}
+        refetch={props.refetch}
+        refetchImage={refreshImage}
+      />
+    </>
   );
 };
 

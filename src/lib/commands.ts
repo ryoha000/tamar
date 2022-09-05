@@ -127,3 +127,7 @@ export const commandDeleteWorkFile = async (file: string) => {
 export const commandUpdateArtistName = async (payload: { id: string, name: string }) => {
   return await invoke<void>("update_artist_name", { id: payload.id, name: payload.name });
 };
+
+export const commandImportFile = async (payload: { artistName: string, filePaths: string[]}) => {
+  return await invoke<void>('import_file', payload)
+}

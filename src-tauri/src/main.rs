@@ -34,6 +34,7 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![
             driver::command::import_directory::import_directory,
+            driver::command::import_file::import_file,
             driver::command::work_view::search_work,
             driver::command::work_view::get_work,
             driver::command::work_view::select_work_by_artist,

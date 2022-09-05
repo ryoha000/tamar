@@ -2,6 +2,7 @@ pub mod artist;
 pub mod artist_view;
 pub mod file;
 pub mod import_directory;
+pub mod import_file;
 pub mod suggest;
 pub mod tag;
 pub mod tag_view;

@@ -1,92 +1,92 @@
-import { Component, createEffect, createSignal, For } from "solid-js";
+import { Component, createResource, createSignal, For, Show } from "solid-js";
+import {
+  commandImportFile,
+  commandSelectArtistByName,
+} from "../../lib/commands";
+import { UNKNOWN_ARTIST_NAME } from "../../lib/types";
 import Dialog from "../UI/Dialog";
-import DropDownMenu from "../UI/DropDownMenu";
-import FileImportEachDeps from "./FileImportEachDeps";
-import useDirUsage, { DepsUsageKind } from "./use/dirUsage";
-import useExplorDir from "./use/exploreDir";
+import { MenuDialogSection } from "../UI/MenuDialogWrapper";
 
 interface Props {
   isOpen: boolean;
-  dir: string;
+  filePaths: string[];
   close: () => void;
 }
 
 const FileImportDialog: Component<Props> = (props) => {
-  const [selectedDirDeps, setSelectedDirDeps] = createSignal("");
-  createEffect(() => {
-    const options = dirDepsLengthKindOnlyDeps();
-    if (options.length > 0) {
-      setSelectedDirDeps(options[0]);
+  const [artist, setArtist] = createSignal(UNKNOWN_ARTIST_NAME);
+
+  const artistInput = (
+    e: Event & { currentTarget: HTMLInputElement; target: Element }
+  ) => {
+    if (e.target instanceof HTMLInputElement) {
+      setArtist(e.target.value);
     }
+  };
+
+  const [artistOptions] = createResource(artist, commandSelectArtistByName, {
+    initialValue: [],
   });
-  const selectedDirDepsNumber = () => +selectedDirDeps();
+  const options = () => artistOptions().map((v) => v.name);
 
-  const { paths } = useExplorDir(props);
+  const [isFocusInput, setIsFocusInput] = createSignal(false);
 
-  const {
-    eachDepsSample,
-    getUsage,
-    setUsage,
-    sampleSrc,
-    dirDepsLengthKindOnlyDeps,
-    confirm,
-  } = useDirUsage(paths, selectedDirDepsNumber);
+  const confirm = async () => {
+    await commandImportFile({
+      artistName: artist(),
+      filePaths: props.filePaths,
+    });
+    props.close();
+    // TODO: refetch
+  };
 
   return (
-    <Dialog isOpen={props.isOpen} close={props.close}>
-      <div class="flex flex-col gap-2">
-        <div class="text-xl font-bold">フォルダからインポート</div>
-        <div class="flex flex-col gap-4 pl-4">
-          <div>
-            <div>選択したフォルダ</div>
-            <code class="text-sm">{props.dir}</code>
-          </div>
-          <div class="flex flex-col">
-            <div class="flex items-center gap-2">
-              <DropDownMenu
-                options={dirDepsLengthKindOnlyDeps()}
-                selectedOption={selectedDirDeps()}
-                onChange={(opt) => setSelectedDirDeps(opt)}
-                width="3rem"
-              />
-              <div>階層ある場合の設定</div>
-            </div>
-            <div class="flex flex-col gap-2">
-              <For each={eachDepsSample()}>
-                {(deps, i) => (
-                  <FileImportEachDeps
-                    deps={deps}
-                    selectedUsage={getUsage(deps.deps)}
-                    onChange={(usage) =>
-                      setUsage(deps.deps, usage as DepsUsageKind)
-                    }
-                  />
-                )}
-              </For>
-            </div>
-          </div>
-          <div class="flex flex-col gap-2">
-            <div>プレビュー</div>
-            <div class="flex gap-4">
-              <img class="h-40 object-contain" src={sampleSrc()} />
-              <div>
-                <div>作品名: {"aa"}</div>
-                <div>作者名: {"aa"}</div>
-                <div>タグ: {"aa"}</div>
+    <Show when={props.filePaths.length}>
+      <Dialog isOpen={props.isOpen} close={props.close}>
+        <div class="flex flex-col gap-2">
+          <div class="text-xl font-bold">ファイルからインポート</div>
+          <div class="flex flex-col gap-4 pl-4">
+            <MenuDialogSection label="選択したファイル">
+              <code class="text-sm">
+                {props.filePaths[0]}
+                {props.filePaths.length === 1 ? "" : " ..."}
+              </code>
+            </MenuDialogSection>
+            <MenuDialogSection label="作者名">
+              <div class="relative w-artist-name">
+                <input
+                  list="file-import-dialog-artist w-full"
+                  value={artist()}
+                  oninput={artistInput}
+                  onfocus={() => setIsFocusInput(true)}
+                  onfocusout={() => setIsFocusInput(false)}
+                ></input>
+                <datalist id="file-import-dialog-artist">
+                  <For each={options()}>
+                    {(option, i) => <option>{option}</option>}
+                  </For>
+                </datalist>
+                <div
+                  classList={{
+                    "scale-0": !isFocusInput(),
+                    "scale-100": isFocusInput(),
+                  }}
+                  class="absolute bottom-0 left-0 h-0.5 w-full bg-secondary transition-all"
+                ></div>
               </div>
+            </MenuDialogSection>
+            <div class="flex justify-center">
+              <button
+                onclick={confirm}
+                class="px-4 py-2 bg-primary hover:bg-secondary transition-all rounded text-white font-bold"
+              >
+                確定
+              </button>
             </div>
-          </div>
-          <div class="flex justify-center">
-            <button
-              onclick={confirm}
-              class="px-4 py-2 bg-primary hover:bg-secondary transition-all rounded text-white font-bold"
-            >
-              確定
-            </button>
           </div>
         </div>
-      </div>
-    </Dialog>
+      </Dialog>
+    </Show>
   );
 };
 

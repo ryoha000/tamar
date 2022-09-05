@@ -67,7 +67,7 @@ pub async fn import_file(
         // -------- work に関係する処理 ここまで ---------
 
         // zip ファイルを解凍
-        let zip_dir_path = format!("./tmp/{}", work_title);
+        let zip_dir_path = format!("../tmp/{}", work_title);
         modules
             .file_use_case()
             .extract_zip_file(&file_path_str, &zip_dir_path)?;

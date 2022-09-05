@@ -12,5 +12,6 @@ pub trait FileRepository {
     fn copy_files(&self, source: CopyFiles) -> anyhow::Result<()>;
     fn delete_work_files(&self, id: &Id<Work>) -> anyhow::Result<()>;
     fn delete_file(&self, file: String) -> anyhow::Result<()>;
+    fn delete_dir(&self, dir: String) -> anyhow::Result<()>;
     fn rotate_90_image_file(&self, file: String) -> anyhow::Result<()>;
 }

@@ -146,6 +146,13 @@ impl FileRepository for RepositoryImpl<File> {
         Ok(())
     }
 
+    fn delete_dir(&self, dir: String) -> anyhow::Result<()> {
+        let dir_path = path::Path::new(&dir);
+
+        fs::remove_dir_all(dir_path)?;
+        Ok(())
+    }
+
     fn rotate_90_image_file(&self, file: String) -> anyhow::Result<()> {
         let img = image::open(file.clone())?;
         let img = img.rotate90();

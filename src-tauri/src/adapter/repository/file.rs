@@ -1,4 +1,7 @@
-use std::{fs, path};
+use std::{
+    fs,
+    path::{self, Path},
+};
 
 use crate::kernel::{
     model::{
@@ -17,6 +20,16 @@ impl FileRepository for RepositoryImpl<File> {
     fn get_data_root_dir_path(&self) -> &str {
         // TODO: `${appDir}/data` とかにする
         "../tamar_content"
+    }
+
+    fn get_file_name(&self, path_str: &str) -> anyhow::Result<String> {
+        let path = Path::new(path_str);
+        let name = path
+            .file_name()
+            .ok_or(anyhow::anyhow!("osstr unicode is invalid"))?
+            .to_str()
+            .ok_or(anyhow::anyhow!("failed osstr -> str"))?;
+        Ok(name.to_string())
     }
 
     fn get_work_paths(&self, id: &Id<Work>) -> anyhow::Result<Vec<String>> {

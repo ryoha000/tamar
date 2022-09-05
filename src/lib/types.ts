@@ -47,3 +47,5 @@ export interface Suggest {
   artists: Artist[];
   tags: Tag[];
 }
+
+export const UNKNOWN_ARTIST_NAME = "Unknown Artist";

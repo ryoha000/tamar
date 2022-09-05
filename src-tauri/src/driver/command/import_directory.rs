@@ -1,5 +1,5 @@
 use std::{collections::HashMap, sync::Arc};
-use tauri::State;
+use tauri::{State, Window};
 
 use crate::{
     app::model::{
@@ -15,8 +15,14 @@ use crate::{
     migration::UNKNOWN_ARTIST_NAME,
 };
 
+#[derive(Clone, serde::Serialize)]
+struct ProgressPayload {
+    count: i32,
+}
+
 #[tauri::command]
 pub async fn import_directory(
+    window: Window,
     modules: State<'_, Arc<Modules>>,
     dir_path_infos: Vec<DirPathInfo>,
     usages: HashMap<u16, HashMap<u16, String>>,
@@ -146,6 +152,9 @@ pub async fn import_directory(
                 work.id.clone(),
                 dir_path_info.path.clone(),
             ))?;
+        if let Err(e) = window.emit("import_dir_progress", ProgressPayload { count: 1 }) {
+            return Err(CommandError::Anyhow(anyhow::anyhow!(e)));
+        }
 
         // -------- tag に関係する処理 ここから ---------
         match tag_usage_map.get(max_deps) {

@@ -4,6 +4,7 @@ import {
   ParentComponent,
   Setter,
   Accessor,
+  createSignal,
 } from "solid-js";
 import useOption from "./option";
 import { SearchWorkRequest, SortKind, Tag } from "./types";
@@ -23,6 +24,9 @@ export interface Store {
   setIsFilterArtist: Setter<boolean>;
   searchTags: Accessor<Tag[]>;
   setSearchTags: Setter<Tag[]>;
+  dialogCount: Accessor<number>;
+  incrementDialogCount: () => void;
+  decrementDialogCount: () => void;
 }
 
 export const StoreProvider: ParentComponent = (props) => {
@@ -40,6 +44,7 @@ export const StoreProvider: ParentComponent = (props) => {
     tags,
     setTags,
   } = useOption();
+  const [dialogCount, setDialogCount] = createSignal(0);
 
   const store: Store = {
     setSearchText: setText,
@@ -54,6 +59,9 @@ export const StoreProvider: ParentComponent = (props) => {
     setIsFilterArtist,
     searchTags: tags,
     setSearchTags: setTags,
+    dialogCount,
+    incrementDialogCount: () => setDialogCount((prev) => prev + 1),
+    decrementDialogCount: () => setDialogCount((prev) => prev - 1),
   };
 
   return (

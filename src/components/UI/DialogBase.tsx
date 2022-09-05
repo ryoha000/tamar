@@ -1,5 +1,6 @@
 import { onCleanup, onMount, ParentComponent, Show } from "solid-js";
 import { Portal } from "solid-js/web";
+import { useStore } from "../../lib/store";
 
 interface Props {
   isOpen: boolean;
@@ -41,6 +42,7 @@ const scrollbarVisible = () => {
 };
 
 const DialogBaseContent: ParentComponent<Props> = (props) => {
+  const store = useStore();
   let ele: HTMLDivElement | undefined = undefined;
   onMount(() => {
     ele?.focus();
@@ -52,13 +54,17 @@ const DialogBaseContent: ParentComponent<Props> = (props) => {
       }
     }
     window.document.body.style.overflowY = "hidden";
+    store?.incrementDialogCount();
   });
   onCleanup(() => {
-    window.document.body.style.overflowY = "auto";
-    document.body.style.paddingRight = `0px`;
-    const fixedContainers = document.querySelectorAll("[data-fixed]");
-    for (const e of fixedContainers) {
-      e.setAttribute("style", `padding-right: 0px;`);
+    store?.decrementDialogCount();
+    if (!store?.dialogCount()) {
+      window.document.body.style.overflowY = "auto";
+      document.body.style.paddingRight = `0px`;
+      const fixedContainers = document.querySelectorAll("[data-fixed]");
+      for (const e of fixedContainers) {
+        e.setAttribute("style", `padding-right: 0px;`);
+      }
     }
   });
 

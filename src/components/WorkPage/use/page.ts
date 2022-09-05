@@ -43,7 +43,7 @@ const usePage = (
     if (nextPage >= imageSrcArray().length) {
       return;
     }
-    navigator(`../${nextPage}`);
+    navigator(`../${nextPage}`, { replace: true });
     setWorkPage(nextPage);
   };
   // 作品間の遷移

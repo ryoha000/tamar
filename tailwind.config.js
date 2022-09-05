@@ -52,6 +52,9 @@ module.exports = {
       height: {
         header: "3.5rem",
       },
+      width: {
+        "artist-name": "15rem"
+      }
     },
   },
   plugins: [],

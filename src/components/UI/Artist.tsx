@@ -29,7 +29,7 @@ const Artist: Component<Props> = (props) => {
 
   return (
     <div class="w-full flex flex-col gap-2">
-      <div class="flex w-60">
+      <div class="flex w-artist-name">
         <Editor
           initialText={() => props.artist.name}
           command={updateNameCommand}

@@ -29,6 +29,7 @@ module.exports = {
         dialog: 105,
         "list-box-overlay": 109,
         "list-box": 110,
+        "dialog-loading": 120,
         header: 50,
         "work-navigation-overlay": 30,
         "artist-navigation-overlay": 30,

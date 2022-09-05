@@ -42,6 +42,7 @@ const Header: Component = () => {
       <MenuDialog
         isOpen={isOpenMenuDialog()}
         close={() => setIsOpenMenuDialog(false)}
+        refetch={store!.refetch}
       />
     </Show>
   );

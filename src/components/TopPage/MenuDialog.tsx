@@ -13,6 +13,7 @@ import FileImportDialog from "./FileImportDialog";
 interface Props {
   isOpen: boolean;
   close: () => void;
+  refetch: () => void;
 }
 
 const MenuDialog: Component<Props> = (props) => {
@@ -68,11 +69,13 @@ const MenuDialog: Component<Props> = (props) => {
         isOpen={isOpenFolderDialog()}
         close={() => setIsOpenFolderDialog(false)}
         dir={directory()}
+        refetch={props.refetch}
       />
       <FileImportDialog
         isOpen={isOpenFileDialog()}
         close={() => setIsOpenFileDialog(false)}
         filePaths={file()}
+        refetch={props.refetch}
       />
     </>
   );

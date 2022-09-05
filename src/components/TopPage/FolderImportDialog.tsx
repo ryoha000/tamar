@@ -22,6 +22,7 @@ interface Props {
   isOpen: boolean;
   dir: string;
   close: () => void;
+  refetch: () => void;
 }
 
 const FolderImportDialog: Component<Props> = (props) => {
@@ -59,6 +60,7 @@ const FolderImportDialog: Component<Props> = (props) => {
     await confirm();
     setLoading(false);
     props.close();
+    props.refetch();
   };
 
   onMount(async () => {

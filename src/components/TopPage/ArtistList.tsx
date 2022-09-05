@@ -1,4 +1,4 @@
-import { Component, createResource, Index } from "solid-js";
+import { Component, createResource, Index, onMount } from "solid-js";
 import { useStore } from "../../lib/store";
 import { commandSearchArtist } from "../../lib/commands";
 import Artist from "../UI/Artist";
@@ -17,6 +17,10 @@ const ArtistList: Component = () => {
       initialValue: [],
     }
   );
+
+  onMount(() => {
+    store.refetch = refetch;
+  });
 
   return (
     <InfiniteScroll

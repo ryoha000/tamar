@@ -27,6 +27,7 @@ export interface Store {
   dialogCount: Accessor<number>;
   incrementDialogCount: () => void;
   decrementDialogCount: () => void;
+  refetch: () => void;
 }
 
 export const StoreProvider: ParentComponent = (props) => {
@@ -62,6 +63,7 @@ export const StoreProvider: ParentComponent = (props) => {
     dialogCount,
     incrementDialogCount: () => setDialogCount((prev) => prev + 1),
     decrementDialogCount: () => setDialogCount((prev) => prev - 1),
+    refetch: () => {},
   };
 
   return (

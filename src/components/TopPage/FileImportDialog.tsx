@@ -11,6 +11,7 @@ interface Props {
   isOpen: boolean;
   filePaths: string[];
   close: () => void;
+  refetch: () => void;
 }
 
 const FileImportDialog: Component<Props> = (props) => {
@@ -37,7 +38,7 @@ const FileImportDialog: Component<Props> = (props) => {
       filePaths: props.filePaths,
     });
     props.close();
-    // TODO: refetch
+    props.refetch();
   };
 
   return (

@@ -1,4 +1,4 @@
-import { Component, createResource } from "solid-js";
+import { Component, createResource, onMount } from "solid-js";
 import Work from "./Work";
 import MasonryWrapper from "../UI/MasonryWrapper";
 import { useStore } from "../../lib/store";
@@ -18,6 +18,10 @@ const WorkList: Component = () => {
       initialValue: [],
     }
   );
+
+  onMount(() => {
+    store.refetch = refetch;
+  });
 
   return (
     <InfiniteScroll

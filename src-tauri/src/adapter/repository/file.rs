@@ -22,6 +22,18 @@ impl FileRepository for RepositoryImpl<File> {
         "../tamar_content"
     }
 
+    fn get_work_dir_path(&self, id: &Id<Work>) -> anyhow::Result<String> {
+        let root_dir = self.get_data_root_dir_path();
+
+        let dir_path = Path::new(root_dir);
+        let work_dir_path_buf = dir_path.join(Path::new(&id.value.to_string()));
+        let work_dir_path = work_dir_path_buf
+            .as_path()
+            .to_str()
+            .ok_or(anyhow::anyhow!("failed osstr -> str"))?;
+        Ok(work_dir_path.to_string())
+    }
+
     fn get_file_name(&self, path_str: &str) -> anyhow::Result<String> {
         let path = Path::new(path_str);
         let name = path

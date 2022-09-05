@@ -3,8 +3,10 @@ import {
   createEffect,
   createSignal,
   For,
+  Match,
   onMount,
   Show,
+  Switch,
 } from "solid-js";
 import { listenImportDirProgress } from "../../lib/events";
 import Dialog from "../UI/Dialog";
@@ -23,11 +25,13 @@ interface Props {
 }
 
 const FolderImportDialog: Component<Props> = (props) => {
+  const [isInit, setIsInit] = createSignal(false);
   const [selectedDirDeps, setSelectedDirDeps] = createSignal("");
   createEffect(() => {
     const options = dirDepsLengthKindOnlyDeps();
     if (options.length > 0) {
       setSelectedDirDeps(options[0]);
+      setIsInit(true);
     }
   });
   const selectedDirDepsNumber = () => +selectedDirDeps();
@@ -54,7 +58,7 @@ const FolderImportDialog: Component<Props> = (props) => {
     setLoading(true);
     await confirm();
     setLoading(false);
-    close();
+    props.close();
   };
 
   onMount(async () => {
@@ -66,60 +70,67 @@ const FolderImportDialog: Component<Props> = (props) => {
       <Dialog isOpen={props.isOpen} close={props.close}>
         <div class="flex flex-col gap-2">
           <div class="text-xl font-bold">フォルダからインポート</div>
-          <div class="flex flex-col gap-4 pl-4">
-            <MenuDialogSection label="選択したフォルダ">
-              <code class="text-sm">{props.dir}</code>
-            </MenuDialogSection>
-            <div class="flex flex-col">
-              <div class="flex items-center gap-2">
-                <DropDownMenu
-                  options={dirDepsLengthKindOnlyDeps()}
-                  selectedOption={selectedDirDeps()}
-                  onChange={(opt) => setSelectedDirDeps(opt)}
-                  width="3rem"
-                />
-                <div class="text-xl font-bold">階層ある場合の設定</div>
-              </div>
-              <div class="flex flex-col gap-2  pl-4">
-                <For each={eachDepsSample()}>
-                  {(deps, i) => (
-                    <FileImportEachDeps
-                      deps={deps}
-                      selectedUsage={getUsage(deps.deps)}
-                      onChange={(usage) =>
-                        setUsage(deps.deps, usage as DepsUsageKind)
-                      }
+          <Switch>
+            <Match when={isInit()}>
+              <div class="flex flex-col gap-4 pl-4">
+                <MenuDialogSection label="選択したフォルダ">
+                  <code class="text-sm">{props.dir}</code>
+                </MenuDialogSection>
+                <div class="flex flex-col">
+                  <div class="flex items-center gap-2">
+                    <DropDownMenu
+                      options={dirDepsLengthKindOnlyDeps()}
+                      selectedOption={selectedDirDeps()}
+                      onChange={(opt) => setSelectedDirDeps(opt)}
+                      width="3rem"
                     />
-                  )}
-                </For>
-              </div>
-            </div>
-            <MenuDialogSection label="プレビュー">
-              <div class="flex gap-4">
-                <img class="h-40 object-contain" src={sampleSrc()} />
-                <div class="grid grid-cols-2 gap-x-4 grid-rows-import-preview">
-                  <div>作品名</div>
-                  <div>{preview().title}</div>
-                  <div>作者名</div>
-                  <div>{preview().artist}</div>
-                  <div>タグ</div>
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <For each={preview().tags}>
-                      {(tag, i) => <Tag tag={tag} />}
+                    <div class="text-xl font-bold">階層ある場合の設定</div>
+                  </div>
+                  <div class="flex flex-col gap-2  pl-4">
+                    <For each={eachDepsSample()}>
+                      {(deps, i) => (
+                        <FileImportEachDeps
+                          deps={deps}
+                          selectedUsage={getUsage(deps.deps)}
+                          onChange={(usage) =>
+                            setUsage(deps.deps, usage as DepsUsageKind)
+                          }
+                        />
+                      )}
                     </For>
                   </div>
                 </div>
+                <MenuDialogSection label="プレビュー">
+                  <div class="flex gap-4">
+                    <img class="h-40 object-contain" src={sampleSrc()} />
+                    <div class="grid grid-cols-2 gap-x-4 grid-rows-import-preview">
+                      <div>作品名</div>
+                      <div>{preview().title}</div>
+                      <div>作者名</div>
+                      <div>{preview().artist}</div>
+                      <div>タグ</div>
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <For each={preview().tags}>
+                          {(tag, i) => <Tag tag={tag} />}
+                        </For>
+                      </div>
+                    </div>
+                  </div>
+                </MenuDialogSection>
+                <div class="flex justify-center">
+                  <button
+                    onclick={clickConfirm}
+                    class="px-4 py-2 bg-primary hover:bg-secondary transition-all rounded text-white font-bold"
+                  >
+                    確定
+                  </button>
+                </div>
               </div>
-            </MenuDialogSection>
-            <div class="flex justify-center">
-              <button
-                onclick={clickConfirm}
-                class="px-4 py-2 bg-primary hover:bg-secondary transition-all rounded text-white font-bold"
-              >
-                確定
-              </button>
-            </div>
-          </div>
+            </Match>
+            <Match when={!isInit()}>
+              <Loading />
+            </Match>
+          </Switch>
         </div>
       </Dialog>
       <Show when={loading()}>

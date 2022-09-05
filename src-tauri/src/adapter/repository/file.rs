@@ -64,9 +64,11 @@ impl FileRepository for RepositoryImpl<File> {
     fn extract_zip_file(&self, file_path_str: &str, dir_path_str: &str) -> anyhow::Result<()> {
         let fname = Path::new(file_path_str);
         let file = fs::File::open(&fname)?;
+        let dir_path = Path::new(dir_path_str);
 
         let mut archive = zip::ZipArchive::new(file)?;
-        archive.extract(Path::new(dir_path_str))?;
+        fs::create_dir_all(dir_path)?;
+        archive.extract(dir_path)?;
         Ok(())
     }
 

@@ -45,7 +45,7 @@ const FileImportDialog: Component<Props> = (props) => {
     <Show when={props.filePaths.length}>
       <Dialog isOpen={props.isOpen} close={props.close}>
         <div class="flex flex-col gap-2">
-          <div class="text-xl font-bold">ファイルからインポート</div>
+          <div class="text-xl font-bold">同じ作者名をまとめてインポート</div>
           <div class="flex flex-col gap-4 pl-4">
             <MenuDialogSection label="選択したファイル">
               <code class="text-sm">

@@ -66,22 +66,29 @@ pub async fn import_file(
         let work = work.unwrap();
         // -------- work に関係する処理 ここまで ---------
 
-        // zip ファイルを解凍
-        let zip_dir_path = format!("../tmp/{}", work_title);
-        modules
-            .file_use_case()
-            .extract_zip_file(&file_path_str, &zip_dir_path)?;
+        if file_path_str.ends_with("zip") {
+            // zip ファイルを解凍
+            let zip_dir_path = format!("../tmp/{}", work_title);
+            modules
+                .file_use_case()
+                .extract_zip_file(&file_path_str, &zip_dir_path)?;
 
-        // ファイルコピー
-        modules
-            .file_use_case()
-            .save_original_files(SaveOriginalFiles::new(
-                work.id.clone(),
-                zip_dir_path.clone(),
-            ))?;
+            // ファイルコピー
+            modules
+                .file_use_case()
+                .save_original_files(SaveOriginalFiles::new(
+                    work.id.clone(),
+                    zip_dir_path.clone(),
+                ))?;
 
-        // 解凍したディレクトリを消す
-        modules.file_use_case().delete_dir(zip_dir_path)?;
+            // 解凍したディレクトリを消す
+            modules.file_use_case().delete_dir(zip_dir_path)?;
+        } else {
+            // ファイルコピー
+            modules
+                .file_use_case()
+                .save_original_files(SaveOriginalFiles::new(work.id.clone(), file_path_str))?;
+        }
     }
 
     Ok(())

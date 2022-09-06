@@ -3,7 +3,6 @@ import {
   createEffect,
   createSignal,
   For,
-  onMount,
   ParentComponent,
   Show,
 } from "solid-js";
@@ -17,6 +16,7 @@ interface Props {
   isOpen: boolean;
   width: string;
   optionComponent: Component<OptionProps>;
+  isFixed?: boolean;
 }
 
 export interface OptionProps {
@@ -60,7 +60,9 @@ const ListBox: ParentComponent<Props> = (props) => {
       <Show when={props.isOpen}>
         <Portal>
           <div
-            class="absolute flex flex-col items-center justify-center z-list-box bg-white rounded shadow max-h-40 overflow-y-auto"
+            class={`${
+              props.isFixed ? "fixed" : "absolute"
+            } flex flex-col items-center justify-center z-list-box bg-white rounded shadow max-h-40 overflow-y-auto`}
             style={portalStyle()}
             onclick={(e) => e.stopPropagation()}
           >

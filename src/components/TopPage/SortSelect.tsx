@@ -19,6 +19,7 @@ const SortSelect: Component<Props> = (props) => {
         options={[...SORT_KIND]}
         onChange={(option) => props.select(option as SortKind)}
         selectedOption={props.selected}
+        isFixed={true}
       />
       <TooltipWrapper label="降順で表示">
         <ToggleIconButton

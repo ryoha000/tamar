@@ -7,6 +7,7 @@ interface Props {
   selectedOption: string;
   width?: string;
   onChange: (option: string) => void;
+  isFixed?: boolean;
 }
 
 const DropDownMenu: Component<Props> = (props) => {
@@ -30,6 +31,7 @@ const DropDownMenu: Component<Props> = (props) => {
         </div>
       )}
       width={props.width ?? "7rem"}
+      isFixed={props.isFixed}
     >
       <div
         onclick={() => setIsOpenOptionList(true)}

@@ -1,5 +1,7 @@
+import { useLocation, useParams } from "@solidjs/router"
 import { appWindow } from "@tauri-apps/api/window"
 import { createSignal } from "solid-js"
+import { commandGetArtist, commandImportFile } from "./commands"
 import { useStore } from "./store"
 
 const useDrop = () => {
@@ -14,13 +16,21 @@ const useDrop = () => {
       store.refetch()
     }
   }
+  
+  const location = useLocation();
+  const isArtistPage = () => location.pathname.startsWith("/artist");
+  const params = useParams();
 
-  appWindow.onFileDropEvent((ev) => {
+  appWindow.onFileDropEvent(async (ev) => {
     if(ev.payload.type !== "drop"){
       return
     }
+    if (isArtistPage()) {
+      const artist = await commandGetArtist(params["id"])
+      await commandImportFile({ artistName: artist.name, filePaths: filePaths() })
+      return
+    }
     setFilePaths(ev.payload.paths)
-    console.log(filePaths())
     setIsOpenFileDialog(true)
   })
 

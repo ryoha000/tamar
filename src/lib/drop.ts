@@ -28,6 +28,7 @@ const useDrop = () => {
     if (isArtistPage()) {
       const artist = await commandGetArtist(params["id"])
       await commandImportFile({ artistName: artist.name, filePaths: filePaths() })
+      refetch()
       return
     }
     setFilePaths(ev.payload.paths)

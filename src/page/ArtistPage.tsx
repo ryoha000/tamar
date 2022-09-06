@@ -1,13 +1,15 @@
 import { useParams } from "@solidjs/router";
 import { Component, createResource, onMount, Show } from "solid-js";
+import FileImportDialog from "../components/TopPage/FileImportDialog";
 import Header from "../components/TopPage/Header";
 import Artist from "../components/UI/Artist";
 import { commandGetArtist } from "../lib/commands";
+import useDrop from "../lib/drop";
 import { useStore } from "../lib/store";
 
 const ArtistPage: Component = () => {
   const params = useParams();
-  const [artist, { refetch }] = createResource(
+  const [artist, { refetch, mutate }] = createResource(
     () => params["id"],
     commandGetArtist,
     {
@@ -18,15 +20,26 @@ const ArtistPage: Component = () => {
   const store = useStore();
   onMount(() => {
     if (store) {
-      store.refetch = refetch;
+      store.refetch = () => {
+        mutate(null);
+        refetch();
+      };
     }
   });
+
+  const { isOpenFileDialog, closeFileDialog, filePaths } = useDrop();
 
   return (
     <Show when={artist()}>
       <div class="flex p-4 pt-14">
         <Header />
         <Artist artist={artist()!} refetch={refetch} />
+        <FileImportDialog
+          isOpen={isOpenFileDialog()}
+          close={closeFileDialog}
+          refetch={refetch}
+          filePaths={filePaths()}
+        />
       </div>
     </Show>
   );

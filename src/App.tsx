@@ -4,12 +4,8 @@ import TopPage from "./page/TopPage";
 import { Toaster } from "solid-toast";
 import WorkPage from "./page/WorkPage";
 import ArtistPage from "./page/ArtistPage";
-import useDrop from "./lib/drop";
-import FileImportDialog from "./components/TopPage/FileImportDialog";
 
 const App: Component = () => {
-  const { isOpenFileDialog, closeFileDialog, refetch, filePaths } = useDrop();
-
   return (
     <>
       <Routes>
@@ -18,12 +14,6 @@ const App: Component = () => {
         <Route path="/artist/:id" component={ArtistPage} />
       </Routes>
       <Toaster />
-      <FileImportDialog
-        isOpen={isOpenFileDialog()}
-        close={closeFileDialog}
-        refetch={refetch}
-        filePaths={filePaths()}
-      />
     </>
   );
 };

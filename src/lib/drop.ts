@@ -6,7 +6,10 @@ import { useStore } from "./store"
 
 const useDrop = () => {
   const [isOpenFileDialog, setIsOpenFileDialog] = createSignal(false)
-  const closeFileDialog = () => setIsOpenFileDialog(false)
+  const closeFileDialog = () => {
+    setIsOpenFileDialog(false)
+    setFilePaths([])
+  }
   const [filePaths, setFilePaths] = createSignal<string[]>([])
 
   const store = useStore()
@@ -21,17 +24,22 @@ const useDrop = () => {
   const isArtistPage = () => location.pathname.startsWith("/artist");
   const params = useParams();
 
+  const [loading, setLoading] = createSignal(false)
+
   appWindow.onFileDropEvent(async (ev) => {
-    if(ev.payload.type !== "drop"){
-      return
-    }
-    if (isArtistPage()) {
-      const artist = await commandGetArtist(params["id"])
-      await commandImportFile({ artistName: artist.name, filePaths: filePaths() })
-      refetch()
+    const isLoading = loading()
+    if(ev.payload.type !== "drop" || isLoading) {
       return
     }
     setFilePaths(ev.payload.paths)
+    if (isArtistPage()) {
+      setLoading(true)
+      const artist = await commandGetArtist(params["id"])
+      await commandImportFile({ artistName: artist.name, filePaths: filePaths() })
+      refetch()
+      setLoading(false)
+      return
+    }
     setIsOpenFileDialog(true)
   })
 

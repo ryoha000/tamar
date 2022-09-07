@@ -12,6 +12,7 @@ use crate::kernel::{
     repository::file::FileRepository,
 };
 use async_trait::async_trait;
+use sqlx::types::chrono::{DateTime, NaiveDateTime, Utc};
 
 use super::RepositoryImpl;
 
@@ -158,6 +159,13 @@ impl FileRepository for RepositoryImpl<File> {
         let img = img.rotate90();
         img.save(file)?;
         Ok(())
+    }
+
+    fn get_modified_at(&self, file: String) -> anyhow::Result<NaiveDateTime> {
+        let metadata = fs::metadata(&file)?;
+        let time = metadata.modified()?;
+        let dt: DateTime<Utc> = time.into();
+        Ok(dt.naive_utc())
     }
 }
 

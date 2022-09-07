@@ -1,5 +1,6 @@
 use crate::kernel::model::{file::CopyFiles, file::SaveWorkFiles, work::Work, Id};
 use async_trait::async_trait;
+use sqlx::types::chrono::NaiveDateTime;
 
 #[async_trait]
 pub trait FileRepository {
@@ -14,4 +15,5 @@ pub trait FileRepository {
     fn delete_file(&self, file: String) -> anyhow::Result<()>;
     fn delete_dir(&self, dir: String) -> anyhow::Result<()>;
     fn rotate_90_image_file(&self, file: String) -> anyhow::Result<()>;
+    fn get_modified_at(&self, file: String) -> anyhow::Result<NaiveDateTime>;
 }

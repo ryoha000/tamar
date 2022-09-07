@@ -1,4 +1,4 @@
-use crate::kernel::model::work::{NewWork, Work};
+use crate::kernel::model::work::{NewImportWork, NewWork, Work};
 use sqlx::types::chrono::{NaiveDateTime, Utc};
 use sqlx::FromRow;
 
@@ -33,6 +33,19 @@ impl TryFrom<NewWork> for WorkTable {
             artist_id: s.artist_id.value.to_string(),
             created_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
+        })
+    }
+}
+
+impl TryFrom<NewImportWork> for WorkTable {
+    type Error = anyhow::Error;
+    fn try_from(s: NewImportWork) -> Result<Self, Self::Error> {
+        Ok(WorkTable {
+            id: s.id.value.to_string(),
+            title: s.title,
+            artist_id: s.artist_id.value.to_string(),
+            created_at: s.created_at,
+            updated_at: s.updated_at,
         })
     }
 }

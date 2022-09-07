@@ -25,6 +25,22 @@ impl TryFrom<CreateWork> for NewWork {
 }
 
 #[derive(new)]
+pub struct ImportWork {
+    pub title: String,
+    pub artist_id: Id<Artist>,
+    pub file_path: String,
+}
+
+impl TryFrom<ImportWork> for NewWork {
+    type Error = anyhow::Error;
+
+    fn try_from(c: ImportWork) -> anyhow::Result<Self> {
+        let work_id = Id::gen();
+        Ok(NewWork::new(work_id, c.title, c.artist_id))
+    }
+}
+
+#[derive(new)]
 pub struct UpdateTitleWork {
     pub id: String,
     pub title: String,

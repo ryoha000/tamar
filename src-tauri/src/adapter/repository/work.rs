@@ -1,7 +1,8 @@
 use crate::adapter::model::work::WorkTable;
 use crate::kernel::model::artist::Artist;
 use crate::kernel::model::work::{
-    NewerArtistIdWork, NewerTitleWork, SearchAroundTitleWork, SearchAroundUpdatedAtWork, SearchWork,
+    NewImportWork, NewerArtistIdWork, NewerTitleWork, SearchAroundTitleWork,
+    SearchAroundUpdatedAtWork, SearchWork,
 };
 use crate::kernel::{
     model::{
@@ -177,6 +178,25 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
     }
 
     async fn insert(&self, source: NewWork) -> anyhow::Result<()> {
+        if source.title.len() == 0 {
+            anyhow::bail!("title is required")
+        }
+        let pool = self.pool.0.clone();
+        let work_table: WorkTable = source.try_into()?;
+        let _ = sqlx::query(
+            "insert into work (id, title, artist_id, created_at, updated_at) values (?, ?, ?, ?, ?)",
+        )
+        .bind(work_table.id)
+        .bind(work_table.title)
+        .bind(work_table.artist_id)
+        .bind(work_table.created_at)
+        .bind(work_table.updated_at)
+        .execute(&*pool)
+        .await?;
+        Ok(())
+    }
+
+    async fn insert_import(&self, source: NewImportWork) -> anyhow::Result<()> {
         if source.title.len() == 0 {
             anyhow::bail!("title is required")
         }

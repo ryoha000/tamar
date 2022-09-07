@@ -19,6 +19,15 @@ pub struct NewWork {
 }
 
 #[derive(new, Debug)]
+pub struct NewImportWork {
+    pub id: Id<Work>,
+    pub title: String,
+    pub artist_id: Id<Artist>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(new, Debug)]
 pub struct NewerTitleWork {
     pub id: Id<Work>,
     pub title: String,

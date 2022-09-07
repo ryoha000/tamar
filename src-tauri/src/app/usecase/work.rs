@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::kernel::model::work::{NewerArtistIdWork, NewerTitleWork};
+use crate::kernel::model::work::{NewImportWork, NewWork, NewerArtistIdWork, NewerTitleWork};
 use crate::kernel::model::Id;
 use crate::kernel::repository::file::FileRepository;
 use crate::kernel::repository::work::WorkRepository;
@@ -8,7 +8,7 @@ use crate::{adapter::modules::RepositoriesModuleExt, kernel::model::work::Work};
 use derive_new::new;
 
 use crate::app::model::work::{
-    CreateWork, DeleteWork, GetByTitleWork, SearchAroundTitleWorkView,
+    CreateWork, DeleteWork, GetByTitleWork, ImportWork, SearchAroundTitleWorkView,
     SearchAroundUpdatedAtWorkView, UpdateArtistIdWork, UpdateTitleWork,
 };
 
@@ -30,6 +30,35 @@ impl<R: RepositoriesModuleExt> WorkUseCase<R> {
         self.repositories
             .work_repository()
             .insert(source.try_into()?)
+            .await
+    }
+
+    pub async fn import_work(&self, source: ImportWork) -> anyhow::Result<()> {
+        let file_path = source.file_path.clone();
+        let existed = self
+            .repositories
+            .work_repository()
+            .find_by_title_and_artist(source.title.clone(), &source.artist_id)
+            .await?;
+        if existed.is_some() {
+            return Ok(()); // TODO: Err にしなくていいか考える
+        }
+
+        let new_work: NewWork = source.try_into()?;
+        let datetime = self
+            .repositories
+            .file_repository()
+            .get_modified_at(file_path)?;
+        let new_import_work = NewImportWork::new(
+            new_work.id,
+            new_work.title,
+            new_work.artist_id,
+            datetime.clone(),
+            datetime,
+        );
+        self.repositories
+            .work_repository()
+            .insert_import(new_import_work)
             .await
     }
 

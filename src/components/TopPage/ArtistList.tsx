@@ -32,7 +32,9 @@ const ArtistList: Component = () => {
     >
       <div class="flex flex-col items-center w-full gap-4">
         <Index each={artists()}>
-          {(artist, i) => <Artist artist={artist()} refetch={refetch} />}
+          {(artist, i) => (
+            <Artist artist={artist()} refetch={refetch} index={i} />
+          )}
         </Index>
       </div>
     </InfiniteScroll>

@@ -11,6 +11,7 @@ import HorizontalScroller from "./HorizontalScroller";
 interface Props {
   artist: ArtistI;
   refetch: () => void;
+  index?: number;
 }
 const Artist: Component<Props> = (props) => {
   const [works] = createResource(
@@ -50,7 +51,7 @@ const Artist: Component<Props> = (props) => {
                   class="w-44 h-44 p-2 flex-shrink-0"
                   style="content-visibility: auto;contain-intrinsic-size: 11rem;"
                 >
-                  <ArtistWork work={work} />
+                  <ArtistWork work={work} index={props.index} />
                 </div>
               )}
             </For>

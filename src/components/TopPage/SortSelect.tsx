@@ -7,7 +7,7 @@ import { SortKind, SORT_KIND } from "../../lib/types";
 
 interface Props {
   selected: SortKind;
-  select: Setter<SortKind>;
+  select: (v: SortKind) => void;
   isDesc: boolean;
   toggleDesc: () => void;
 }

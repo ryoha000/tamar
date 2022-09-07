@@ -1,11 +1,19 @@
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from "solid-icons/ai";
 import { Component } from "solid-js";
+import { useStore } from "../../lib/store";
 
 const HeaderNextPrev: Component = () => {
+  const store = useStore();
   const forward = () => {
+    if (store) {
+      store.setOffset(0);
+    }
     history.forward();
   };
   const back = () => {
+    if (store) {
+      store.setOffset(0);
+    }
     history.back();
   };
 

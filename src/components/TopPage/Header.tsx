@@ -1,6 +1,7 @@
 import { FaSolidEllipsis } from "solid-icons/fa";
 import { Component, createSignal, Show } from "solid-js";
 import { useStore } from "../../lib/store";
+import { SortKind } from "../../lib/types";
 import HeaderNextPrev from "../UI/HeaderNextPrev";
 import ByArtistToggle from "./ByArtistToggle";
 import MenuDialog from "./MenuDialog";
@@ -10,6 +11,30 @@ import SortSelect from "./SortSelect";
 const Header: Component = () => {
   const store = useStore();
   const [isOpenMenuDialog, setIsOpenMenuDialog] = createSignal(false);
+
+  const setSortKind = (v: SortKind) => {
+    if (!store) {
+      return;
+    }
+    store.setOffset(0);
+    store.setSortKind(v);
+  };
+
+  const toggleSortDesc = () => {
+    if (!store) {
+      return;
+    }
+    store.setOffset(0);
+    store.setIsSortDesc((prev) => !prev);
+  };
+
+  const setIsFilterArtist = () => {
+    if (!store) {
+      return;
+    }
+    store.setOffset(0);
+    store.setIsFilterArtist((prev) => !prev);
+  };
 
   return (
     <Show when={store}>
@@ -26,13 +51,13 @@ const Header: Component = () => {
           />
           <SortSelect
             selected={store!.sortKind()}
-            select={store!.setSortKind}
+            select={setSortKind}
             isDesc={store!.isSortDesc()}
-            toggleDesc={() => store!.setIsSortDesc((prev) => !prev)}
+            toggleDesc={toggleSortDesc}
           />
           <ByArtistToggle
             isFilter={store!.isFilterArtist()}
-            toggle={() => store!.setIsFilterArtist((prev) => !prev)}
+            toggle={setIsFilterArtist}
           />
           <button class="ml-auto" onclick={() => setIsOpenMenuDialog(true)}>
             <FaSolidEllipsis size="1.2rem" />

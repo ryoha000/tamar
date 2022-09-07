@@ -28,6 +28,7 @@ export interface Store {
   incrementDialogCount: () => void;
   decrementDialogCount: () => void;
   refetch: () => void;
+  setOffset: Setter<number>;
 }
 
 export const StoreProvider: ParentComponent = (props) => {
@@ -44,6 +45,7 @@ export const StoreProvider: ParentComponent = (props) => {
     setIsFilterArtist,
     tags,
     setTags,
+    setOffset,
   } = useOption();
   const [dialogCount, setDialogCount] = createSignal(0);
 
@@ -64,6 +66,7 @@ export const StoreProvider: ParentComponent = (props) => {
     incrementDialogCount: () => setDialogCount((prev) => prev + 1),
     decrementDialogCount: () => setDialogCount((prev) => prev - 1),
     refetch: () => {},
+    setOffset,
   };
 
   return (

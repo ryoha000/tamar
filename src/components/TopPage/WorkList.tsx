@@ -32,7 +32,7 @@ const WorkList: Component = () => {
       initOffset={store.searchRequest().offset}
     >
       <MasonryWrapper each={works()}>
-        {(work, i) => <Work work={work} />}
+        {(work, i) => <Work work={work} index={i()} />}
       </MasonryWrapper>
     </InfiniteScroll>
   );

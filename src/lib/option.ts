@@ -59,6 +59,7 @@ const useOption = () => {
     setIsFilterArtist,
     tags,
     setTags,
+    setOffset,
   };
 };
 

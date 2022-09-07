@@ -5,7 +5,7 @@ use crate::{
     app::model::{
         artist::{CreateArtist, GetByNameArtist},
         file::SaveOriginalFiles,
-        work::{CreateWork, GetByTitleWork},
+        work::{GetByTitleWork, ImportWork},
     },
     driver::context::errors::CommandError,
     driver::module::Modules,
@@ -49,7 +49,11 @@ pub async fn import_file(
         // work の insert
         modules
             .work_use_case()
-            .register_work(CreateWork::new(work_title.clone(), artist.id.clone()))
+            .import_work(ImportWork::new(
+                work_title.clone(),
+                artist.id.clone(),
+                file_path_str.clone(),
+            ))
             .await?;
 
         // 保存先に使うため insert したはずの work を取得
@@ -66,28 +70,32 @@ pub async fn import_file(
         let work = work.unwrap();
         // -------- work に関係する処理 ここまで ---------
 
-        if file_path_str.ends_with("zip") {
+        // 更新日時を取得するために先に解凍するなりなんなりする
+        let is_zip_file = file_path_str.ends_with("zip");
+        let dir_path_str;
+        if is_zip_file {
             // zip ファイルを解凍
             let zip_dir_path = format!("../tmp/{}", work_title);
             modules
                 .file_use_case()
                 .extract_zip_file(&file_path_str, &zip_dir_path)?;
 
-            // ファイルコピー
-            modules
-                .file_use_case()
-                .save_original_files(SaveOriginalFiles::new(
-                    work.id.clone(),
-                    zip_dir_path.clone(),
-                ))?;
-
-            // 解凍したディレクトリを消す
-            modules.file_use_case().delete_dir(zip_dir_path)?;
+            dir_path_str = zip_dir_path;
         } else {
-            // ファイルコピー
-            modules
-                .file_use_case()
-                .save_original_files(SaveOriginalFiles::new(work.id.clone(), file_path_str))?;
+            dir_path_str = file_path_str;
+        }
+
+        // ファイルコピー
+        modules
+            .file_use_case()
+            .save_original_files(SaveOriginalFiles::new(
+                work.id.clone(),
+                dir_path_str.clone(),
+            ))?;
+
+        if is_zip_file {
+            // 解凍したディレクトリを消す
+            modules.file_use_case().delete_dir(dir_path_str)?;
         }
     }
 

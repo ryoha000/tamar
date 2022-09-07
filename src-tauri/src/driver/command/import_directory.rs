@@ -6,7 +6,7 @@ use crate::{
         artist::{CreateArtist, GetByNameArtist},
         file::SaveOriginalFiles,
         tag::{CreateTag, GetByNameTag},
-        work::{CreateWork, GetByTitleWork},
+        work::{GetByTitleWork, ImportWork},
         work_tag_map::CreateWorkTagMap,
     },
     driver::context::errors::CommandError,
@@ -128,7 +128,11 @@ pub async fn import_directory(
         // work の insert
         modules
             .work_use_case()
-            .register_work(CreateWork::new(work_title.clone(), artist.id.clone()))
+            .import_work(ImportWork::new(
+                work_title.clone(),
+                artist.id.clone(),
+                dir_path_info.path.clone(),
+            ))
             .await?;
 
         // tag の insert に使うため insert したはずの work を取得

@@ -71,10 +71,27 @@ const useDirUsage = (
     return dirDepsLengthKind().map((v) => `${v.deps}`);
   };
 
+  const [ignoreDeps, setIgnoreDeps] = createSignal<{ [key: number]: boolean }>(
+    {}, { equals: false }
+  );
+  const getIgnoreDeps = () => {
+    const deps = targetMaxDeps();
+    return ignoreDeps()[deps]
+  }
+  const toggleIgnoreDeps = () => {
+    setIgnoreDeps((prev) => {
+      const deps = targetMaxDeps();
+      prev[deps] = !prev[deps]
+      return prev
+    });
+  };
+
   createEffect(() => {
     const initialUsage: Usages = {};
+    const initialIgnore: { [key: number]: boolean } = {}
     dirDepsLengthKind().forEach((v) => {
       initialUsage[v.deps] = {};
+      initialIgnore[v.deps] = false
       paths()[v.index].dirDeps.forEach((dep) => {
         let usage: DepsUsageKind = "無視する";
         // when >= 3. 1 => ignore, 2 => artist, ... , last => title
@@ -94,6 +111,7 @@ const useDirUsage = (
     });
 
     setUsages(initialUsage);
+    setIgnoreDeps(initialIgnore)
   });
 
   const eachDepsSample = () => {
@@ -121,7 +139,9 @@ const useDirUsage = (
   };
 
   const confirm = async () => {
-    await commandImportDirectory(paths(), usages());
+    const ignore = ignoreDeps()
+    const targetPaths = paths().filter(v => !ignore[v.dirDeps.length])
+    await commandImportDirectory(targetPaths, usages());
   };
 
   const preview = () => {
@@ -155,6 +175,8 @@ const useDirUsage = (
     dirDepsLengthKindOnlyDeps,
     confirm,
     preview,
+    getIgnoreDeps,
+    toggleIgnoreDeps,
   };
 };
 

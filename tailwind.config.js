@@ -46,6 +46,7 @@ module.exports = {
         "masonry-sm": "repeat(auto-fill, minmax(8rem, 1fr))",
         "image-list": "repeat(auto-fill, minmax(5rem, 1fr))",
         "top-header": "min-content minmax(0, 1fr) repeat(3, min-content)",
+        "import-preview": "5rem, 1fr",
       },
       gridTemplateRows: {
         "import-preview": "repeat(auto-fill, 1.5rem)",

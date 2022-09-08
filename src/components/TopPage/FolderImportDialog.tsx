@@ -9,6 +9,7 @@ import {
   Switch,
 } from "solid-js";
 import { listenImportDirProgress } from "../../lib/events";
+import CheckBox from "../UI/CheckBox";
 import Dialog from "../UI/Dialog";
 import DropDownMenu from "../UI/DropDownMenu";
 import Loading from "../UI/Loading";
@@ -47,6 +48,8 @@ const FolderImportDialog: Component<Props> = (props) => {
     dirDepsLengthKindOnlyDeps,
     confirm,
     preview,
+    getIgnoreDeps,
+    toggleIgnoreDeps,
   } = useDirUsage(paths, selectedDirDepsNumber);
 
   const [loading, setLoading] = createSignal(false);
@@ -102,10 +105,15 @@ const FolderImportDialog: Component<Props> = (props) => {
                     </For>
                   </div>
                 </div>
+                <CheckBox
+                  label="この階層のファイルはインポートしない"
+                  isChecked={getIgnoreDeps()}
+                  check={toggleIgnoreDeps}
+                />
                 <MenuDialogSection label="プレビュー">
                   <div class="flex gap-4">
                     <img class="h-40 object-contain" src={sampleSrc()} />
-                    <div class="grid grid-cols-2 gap-x-4 grid-rows-import-preview">
+                    <div class="grid gap-x-4 grid-cols-import-preview grid-rows-import-preview">
                       <div>作品名</div>
                       <div>{preview().title}</div>
                       <div>作者名</div>

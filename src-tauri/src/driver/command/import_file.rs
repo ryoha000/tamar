@@ -114,6 +114,11 @@ fn import_individual(
         dir_path_str = file_path_str;
     }
 
+    m.file_use_case().save_thumbnail(SaveThumbnails {
+        src_path: dir_path_str.clone(),
+        id: id.clone(),
+    })?;
+
     // ファイルコピー
     m.file_use_case()
         .save_original_files(SaveOriginalFiles::new(id.clone(), dir_path_str.clone()))?;

@@ -4,12 +4,13 @@ use tauri::State;
 use crate::{
     app::model::{
         artist::{CreateArtist, GetByNameArtist},
-        file::SaveOriginalFiles,
+        file::{SaveOriginalFiles, SaveThumbnails},
         work::{GetByTitleWork, ImportWork},
     },
     driver::context::errors::CommandError,
     driver::module::Modules,
     driver::module::ModulesExt,
+    kernel::model::{work::Work, Id},
 };
 
 #[derive(Clone, serde::Serialize)]
@@ -23,6 +24,7 @@ pub async fn import_file(
     artist_name: String,
     file_paths: Vec<String>,
 ) -> anyhow::Result<(), CommandError> {
+    let mut features = vec![];
     for file_path_str in file_paths.into_iter() {
         // -------- artist に関係する処理 ここから ---------
         // artist を insert
@@ -70,33 +72,55 @@ pub async fn import_file(
         let work = work.unwrap();
         // -------- work に関係する処理 ここまで ---------
 
-        // 更新日時を取得するために先に解凍するなりなんなりする
-        let is_zip_file = file_path_str.ends_with("zip");
-        let dir_path_str;
-        if is_zip_file {
-            // zip ファイルを解凍
-            let zip_dir_path = format!("../tmp/{}", work_title);
-            modules
-                .file_use_case()
-                .extract_zip_file(&file_path_str, &zip_dir_path)?;
+        let m = modules.inner().clone();
+        let handle = tauri::async_runtime::spawn(async move {
+            import_individual(m, work.id, file_path_str, work_title)
+        });
+        features.push(handle);
+    }
+    println!("end insert");
 
-            dir_path_str = zip_dir_path;
+    for f in features {
+        let join_res = f.await;
+        if let Err(e) = join_res {
+            return Err(CommandError::Anyhow(anyhow::anyhow!(
+                "{:#?} (internal error)",
+                e
+            )));
         } else {
-            dir_path_str = file_path_str;
+            join_res.unwrap()?;
         }
+    }
 
-        // ファイルコピー
-        modules
-            .file_use_case()
-            .save_original_files(SaveOriginalFiles::new(
-                work.id.clone(),
-                dir_path_str.clone(),
-            ))?;
+    Ok(())
+}
 
-        if is_zip_file {
-            // 解凍したディレクトリを消す
-            modules.file_use_case().delete_dir(dir_path_str)?;
-        }
+fn import_individual(
+    m: Arc<Modules>,
+    id: Id<Work>,
+    file_path_str: String,
+    work_title: String,
+) -> anyhow::Result<(), CommandError> {
+    let is_zip_file = file_path_str.ends_with("zip");
+    let dir_path_str;
+    if is_zip_file {
+        // zip ファイルを解凍
+        let zip_dir_path = format!("../tmp/{}", work_title);
+        m.file_use_case()
+            .extract_zip_file(&file_path_str, &zip_dir_path)?;
+
+        dir_path_str = zip_dir_path;
+    } else {
+        dir_path_str = file_path_str;
+    }
+
+    // ファイルコピー
+    m.file_use_case()
+        .save_original_files(SaveOriginalFiles::new(id.clone(), dir_path_str.clone()))?;
+
+    if is_zip_file {
+        // 解凍したディレクトリを消す
+        m.file_use_case().delete_dir(dir_path_str)?;
     }
 
     Ok(())

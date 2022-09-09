@@ -1,6 +1,6 @@
 use crate::kernel::model::{
     file::CopyFiles,
-    file::{ResizeImage, SaveThumbnail, SaveWorkFiles},
+    file::{ResizeImages, SaveThumbnail, SaveWorkFiles},
     work::Work,
     Id,
 };
@@ -22,8 +22,10 @@ pub trait FileRepository {
     fn delete_dir(&self, dir: String) -> anyhow::Result<()>;
     fn rotate_90_image_file(&self, file: String) -> anyhow::Result<()>;
     fn get_modified_at(&self, file: String) -> anyhow::Result<NaiveDateTime>;
-    fn resize_image(&self, source: ResizeImage) -> anyhow::Result<()>;
+    fn resize_image(&self, source: ResizeImages) -> anyhow::Result<()>;
     fn get_work_list_thumbnail(&self, id: &Id<Work>) -> anyhow::Result<String>;
+    fn get_work_list_thumbnail_abs(&self, id: &Id<Work>) -> anyhow::Result<String>;
     fn get_artist_list_thumbnail(&self, id: &Id<Work>) -> anyhow::Result<String>;
+    fn get_artist_list_thumbnail_abs(&self, id: &Id<Work>) -> anyhow::Result<String>;
     fn save_thumbnail(&self, source: SaveThumbnail) -> anyhow::Result<()>;
 }

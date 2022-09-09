@@ -25,8 +25,13 @@ pub struct CopyFiles<'a> {
 }
 
 #[derive(new)]
-pub struct ResizeImage {
+pub struct ResizeImages {
     pub src_file: String,
+    pub dst: Vec<ResizeImageDst>,
+}
+
+#[derive(new)]
+pub struct ResizeImageDst {
     pub dst_file: String,
     pub dst_width: u32,
 }

@@ -5,7 +5,7 @@ use std::{
 
 use crate::kernel::{
     model::{
-        file::{CopyFiles, File, ResizeImage, SaveThumbnail, SaveWorkFiles},
+        file::{CopyFiles, File, ResizeImageDst, ResizeImages, SaveThumbnail, SaveWorkFiles},
         work::Work,
         Id,
     },
@@ -159,16 +159,18 @@ impl FileRepository for RepositoryImpl<File> {
             .ok_or(anyhow::anyhow!("can't encode osstr -> str"))?
             .to_string();
 
-        self.resize_image(ResizeImage {
-            dst_width: 160,
-            dst_file: artist_list_thumbnail_path,
+        self.resize_image(ResizeImages {
             src_file: thumbnail_original_path.clone(),
-        })?;
-
-        self.resize_image(ResizeImage {
-            dst_width: 400,
-            dst_file: work_list_thumbnail_path,
-            src_file: thumbnail_original_path.clone(),
+            dst: vec![
+                ResizeImageDst {
+                    dst_file: artist_list_thumbnail_path,
+                    dst_width: 160,
+                },
+                ResizeImageDst {
+                    dst_file: work_list_thumbnail_path,
+                    dst_width: 400,
+                },
+            ],
         })?;
 
         Ok(())
@@ -253,9 +255,10 @@ impl FileRepository for RepositoryImpl<File> {
         Ok(dt.naive_utc())
     }
 
-    fn resize_image(&self, source: ResizeImage) -> anyhow::Result<()> {
+    fn resize_image(&self, source: ResizeImages) -> anyhow::Result<()> {
         // Read source image from file
         let img = ImageReader::open(source.src_file)?.decode()?;
+
         let width =
             NonZeroU32::new(img.width()).ok_or(anyhow::anyhow!("failed NonZeroU32::new"))?;
         let height =
@@ -272,36 +275,38 @@ impl FileRepository for RepositoryImpl<File> {
         let alpha_mul_div = fr::MulDiv::default();
         alpha_mul_div.multiply_alpha_inplace(&mut src_image.view_mut())?;
 
-        // Create container for data of destination image
-        let dst_width =
-            NonZeroU32::new(source.dst_width).ok_or(anyhow::anyhow!("failed NonZeroU32::new"))?;
-        let dst_height = NonZeroU32::new(
-            (height.get() as f32 / width.get() as f32 * source.dst_width as f32) as u32,
-        )
-        .ok_or(anyhow::anyhow!("failed NonZeroU32::new"))?;
+        for dst in source.dst {
+            // Create container for data of destination image
+            let dst_width =
+                NonZeroU32::new(dst.dst_width).ok_or(anyhow::anyhow!("failed NonZeroU32::new"))?;
+            let dst_height = NonZeroU32::new(
+                (height.get() as f32 / width.get() as f32 * dst.dst_width as f32) as u32,
+            )
+            .ok_or(anyhow::anyhow!("failed NonZeroU32::new"))?;
 
-        let mut dst_image = fr::Image::new(dst_width, dst_height, src_image.pixel_type());
+            let mut dst_image = fr::Image::new(dst_width, dst_height, src_image.pixel_type());
 
-        // Get mutable view of destination image data
-        let mut dst_view = dst_image.view_mut();
+            // Get mutable view of destination image data
+            let mut dst_view = dst_image.view_mut();
 
-        // Create Resizer instance and resize source image
-        // into buffer of destination image
-        let mut resizer = fr::Resizer::new(fr::ResizeAlg::Convolution(fr::FilterType::Lanczos3));
-        resizer.resize(&src_image.view(), &mut dst_view)?;
+            // Create Resizer instance and resize source image
+            // into buffer of destination image
+            let mut resizer = fr::Resizer::new(fr::ResizeAlg::Convolution(fr::FilterType::Box));
+            resizer.resize(&src_image.view(), &mut dst_view)?;
 
-        // Divide RGB channels of destination image by alpha
-        alpha_mul_div.divide_alpha_inplace(&mut dst_view)?;
+            // Divide RGB channels of destination image by alpha
+            alpha_mul_div.divide_alpha_inplace(&mut dst_view)?;
 
-        let mut result_buf = BufWriter::new(fs::File::create(&source.dst_file)?);
+            let mut result_buf = BufWriter::new(fs::File::create(&dst.dst_file)?);
 
-        // Write destination image as PNG-file
-        PngEncoder::new(&mut result_buf).write_image(
-            dst_image.buffer(),
-            dst_width.get(),
-            dst_height.get(),
-            ColorType::Rgba8,
-        )?;
+            // Write destination image as PNG-file
+            PngEncoder::new(&mut result_buf).write_image(
+                dst_image.buffer(),
+                dst_width.get(),
+                dst_height.get(),
+                ColorType::Rgba8,
+            )?;
+        }
 
         Ok(())
     }
@@ -314,7 +319,23 @@ impl FileRepository for RepositoryImpl<File> {
             .as_path()
             .to_str()
             .ok_or(anyhow::anyhow!("failed osstr -> str"))?;
+
         Ok(work_dir_path.to_string())
+    }
+
+    fn get_work_list_thumbnail_abs(&self, id: &Id<Work>) -> anyhow::Result<String> {
+        let dir_path = Path::new(self.get_thumbnail_root_dir_path());
+        let work_dir_path_buf = dir_path.join(Path::new(&id.value.to_string()));
+        let work_dir_path_buf = work_dir_path_buf.join(Path::new("work_list.png"));
+        let work_dir_path = work_dir_path_buf
+            .as_path()
+            .to_str()
+            .ok_or(anyhow::anyhow!("failed osstr -> str"))?;
+
+        Ok(fs::canonicalize(work_dir_path)?
+            .to_str()
+            .ok_or(anyhow::anyhow!("failed osstr -> str"))?
+            .to_string())
     }
 
     fn get_artist_list_thumbnail(&self, id: &Id<Work>) -> anyhow::Result<String> {
@@ -325,7 +346,22 @@ impl FileRepository for RepositoryImpl<File> {
             .as_path()
             .to_str()
             .ok_or(anyhow::anyhow!("failed osstr -> str"))?;
+
         Ok(work_dir_path.to_string())
+    }
+
+    fn get_artist_list_thumbnail_abs(&self, id: &Id<Work>) -> anyhow::Result<String> {
+        let work_dir_path_buf = Path::new(self.get_thumbnail_root_dir_path());
+        let work_dir_path_buf = work_dir_path_buf.join(Path::new(&id.value.to_string()));
+        let work_dir_path_buf = work_dir_path_buf.join(Path::new("artist_list.png"));
+        let work_dir_path = work_dir_path_buf
+            .as_path()
+            .to_str()
+            .ok_or(anyhow::anyhow!("failed osstr -> str"))?;
+        Ok(fs::canonicalize(work_dir_path)?
+            .to_str()
+            .ok_or(anyhow::anyhow!("failed osstr -> str"))?
+            .to_string())
     }
 }
 

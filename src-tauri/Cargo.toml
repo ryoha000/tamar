@@ -25,6 +25,7 @@ thiserror = "1.0"
 async-trait = "0.1.57"
 sqlx = { version = "0.6", features = [ "runtime-tokio-rustls", "sqlite", "chrono" ] }
 image = "0.24.3"
+fast_image_resize = "1.0.0"
 zip = "0.6.2"
 
 [features]

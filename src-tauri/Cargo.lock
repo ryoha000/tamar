@@ -92,6 +92,7 @@ dependencies = [
  "anyhow",
  "async-trait",
  "derive-new",
+ "fast_image_resize",
  "image",
  "serde",
  "serde_json",
@@ -846,6 +847,16 @@ dependencies = [
  "miniz_oxide",
  "smallvec",
  "threadpool",
+]
+
+[[package]]
+name = "fast_image_resize"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "64168ddba40c03a3d329bbdd2aee194eb2c4076dddd5e52f5cc882ea6ff58901"
+dependencies = [
+ "num-traits",
+ "thiserror",
 ]
 
 [[package]]

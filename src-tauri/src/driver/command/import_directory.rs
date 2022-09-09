@@ -228,5 +228,10 @@ fn import_individual(
         return Err(CommandError::Anyhow(anyhow::anyhow!(e)));
     }
 
+    m.file_use_case().save_thumbnail(SaveThumbnails {
+        src_path: dir_path_info.path.clone(),
+        id: id.clone(),
+    })?;
+
     Ok(())
 }

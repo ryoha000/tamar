@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use crate::{
     adapter::modules::RepositoriesModuleExt,
-    app::model::file::SaveOriginalFiles,
+    app::model::file::{SaveOriginalFiles, SaveThumbnails},
     kernel::model::{work::Work, Id},
     kernel::repository::file::FileRepository,
 };
@@ -38,5 +38,8 @@ impl<R: RepositoriesModuleExt> FileUseCase<R> {
     }
     pub fn delete_dir(&self, dir: String) -> anyhow::Result<()> {
         self.repositories.file_repository().delete_dir(dir)
+    }
+    pub fn save_thumbnail(&self, source: SaveThumbnails) -> anyhow::Result<()> {
+        self.repositories.file_repository().save_thumbnail(source)
     }
 }

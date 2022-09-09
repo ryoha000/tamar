@@ -73,11 +73,11 @@ impl<R: RepositoriesModuleExt> WorkViewUseCase<R> {
         let work_list_thumbnail = self
             .repositories
             .file_repository()
-            .get_work_list_thumbnail(&work.id)?;
+            .get_work_list_thumbnail_abs(&work.id)?;
         let artist_list_thumbnail = self
             .repositories
             .file_repository()
-            .get_artist_list_thumbnail(&work.id)?;
+            .get_artist_list_thumbnail_abs(&work.id)?;
 
         Ok(WorkViewSummary::new(
             work,

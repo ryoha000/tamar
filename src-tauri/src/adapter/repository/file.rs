@@ -54,7 +54,7 @@ impl FileRepository for RepositoryImpl<File> {
     fn get_file_name(&self, path_str: &str) -> anyhow::Result<String> {
         let path = Path::new(path_str);
         let name = path
-            .file_name()
+            .file_stem()
             .ok_or(anyhow::anyhow!("osstr unicode is invalid"))?
             .to_str()
             .ok_or(anyhow::anyhow!("failed osstr -> str"))?;

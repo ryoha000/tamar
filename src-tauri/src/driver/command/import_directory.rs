@@ -195,7 +195,6 @@ pub async fn import_directory(
         });
         features.push(handle);
     }
-    println!("end insert");
 
     for f in features {
         let join_res = f.await;
@@ -204,8 +203,6 @@ pub async fn import_directory(
                 "{:#?} (internal error)",
                 e
             )));
-        } else {
-            join_res.unwrap()?;
         }
     }
 
@@ -224,14 +221,15 @@ fn import_individual(
             id.clone(),
             dir_path_info.path.clone(),
         ))?;
-    if let Err(e) = window.emit("import_dir_progress", ProgressPayload { count: 1 }) {
-        return Err(CommandError::Anyhow(anyhow::anyhow!(e)));
-    }
 
     m.file_use_case().save_thumbnail(SaveThumbnails {
         src_path: dir_path_info.path.clone(),
         id: id.clone(),
     })?;
+
+    if let Err(e) = window.emit("import_dir_progress", ProgressPayload { count: 1 }) {
+        return Err(CommandError::Anyhow(anyhow::anyhow!(e)));
+    }
 
     Ok(())
 }

@@ -1,6 +1,6 @@
 import { Component, createSignal, ParentComponent } from "solid-js";
 import { SEARCH_LIMIT } from "../../lib/option";
-import { Artist, SearchWorkRequest, Work } from "../../lib/types";
+import { Artist, SearchWorkRequest, WorkSummary } from "../../lib/types";
 import ScrollObserber from "./ScrollObserver";
 
 type BaseProps<T> = Props<T> & { step: number };
@@ -14,8 +14,8 @@ interface Props<T> {
 }
 
 // generics が使えないので
-type TypedBaseProps = BaseProps<Work | Artist>;
-type TypedProps = Props<Work | Artist>;
+type TypedBaseProps = BaseProps<WorkSummary | Artist>;
+type TypedProps = Props<WorkSummary | Artist>;
 
 const InfiniteScrollBase: Component<TypedBaseProps> = (props) => {
   const [loading, setLoading] = createSignal(false);

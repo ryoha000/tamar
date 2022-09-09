@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::app::model::work_view::WorkView;
+use crate::app::model::work_view::{WorkView, WorkViewSummary};
 
 use super::{artist_view::JsonArtistView, tag_view::JsonTagView};
 
@@ -28,6 +28,28 @@ impl From<WorkView> for JsonWorkView {
                 .map(|tag| JsonTagView::from(tag))
                 .collect(),
             updated_at: s.updated_at,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct JsonWorkViewSummary {
+    pub id: String,
+    pub title: String,
+    pub work_list_thumbnail: String,
+    pub artist_list_thumbnail: String,
+    pub artist: JsonArtistView,
+}
+
+impl From<WorkViewSummary> for JsonWorkViewSummary {
+    fn from(s: WorkViewSummary) -> Self {
+        JsonWorkViewSummary {
+            id: s.id,
+            title: s.title,
+            work_list_thumbnail: s.work_list_thumbnail,
+            artist_list_thumbnail: s.artist_list_thumbnail,
+            artist: JsonArtistView::from(s.artist),
         }
     }
 }

@@ -19,6 +19,14 @@ export interface Work {
   updatedAt: string;
 }
 
+export interface WorkSummary {
+  id: string;
+  title: string;
+  workListThumbnail: string;
+  artistListThumbnail: string;
+  artist: Artist;
+}
+
 export const SORT_KIND = ["追加日時", "作品名", "閲覧日時"] as const;
 export const INITIAL_SELECT_SORT_OPTION = SORT_KIND[0];
 export type SortKind = typeof SORT_KIND[number];

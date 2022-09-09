@@ -3,10 +3,10 @@ import { convertFileSrc } from "@tauri-apps/api/tauri";
 import { Component, Show } from "solid-js";
 import { SEARCH_LIMIT } from "../../lib/option";
 import { useStore } from "../../lib/store";
-import { Work as WorkI } from "../../lib/types";
+import { WorkSummary } from "../../lib/types";
 
 interface Props {
-  work: WorkI;
+  work: WorkSummary;
   index: number;
 }
 
@@ -18,10 +18,7 @@ const Work: Component<Props> = (props) => {
   const { workPageMap } = store;
 
   const imageSrc = () => {
-    if (!props.work.paths.length) {
-      return "";
-    }
-    return convertFileSrc(props.work.paths[0]);
+    return convertFileSrc(props.work.workListThumbnail);
   };
 
   const navigator = useNavigate();

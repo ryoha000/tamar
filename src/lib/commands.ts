@@ -8,6 +8,7 @@ import {
   Suggest,
   Tag,
   Work,
+  WorkSummary,
 } from "./types";
 
 export const commandImportDirectory = async (
@@ -18,7 +19,7 @@ export const commandImportDirectory = async (
 };
 
 export const commandSearchWork = async (payload: SearchWorkRequest) => {
-  return await invoke<Work[]>("search_work", {
+  return await invoke<WorkSummary[]>("search_work", {
     limit: payload.limit,
     offset: payload.offset,
     search: payload.search,
@@ -57,7 +58,7 @@ export const commandGetWork = async (id: String) => {
 };
 
 export const commandSelectWorkByArtist = async (artistId: String) => {
-  return await invoke<Work[]>("select_work_by_artist", { artistId });
+  return await invoke<WorkSummary[]>("select_work_by_artist", { artistId });
 };
 
 export const commandSearchArtist = async (payload: SearchArtistRequest) => {

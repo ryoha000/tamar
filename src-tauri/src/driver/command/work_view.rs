@@ -5,7 +5,7 @@ use crate::{
     app::model::work_view::{GetWorkView, SearchWorkView, SelectByArtistView},
     driver::{
         context::errors::CommandError,
-        model::work_view::JsonWorkView,
+        model::work_view::{JsonWorkView, JsonWorkViewSummary},
         module::{Modules, ModulesExt},
     },
 };
@@ -19,7 +19,7 @@ pub async fn search_work(
     tags: Vec<String>,
     sort_col: String,
     sort_desc: bool,
-) -> anyhow::Result<Vec<JsonWorkView>, CommandError> {
+) -> anyhow::Result<Vec<JsonWorkViewSummary>, CommandError> {
     //! まぎらわしい仕様についてのメモ /
     //! tags の指定は AND 検索になる ( tags を指定するとその tag を持たない work は表示されない) /
 
@@ -36,7 +36,7 @@ pub async fn search_work(
         ))
         .await?
         .into_iter()
-        .map(|v| JsonWorkView::from(v))
+        .map(|v| JsonWorkViewSummary::from(v))
         .collect();
 
     Ok(works)
@@ -59,14 +59,14 @@ pub async fn get_work(
 pub async fn select_work_by_artist(
     modules: State<'_, Arc<Modules>>,
     artist_id: String,
-) -> anyhow::Result<Vec<JsonWorkView>, CommandError> {
+) -> anyhow::Result<Vec<JsonWorkViewSummary>, CommandError> {
     // TODO: limit が必要か考える
     let works = modules
         .work_view_use_case()
         .select_by_artist(SelectByArtistView::new(artist_id))
         .await?
         .into_iter()
-        .map(|v| JsonWorkView::from(v))
+        .map(|v| JsonWorkViewSummary::from(v))
         .collect();
 
     Ok(works)

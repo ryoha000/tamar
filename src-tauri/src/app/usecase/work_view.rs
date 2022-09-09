@@ -14,7 +14,9 @@ use crate::{
 };
 use derive_new::new;
 
-use crate::app::model::work_view::{GetWorkView, SearchWorkView, SelectByArtistView, WorkView};
+use crate::app::model::work_view::{
+    GetWorkView, SearchWorkView, SelectByArtistView, WorkView, WorkViewSummary,
+};
 
 #[derive(new)]
 pub struct WorkViewUseCase<R: RepositoriesModuleExt> {
@@ -60,6 +62,31 @@ impl<R: RepositoriesModuleExt> WorkViewUseCase<R> {
         ))
     }
 
+    async fn get_work_view_summary_from_work(&self, work: Work) -> anyhow::Result<WorkViewSummary> {
+        let artist = self
+            .repositories
+            .artist_repository()
+            .find(&work.artist_id)
+            .await?
+            .ok_or(anyhow::anyhow!("artist is not found(internal error)"))?;
+
+        let work_list_thumbnail = self
+            .repositories
+            .file_repository()
+            .get_work_list_thumbnail(&work.id)?;
+        let artist_list_thumbnail = self
+            .repositories
+            .file_repository()
+            .get_artist_list_thumbnail(&work.id)?;
+
+        Ok(WorkViewSummary::new(
+            work,
+            work_list_thumbnail,
+            artist_list_thumbnail,
+            ArtistView::new(artist),
+        ))
+    }
+
     pub async fn get_work(&self, source: GetWorkView) -> anyhow::Result<WorkView> {
         let work = self
             .repositories
@@ -71,7 +98,7 @@ impl<R: RepositoriesModuleExt> WorkViewUseCase<R> {
         self.get_work_view_from_work(work).await
     }
 
-    pub async fn search(&self, source: SearchWorkView) -> anyhow::Result<Vec<WorkView>> {
+    pub async fn search(&self, source: SearchWorkView) -> anyhow::Result<Vec<WorkViewSummary>> {
         let works = self
             .repositories
             .work_repository()
@@ -79,7 +106,7 @@ impl<R: RepositoriesModuleExt> WorkViewUseCase<R> {
             .await?;
         let mut work_views = Vec::new();
         for work in works.into_iter() {
-            work_views.push(self.get_work_view_from_work(work).await?);
+            work_views.push(self.get_work_view_summary_from_work(work).await?);
         }
         Ok(work_views)
     }
@@ -87,7 +114,7 @@ impl<R: RepositoriesModuleExt> WorkViewUseCase<R> {
     pub async fn select_by_artist(
         &self,
         source: SelectByArtistView,
-    ) -> anyhow::Result<Vec<WorkView>> {
+    ) -> anyhow::Result<Vec<WorkViewSummary>> {
         let id = Id::<Artist>::new(ulid::Ulid::from_string(&source.id)?);
 
         let works = self
@@ -97,7 +124,7 @@ impl<R: RepositoriesModuleExt> WorkViewUseCase<R> {
             .await?;
         let mut work_views = Vec::new();
         for work in works.into_iter() {
-            work_views.push(self.get_work_view_from_work(work).await?);
+            work_views.push(self.get_work_view_summary_from_work(work).await?);
         }
         Ok(work_views)
     }

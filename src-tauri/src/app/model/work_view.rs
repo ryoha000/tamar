@@ -16,6 +16,14 @@ pub struct WorkView {
     pub updated_at: String,
 }
 
+pub struct WorkViewSummary {
+    pub id: String,
+    pub title: String,
+    pub work_list_thumbnail: String,
+    pub artist_list_thumbnail: String,
+    pub artist: ArtistView,
+}
+
 #[derive(new)]
 pub struct SearchWorkView {
     pub limit: u16,
@@ -65,6 +73,23 @@ impl WorkView {
             artist,
             tags,
             updated_at: work.updated_at.to_string(),
+        }
+    }
+}
+
+impl WorkViewSummary {
+    pub fn new(
+        work: Work,
+        work_list_thumbnail: String,
+        artist_list_thumbnail: String,
+        artist: ArtistView,
+    ) -> Self {
+        Self {
+            id: work.id.value.to_string(),
+            title: work.title,
+            work_list_thumbnail,
+            artist_list_thumbnail,
+            artist,
         }
     }
 }

@@ -1,4 +1,5 @@
 use derive_new::new;
+use ulid::Ulid;
 
 use crate::kernel::model::{
     tag::Tag,
@@ -40,5 +41,19 @@ impl TryFrom<DetachWorkTagMap> for DeleteWorkTagMap {
 
     fn try_from(c: DetachWorkTagMap) -> anyhow::Result<Self> {
         Ok(DeleteWorkTagMap::new(c.work_id, c.tag_id))
+    }
+}
+
+pub struct GetWorkAttachedTags {
+    pub tag_ids: Vec<Id<Tag>>,
+}
+
+impl GetWorkAttachedTags {
+    pub fn new(ids: Vec<String>) -> anyhow::Result<Self> {
+        let mut tag_ids = vec![];
+        for id in ids {
+            tag_ids.push(Id::new(Ulid::from_string(&id)?))
+        }
+        Ok(GetWorkAttachedTags { tag_ids })
     }
 }

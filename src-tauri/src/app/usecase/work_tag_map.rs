@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
-use crate::adapter::modules::RepositoriesModuleExt;
 use crate::kernel::repository::work_tag_map::WorkTagMapRepository;
+use crate::{adapter::modules::RepositoriesModuleExt, kernel::model::work_tag_map::WorkTagMap};
 use derive_new::new;
 
-use crate::app::model::work_tag_map::{CreateWorkTagMap, DetachWorkTagMap};
+use crate::app::model::work_tag_map::{CreateWorkTagMap, DetachWorkTagMap, GetWorkAttachedTags};
 
 #[derive(new)]
 pub struct WorkTagMapUseCase<R: RepositoriesModuleExt> {
@@ -23,6 +23,16 @@ impl<R: RepositoriesModuleExt> WorkTagMapUseCase<R> {
         self.repositories
             .work_tag_map_repository()
             .delete(source.try_into()?)
+            .await
+    }
+
+    pub async fn get_work_attached_tags(
+        &self,
+        source: GetWorkAttachedTags,
+    ) -> anyhow::Result<Vec<WorkTagMap>> {
+        self.repositories
+            .work_tag_map_repository()
+            .find_by_tag_ids(source.tag_ids)
             .await
     }
 }

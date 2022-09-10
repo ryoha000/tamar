@@ -3,6 +3,7 @@ import {
   commandGetWork,
   commandSearchAroundTitleWork,
   commandSearchAroundUpdatedAtWork,
+  commandSearchAroundViewTimeWork,
   commandSelectWorkByArtist,
 } from "../../../lib/commands";
 import { commandWrapper } from "../../../lib/toast";
@@ -10,7 +11,7 @@ import { commandWrapper } from "../../../lib/toast";
 interface AroundWorkRequest {
   limit: number;
   isBefore: boolean;
-  col: "updated_at" | "title";
+  col: "updated_at" | "title" | "view_time";
   currentWorkId: string;
   value: string;
 }
@@ -36,6 +37,12 @@ const useWorkIdsCache = (isFilterArtist: Accessor<boolean>) => {
         res = await commandWrapper(commandSearchAroundUpdatedAtWork)({
           ...req,
           updated_at: req.value,
+        });
+        break;
+      case "view_time":
+        res = await commandWrapper(commandSearchAroundViewTimeWork)({
+          ...req,
+          workId: req.currentWorkId,
         });
         break;
       default:

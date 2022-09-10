@@ -60,8 +60,9 @@ const usePage = (
     let nextIndex = currentIndex + step;
 
     if (currentIndex === -1 || nextIndex < 0 || nextIndex >= workIds().length) {
-      const value = sortCol() === "name" ? _work.title : _work.updatedAt;
-      const col = sortCol() === "name" ? "title" : "updated_at";
+      const _col = sortCol();
+      const value = _col === "name" ? _work.title : _work.updatedAt;
+      const col = _col === "name" ? "title" : _col;
 
       await fetchWorkIds({
         currentWorkId: workId,

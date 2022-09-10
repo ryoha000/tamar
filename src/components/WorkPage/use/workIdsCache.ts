@@ -1,4 +1,3 @@
-import { useParams } from "@solidjs/router";
 import { Accessor, createSignal } from "solid-js";
 import {
   commandGetWork,
@@ -19,7 +18,6 @@ interface AroundWorkRequest {
 const useWorkIdsCache = (isFilterArtist: Accessor<boolean>) => {
   const [loading, setLoading] = createSignal(false);
   const [workIds, setWorkIds] = createSignal<string[]>([]); // 並び順は isSortDesc に関係なく DESC
-  const params = useParams();
 
   const fetchWorkListWorkIds = async (req: AroundWorkRequest) => {
     if (loading()) {

@@ -27,11 +27,11 @@ export interface WorkSummary {
   artist: Artist;
 }
 
-export const SORT_KIND = ["追加日時", "作品名", "閲覧日時"] as const;
+export const SORT_KIND = ["追加日時", "名前", "閲覧日時"] as const;
 export const INITIAL_SELECT_SORT_OPTION = SORT_KIND[0];
 export type SortKind = typeof SORT_KIND[number];
 
-export const SORT_COLUMNS = ["updated_at", "title"] as const;
+export const SORT_COLUMNS = ["updated_at", "name"] as const;
 export type SortColumnKind = typeof SORT_COLUMNS[number];
 
 export interface SearchWorkRequest {

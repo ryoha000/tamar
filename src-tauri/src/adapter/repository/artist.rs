@@ -58,7 +58,7 @@ impl ArtistRepository for DatabaseRepositoryImpl<Artist> {
     ) -> anyhow::Result<Vec<Artist>> {
         // validation sort_col
         match &*source.sort_col {
-            "title" | "updated_at" => {} // valid sort_col
+            "name" | "updated_at" => {} // valid sort_col
             _ => anyhow::bail!("sort_col is invalid. sort_col: {}", source.sort_col),
         }
 
@@ -74,10 +74,16 @@ impl ArtistRepository for DatabaseRepositoryImpl<Artist> {
         // sort は `work`.$sort_col でやるため JOIN は必要
         builder.push("SELECT `artist`.`id` AS `id`, `artist`.`name` AS `name`, `artist`.`created_at` AS `created_at`, `artist`.`updated_at` AS `updated_at` FROM artist");
 
+        let updated_at_sort;
+        match &*source.sort_col {
+            "name" => updated_at_sort = "", // valid sort_col
+            "updated_at" => updated_at_sort = ", MAX(updated_at) AS latest",
+            _ => anyhow::bail!("sort_col is invalid. sort_col: {}", source.sort_col),
+        }
         // JOIN 先のテーブル
         let join_table = format!(
-            "SELECT artist_id, title, MAX({}) AS latest FROM work GROUP BY artist_id",
-            source.sort_col
+            "SELECT artist_id, title {} FROM work GROUP BY artist_id",
+            updated_at_sort
         );
         let join_sql = format!(
             " INNER JOIN ({}) AS work ON `work`.`artist_id` = `artist`.`id` ",
@@ -93,7 +99,11 @@ impl ArtistRepository for DatabaseRepositoryImpl<Artist> {
             builder.push_bind(format!("%{}%", source.text));
         }
 
-        builder.push(format!(" ORDER BY `work`.`latest` {} ", sort_order_sql));
+        match &*source.sort_col {
+            "name" => builder.push(format!(" ORDER BY `artist`.`name` {} ", sort_order_sql)),
+            "updated_at" => builder.push(format!(" ORDER BY `work`.`latest` {} ", sort_order_sql)),
+            _ => anyhow::bail!("sort_col is invalid. sort_col: {}", source.sort_col),
+        };
 
         builder.push(" LIMIT ");
         builder.push_bind(source.limit);

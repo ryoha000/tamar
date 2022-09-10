@@ -100,7 +100,6 @@ impl FileRepository for RepositoryImpl<File> {
 
         let src_work_dir_path = path::Path::new(&source.src_path);
 
-        // TODO: 全然並列じゃない
         self.copy_files(CopyFiles::new(dst_work_dir_path, src_work_dir_path, vec![]))?;
         Ok(())
     }

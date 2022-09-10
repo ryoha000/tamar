@@ -89,11 +89,13 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
     }
 
     async fn search(&self, source: SearchWork) -> anyhow::Result<Vec<Work>> {
+        let sort_col;
         // validation sort_col
         match &*source.sort_col {
-            "title" | "updated_at" => {} // valid sort_col
+            "name" => sort_col = "title", // valid sort_col
+            "updated_at" => sort_col = "updated_at",
             _ => anyhow::bail!("sort_col is invalid. sort_col: {}", source.sort_col),
-        }
+        };
 
         let is_search = source.text.len() != 0;
 
@@ -116,7 +118,7 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
             builder.push("SELECT * FROM work");
         }
 
-        builder.push(format!(" ORDER BY {} {} ", source.sort_col, sort_order_sql));
+        builder.push(format!(" ORDER BY {} {} ", sort_col, sort_order_sql));
 
         builder.push(" LIMIT ");
         builder.push_bind(source.limit);

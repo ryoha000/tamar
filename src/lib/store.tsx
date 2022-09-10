@@ -18,7 +18,7 @@ export interface Store {
   setSortKind: Setter<SortKind>;
   isSortDesc: Accessor<boolean>;
   setIsSortDesc: Setter<boolean>;
-  sortCol: () => "updated_at" | "title";
+  sortCol: () => "updated_at" | "name";
   searchRequest: () => SearchWorkRequest;
   isFilterArtist: Accessor<boolean>;
   setIsFilterArtist: Setter<boolean>;

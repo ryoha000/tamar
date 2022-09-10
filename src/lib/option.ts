@@ -22,8 +22,8 @@ const useOption = () => {
   const sortCol = (): SortColumnKind => {
     const kind = sortKind();
     switch (kind) {
-      case "作品名":
-        return "title";
+      case "名前":
+        return "name";
       case "追加日時":
         return "updated_at";
       case "閲覧日時":

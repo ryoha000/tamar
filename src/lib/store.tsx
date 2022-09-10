@@ -7,7 +7,7 @@ import {
   createSignal,
 } from "solid-js";
 import useOption from "./option";
-import { SearchWorkRequest, SortKind, Tag } from "./types";
+import { SearchWorkRequest, SortColumnKind, SortKind, Tag } from "./types";
 
 const StoreContext = createContext<Store>();
 
@@ -18,7 +18,7 @@ export interface Store {
   setSortKind: Setter<SortKind>;
   isSortDesc: Accessor<boolean>;
   setIsSortDesc: Setter<boolean>;
-  sortCol: () => "updated_at" | "name";
+  sortCol: () => SortColumnKind;
   searchRequest: () => SearchWorkRequest;
   isFilterArtist: Accessor<boolean>;
   setIsFilterArtist: Setter<boolean>;

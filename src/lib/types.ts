@@ -31,7 +31,7 @@ export const SORT_KIND = ["追加日時", "名前", "閲覧日時"] as const;
 export const INITIAL_SELECT_SORT_OPTION = SORT_KIND[0];
 export type SortKind = typeof SORT_KIND[number];
 
-export const SORT_COLUMNS = ["updated_at", "name"] as const;
+export const SORT_COLUMNS = ["updated_at", "name", "view_time"] as const;
 export type SortColumnKind = typeof SORT_COLUMNS[number];
 
 export interface SearchWorkRequest {

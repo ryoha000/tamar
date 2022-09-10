@@ -27,8 +27,7 @@ const useOption = () => {
       case "追加日時":
         return "updated_at";
       case "閲覧日時":
-        // TODO: 後で考える
-        return "updated_at";
+        return "view_time";
       default:
         const _exhaustType: never = kind;
         throw Error(`unknown sortKind. sortKind: ${kind}`);

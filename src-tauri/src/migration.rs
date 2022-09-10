@@ -12,6 +12,26 @@ pub async fn migration() {
     }
 }
 
+pub async fn drop_all_table() -> anyhow::Result<()> {
+    let tables = vec![
+        "artist",
+        "work",
+        "tag",
+        "work_tag_map",
+        "search_history",
+        "work_history",
+    ];
+    let db = Db::new().await;
+    let pool = db.0.clone();
+
+    for table in tables {
+        let sql = format!("DROP TABLE {};", table);
+        sqlx::query(&sql).execute(&*pool).await?;
+    }
+
+    Ok(())
+}
+
 #[cfg(test)]
 pub fn migration_sync(db: Db) {
     use tauri::async_runtime::block_on;

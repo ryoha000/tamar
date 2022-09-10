@@ -144,3 +144,7 @@ export const commandImportFile = async (payload: { artistName: string, filePaths
 export const commandViewWork = async (workId: string) => {
   return await invoke<void>('view_work', { workId })
 }
+
+export const commandDeleteAllData = async () => {
+  return await invoke<void>('delete_all_data', {})
+}

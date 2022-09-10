@@ -6,6 +6,7 @@ pub mod import_file;
 pub mod suggest;
 pub mod tag;
 pub mod tag_view;
+pub mod util;
 pub mod work;
 pub mod work_history;
 pub mod work_view;

@@ -7,6 +7,7 @@ use crate::{
         file::{SaveOriginalFiles, SaveThumbnails},
         tag::{CreateTag, GetByNameTag},
         work::{GetByTitleWork, ImportWork},
+        work_history::CreateWorkHistory,
         work_tag_map::CreateWorkTagMap,
     },
     driver::context::errors::CommandError,
@@ -155,6 +156,11 @@ pub async fn import_directory(
             )));
         }
         let work = work.unwrap();
+
+        // 閲覧マーカーをつけたい
+        m.work_history_use_case()
+            .register_work_history(CreateWorkHistory::new(work.id.value.to_string()))
+            .await?;
         // -------- work に関係する処理 ここまで ---------
 
         // -------- tag に関係する処理 ここから ---------

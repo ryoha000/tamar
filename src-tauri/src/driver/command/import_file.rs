@@ -6,6 +6,7 @@ use crate::{
         artist::{CreateArtist, GetByNameArtist},
         file::{SaveOriginalFiles, SaveThumbnails},
         work::{GetByTitleWork, ImportWork},
+        work_history::CreateWorkHistory,
     },
     driver::context::errors::CommandError,
     driver::module::Modules,
@@ -70,6 +71,12 @@ pub async fn import_file(
             )));
         }
         let work = work.unwrap();
+
+        // 閲覧マーカーをつけたい
+        modules
+            .work_history_use_case()
+            .register_work_history(CreateWorkHistory::new(work.id.value.to_string()))
+            .await?;
         // -------- work に関係する処理 ここまで ---------
 
         let m = modules.inner().clone();

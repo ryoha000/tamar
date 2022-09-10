@@ -1,15 +1,20 @@
 use std::sync::Arc;
 
-use crate::kernel::model::work::{NewImportWork, NewWork, NewerArtistIdWork, NewerTitleWork};
+use crate::kernel::model::work::{
+    NewImportWork, NewWork, NewerArtistIdWork, NewerTitleWork, SearchAroundViewTimeWork,
+};
 use crate::kernel::model::Id;
 use crate::kernel::repository::file::FileRepository;
 use crate::kernel::repository::work::WorkRepository;
+use crate::kernel::repository::work_history::WorkHistoryRepository;
 use crate::{adapter::modules::RepositoriesModuleExt, kernel::model::work::Work};
 use derive_new::new;
+use ulid::Ulid;
 
 use crate::app::model::work::{
     CreateWork, DeleteWork, GetByTitleWork, ImportWork, SearchAroundTitleWorkView,
-    SearchAroundUpdatedAtWorkView, UpdateArtistIdWork, UpdateTitleWork,
+    SearchAroundUpdatedAtWorkView, SearchAroundViewTimeWorkView, UpdateArtistIdWork,
+    UpdateTitleWork,
 };
 
 #[derive(new)]
@@ -138,5 +143,35 @@ impl<R: RepositoriesModuleExt> WorkUseCase<R> {
             .collect();
 
         Ok(work_ids)
+    }
+
+    pub async fn search_around_view_time(
+        &self,
+        source: SearchAroundViewTimeWorkView,
+    ) -> anyhow::Result<Vec<Id<Work>>> {
+        let latest = self
+            .repositories
+            .work_history_repository()
+            .find_latest(&Id::new(Ulid::from_string(&source.work_id)?))
+            .await?;
+        match latest {
+            Some(latest) => {
+                let work_ids = self
+                    .repositories
+                    .work_repository()
+                    .search_around_view_time(SearchAroundViewTimeWork::new(
+                        source.limit,
+                        source.is_before,
+                        latest.updated_at,
+                    ))
+                    .await?
+                    .into_iter()
+                    .map(|v| v.id)
+                    .collect();
+
+                Ok(work_ids)
+            }
+            None => Ok(vec![]),
+        }
     }
 }

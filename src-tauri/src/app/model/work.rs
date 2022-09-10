@@ -2,7 +2,7 @@ use crate::kernel::model::{
     artist::Artist,
     work::{
         NewWork, NewerArtistIdWork, NewerTitleWork, SearchAroundTitleWork,
-        SearchAroundUpdatedAtWork, Work,
+        SearchAroundUpdatedAtWork, SearchAroundViewTimeWork, Work,
     },
     Id,
 };
@@ -116,4 +116,11 @@ impl TryFrom<SearchAroundUpdatedAtWorkView> for SearchAroundUpdatedAtWork {
         let t = NaiveDateTime::parse_from_str(&c.updated_at, "%Y-%m-%d %H:%M:%S%.f")?;
         Ok(SearchAroundUpdatedAtWork::new(c.limit, c.is_before, t))
     }
+}
+
+#[derive(new)]
+pub struct SearchAroundViewTimeWorkView {
+    pub limit: u16,
+    pub is_before: bool,
+    pub work_id: String,
 }

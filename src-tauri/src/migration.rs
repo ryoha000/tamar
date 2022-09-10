@@ -3,8 +3,6 @@ use crate::adapter::persistence::sqlite::Db;
 pub const UNKNOWN_ARTIST_NAME: &str = "Unknown Artist";
 
 pub async fn migration() {
-    println!("start migration");
-
     let db = Db::new().await;
     let pool = db.0.clone();
 
@@ -12,8 +10,6 @@ pub async fn migration() {
     for sql in sqls.iter() {
         sqlx::query(sql).execute(&*pool).await.unwrap();
     }
-
-    println!("end migration");
 }
 
 #[cfg(test)]
@@ -87,9 +83,24 @@ CREATE TABLE IF NOT EXISTS work_tag_map (
     "
     .to_string();
 
+    let search_history = "
+    CREATE TABLE IF NOT EXISTS search_history (
+        id varchar(36) primary key,
+        value_id varchar(36) not null,
+        value_type integer not null,
+        created_at datetime not null,
+        updated_at datetime not null
+    );
+        "
+    .to_string();
+
+    let search_history_updated_at_index =
+        "CREATE INDEX IF NOT EXISTS search_history_updated_at_index ON search_history(updated_at);"
+            .to_string();
+
     let insert_unknown_artist = format!("
-    INSERT OR IGNORE INTO artist(id, name, created_at, updated_at) VALUES(\"01GAYXAS9G6YHP4BTZDFT360P7\", \"{}\", datetime(CURRENT_TIMESTAMP), datetime(CURRENT_TIMESTAMP))
-    ", UNKNOWN_ARTIST_NAME);
+        INSERT OR IGNORE INTO artist(id, name, created_at, updated_at) VALUES(\"01GAYXAS9G6YHP4BTZDFT360P7\", \"{}\", datetime(CURRENT_TIMESTAMP), datetime(CURRENT_TIMESTAMP))
+        ", UNKNOWN_ARTIST_NAME);
 
     return vec![
         artist,
@@ -101,6 +112,8 @@ CREATE TABLE IF NOT EXISTS work_tag_map (
         work_updated_at_index,
         tag,
         work_tag_map,
+        search_history,
+        search_history_updated_at_index,
         insert_unknown_artist,
     ];
 }

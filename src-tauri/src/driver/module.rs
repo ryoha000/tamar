@@ -3,6 +3,7 @@ use std::sync::Arc;
 use crate::app::usecase::artist::ArtistUseCase;
 use crate::app::usecase::artist_view::ArtistViewUseCase;
 use crate::app::usecase::file::FileUseCase;
+use crate::app::usecase::search_history::SearchHistoryUseCase;
 use crate::app::usecase::tag::TagUseCase;
 use crate::app::usecase::work_tag_map::WorkTagMapUseCase;
 use crate::app::usecase::work_view::WorkViewUseCase;
@@ -22,6 +23,7 @@ pub struct Modules {
     work_view_use_case: WorkViewUseCase<RepositoriesModule>,
     artist_view_use_case: ArtistViewUseCase<RepositoriesModule>,
     file_use_case: FileUseCase<RepositoriesModule>,
+    search_history_use_case: SearchHistoryUseCase<RepositoriesModule>,
 }
 
 pub trait ModulesExt {
@@ -34,6 +36,7 @@ pub trait ModulesExt {
     fn work_view_use_case(&self) -> &WorkViewUseCase<Self::RepositoriesModule>;
     fn artist_view_use_case(&self) -> &ArtistViewUseCase<Self::RepositoriesModule>;
     fn file_use_case(&self) -> &FileUseCase<Self::RepositoriesModule>;
+    fn search_history_use_case(&self) -> &SearchHistoryUseCase<Self::RepositoriesModule>;
 }
 
 impl ModulesExt for Modules {
@@ -60,6 +63,9 @@ impl ModulesExt for Modules {
     fn file_use_case(&self) -> &FileUseCase<Self::RepositoriesModule> {
         &self.file_use_case
     }
+    fn search_history_use_case(&self) -> &SearchHistoryUseCase<Self::RepositoriesModule> {
+        &self.search_history_use_case
+    }
 }
 
 impl Modules {
@@ -75,6 +81,7 @@ impl Modules {
         let work_view_use_case = WorkViewUseCase::new(repositories_module.clone());
         let artist_view_use_case = ArtistViewUseCase::new(repositories_module.clone());
         let file_use_case = FileUseCase::new(repositories_module.clone());
+        let search_history_use_case = SearchHistoryUseCase::new(repositories_module.clone());
 
         Self {
             artist_use_case,
@@ -84,6 +91,7 @@ impl Modules {
             work_view_use_case,
             artist_view_use_case,
             file_use_case,
+            search_history_use_case,
         }
     }
 }

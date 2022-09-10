@@ -98,6 +98,20 @@ CREATE TABLE IF NOT EXISTS work_tag_map (
         "CREATE INDEX IF NOT EXISTS search_history_updated_at_index ON search_history(updated_at);"
             .to_string();
 
+    let work_history = "
+    CREATE TABLE IF NOT EXISTS work_history (
+        id varchar(36) primary key,
+        work_id varchar(36) not null,
+        created_at datetime not null,
+        updated_at datetime not null
+    );
+    "
+    .to_string();
+
+    let work_history_updated_at_index =
+        "CREATE INDEX IF NOT EXISTS work_history_updated_at_index ON work_history(updated_at);"
+            .to_string();
+
     let insert_unknown_artist = format!("
         INSERT OR IGNORE INTO artist(id, name, created_at, updated_at) VALUES(\"01GAYXAS9G6YHP4BTZDFT360P7\", \"{}\", datetime(CURRENT_TIMESTAMP), datetime(CURRENT_TIMESTAMP))
         ", UNKNOWN_ARTIST_NAME);
@@ -114,6 +128,8 @@ CREATE TABLE IF NOT EXISTS work_tag_map (
         work_tag_map,
         search_history,
         search_history_updated_at_index,
+        work_history,
+        work_history_updated_at_index,
         insert_unknown_artist,
     ];
 }

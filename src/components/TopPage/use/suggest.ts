@@ -1,10 +1,12 @@
 import { useNavigate } from "@solidjs/router";
 import { createResource, createSignal, Setter } from "solid-js";
-import { commandGetSuggest } from "../../../lib/commands";
+import { commandGetInitialSuggest, commandGetSuggest, commandUseSuggest } from "../../../lib/commands";
 import useInputList from "../../../lib/inputList";
 import { Suggest, Tag } from "../../../lib/types";
 
 const INITIAL_SUGGEST: Suggest = { tags: [], artists: [] };
+const ARTIST_SUGGEST_TYPE = 0
+const TAG_SUGGEST_TYPE = 1
 
 export interface UseSuggestProps {
   setText: Setter<string>;
@@ -17,8 +19,7 @@ const useSuggest = (props: UseSuggestProps) => {
 
   const fetchOption = async (text: string) => {
     if (text.length === 0) {
-      // TODO: history から取得
-      return INITIAL_SUGGEST;
+      return await commandGetInitialSuggest(15)
     }
     return await commandGetSuggest(text);
   };
@@ -54,13 +55,13 @@ const useSuggest = (props: UseSuggestProps) => {
     props.setText("");
     ele.value = "";
 
-    console.log(option)
-
     if (option.type === "artist") {
+      commandUseSuggest({ value_id: option.id, value_type: ARTIST_SUGGEST_TYPE })
       navigator(`/artist/${option.id}`)
     }
 
     if (option.type === "tag") {
+      commandUseSuggest({ value_id: option.id, value_type: TAG_SUGGEST_TYPE })
       props.setTags((prev) => [
         ...prev,
         { id: option.id, name: option.value, updatedAt: "" },

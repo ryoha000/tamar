@@ -45,8 +45,6 @@ const useOption = () => {
     sortDesc: isSortDesc(),
   });
 
-  // TODO: スクロールでオフセット増やす処理
-
   return {
     request,
     setText,

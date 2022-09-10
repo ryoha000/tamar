@@ -54,6 +54,7 @@ fn main() {
             driver::command::suggest::get_initial_suggest,
             driver::command::suggest::get_suggest,
             driver::command::suggest::get_tag_suggest,
+            driver::command::suggest::use_suggest,
             driver::command::file::rotate_work_file,
             driver::command::file::delete_work_file,
         ])

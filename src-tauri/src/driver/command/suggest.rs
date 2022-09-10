@@ -4,6 +4,7 @@ use tauri::State;
 use crate::{
     app::model::{
         artist_view::{GetArtistView, SearchByNameArtistView},
+        search_history::CreateSearchHistory,
         tag::GetTag,
         tag_view::SearchByNameTagView,
     },
@@ -81,4 +82,18 @@ pub async fn get_tag_suggest(
         .collect();
 
     Ok(tags)
+}
+
+#[tauri::command]
+pub async fn use_suggest(
+    modules: State<'_, Arc<Modules>>,
+    value_id: String,
+    value_type: u32,
+) -> anyhow::Result<(), CommandError> {
+    modules
+        .search_history_use_case()
+        .register_search_history(CreateSearchHistory::new(value_id, value_type))
+        .await?;
+
+    Ok(())
 }

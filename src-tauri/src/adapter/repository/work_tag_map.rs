@@ -52,6 +52,9 @@ impl WorkTagMapRepository for DatabaseRepositoryImpl<WorkTagMap> {
     }
 
     async fn find_by_tag_ids(&self, tag_ids: Vec<Id<Tag>>) -> anyhow::Result<Vec<WorkTagMap>> {
+        if tag_ids.len() == 0 {
+            return Ok(vec![]);
+        }
         let pool = self.pool.0.clone();
         let mut builder =
             sqlx::query_builder::QueryBuilder::new("SELECT * FROM work_tag_map WHERE tag_id IN (");

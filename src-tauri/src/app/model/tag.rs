@@ -1,4 +1,7 @@
-use crate::kernel::model::{tag::NewTag, Id};
+use crate::kernel::model::{
+    tag::{NewTag, Tag},
+    Id,
+};
 use derive_new::new;
 
 #[derive(new)]
@@ -12,6 +15,19 @@ impl TryFrom<CreateTag> for NewTag {
     fn try_from(c: CreateTag) -> anyhow::Result<Self> {
         let tag_id = Id::gen();
         Ok(NewTag::new(tag_id, c.name))
+    }
+}
+
+pub struct GetTag {
+    pub id: Id<Tag>,
+}
+
+impl GetTag {
+    pub fn new(id: String) -> anyhow::Result<Self> {
+        let tag_id = ulid::Ulid::from_string(&id)?;
+        Ok(GetTag {
+            id: Id::new(tag_id),
+        })
     }
 }
 

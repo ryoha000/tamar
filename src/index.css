@@ -60,6 +60,17 @@ input[list]::-webkit-calendar-picker-indicator {
   outline: none;
 }
 
+*::-webkit-scrollbar {
+  width: 12px;
+}
+*::-webkit-scrollbar-track {
+  background-color: var(--color-secondary);
+}
+*::-webkit-scrollbar-thumb {
+  background-color: var(--color-text);
+  border-radius: 99999px;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

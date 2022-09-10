@@ -12,7 +12,7 @@ import {
   commandUpdateWorkArtist,
   commandUpdateWorkTitle,
 } from "../../lib/commands";
-import { errorToast } from "../../lib/toast";
+import { commandWrapper, errorToast } from "../../lib/toast";
 import { Work } from "../../lib/types";
 import Editor from "../UI/Editor";
 import MenuDialogWrapper, {
@@ -39,7 +39,10 @@ const MenuDialog: Component<Props> = (props) => {
       errorToast("変更後のタイトルが空文字です");
       return;
     }
-    await commandUpdateWorkTitle(props.work.id, title);
+    await commandWrapper(commandUpdateWorkTitle)({
+      id: props.work.id,
+      title: title,
+    });
     props.refetch();
   };
 
@@ -48,12 +51,14 @@ const MenuDialog: Component<Props> = (props) => {
       errorToast("変更後の作者名が空文字です");
       return;
     }
-    await commandUpdateWorkArtist(props.work.id, name);
+    await commandWrapper(commandUpdateWorkArtist)({ id: props.work.id, name });
     props.refetch();
   };
 
   const fetchArtistSuggest = async (text: string) => {
-    return (await commandSelectArtistByName(text)).map((v) => v.name);
+    return (await commandWrapper(commandSelectArtistByName)(text)).map(
+      (v) => v.name
+    );
   };
 
   const openExplorer = async () => {
@@ -64,7 +69,7 @@ const MenuDialog: Component<Props> = (props) => {
 
   const deleteWork = async () => {
     if (await confirm("本当にこの作品を削除しますか？")) {
-      await commandDeleteWork(props.work.id);
+      await commandWrapper(commandDeleteWork)(props.work.id);
       props.close();
       navigator("/");
     }
@@ -73,7 +78,7 @@ const MenuDialog: Component<Props> = (props) => {
   const rotate = async () => {
     try {
       // TODO: アホ重いから非同期でやって表示してるやつは transform で回転させる(refetchImage -> rotateImage)
-      await commandRotateWorkFile(props.imageSrc);
+      await commandWrapper(commandRotateWorkFile)(props.imageSrc);
       props.refetchImage();
     } catch (e) {
       errorToast(`画像回転に失敗しました。error: ${e}`);
@@ -83,7 +88,7 @@ const MenuDialog: Component<Props> = (props) => {
   };
 
   const deleteFile = async () => {
-    await commandDeleteWorkFile(props.imageSrc);
+    await commandWrapper(commandDeleteWorkFile)(props.imageSrc);
     props.refetch(); // TODO: これでpage外にいくとめんどくさい
     props.close();
   };

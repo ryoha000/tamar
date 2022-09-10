@@ -3,6 +3,7 @@ import {
   commandSelectWorkByArtist,
   commandUpdateArtistName,
 } from "../../lib/commands";
+import { commandWrapper } from "../../lib/toast";
 import type { Artist as ArtistI } from "../../lib/types";
 import ArtistWork from "./ArtistWork";
 import Editor from "./Editor";
@@ -16,7 +17,7 @@ interface Props {
 const Artist: Component<Props> = (props) => {
   const [works] = createResource(
     () => props.artist.id,
-    commandSelectWorkByArtist,
+    commandWrapper(commandSelectWorkByArtist),
     {
       initialValue: [],
     }
@@ -25,7 +26,10 @@ const Artist: Component<Props> = (props) => {
     if (name === "") {
       throw Error("更新後の作者名が空文字です");
     }
-    await commandUpdateArtistName({ id: props.artist.id, name });
+    await commandWrapper(commandUpdateArtistName)({
+      id: props.artist.id,
+      name,
+    });
   };
 
   return (

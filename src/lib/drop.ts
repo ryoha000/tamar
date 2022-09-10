@@ -1,49 +1,53 @@
-import { useLocation, useParams } from "@solidjs/router"
-import { appWindow } from "@tauri-apps/api/window"
-import { createSignal } from "solid-js"
-import { commandGetArtist, commandImportFile } from "./commands"
-import { useStore } from "./store"
+import { useLocation, useParams } from "@solidjs/router";
+import { appWindow } from "@tauri-apps/api/window";
+import { createSignal } from "solid-js";
+import { commandGetArtist, commandImportFile } from "./commands";
+import { useStore } from "./store";
+import { commandWrapper } from "./toast";
 
 const useDrop = () => {
-  const [isOpenFileDialog, setIsOpenFileDialog] = createSignal(false)
+  const [isOpenFileDialog, setIsOpenFileDialog] = createSignal(false);
   const closeFileDialog = () => {
-    setIsOpenFileDialog(false)
-    setFilePaths([])
-  }
-  const [filePaths, setFilePaths] = createSignal<string[]>([])
+    setIsOpenFileDialog(false);
+    setFilePaths([]);
+  };
+  const [filePaths, setFilePaths] = createSignal<string[]>([]);
 
-  const store = useStore()
+  const store = useStore();
 
   const refetch = () => {
     if (store) {
-      store.refetch()
+      store.refetch();
     }
-  }
-  
+  };
+
   const location = useLocation();
   const isArtistPage = () => location.pathname.startsWith("/artist");
   const params = useParams();
 
-  const [loading, setLoading] = createSignal(false)
+  const [loading, setLoading] = createSignal(false);
 
   appWindow.onFileDropEvent(async (ev) => {
-    const isLoading = loading()
-    if(ev.payload.type !== "drop" || isLoading) {
-      return
+    const isLoading = loading();
+    if (ev.payload.type !== "drop" || isLoading) {
+      return;
     }
-    setFilePaths(ev.payload.paths)
+    setFilePaths(ev.payload.paths);
     if (isArtistPage()) {
-      setLoading(true)
-      const artist = await commandGetArtist(params["id"])
-      await commandImportFile({ artistName: artist.name, filePaths: filePaths() })
-      refetch()
-      setLoading(false)
-      return
+      setLoading(true);
+      const artist = await commandWrapper(commandGetArtist)(params["id"]);
+      await commandWrapper(commandImportFile)({
+        artistName: artist.name,
+        filePaths: filePaths(),
+      });
+      refetch();
+      setLoading(false);
+      return;
     }
-    setIsOpenFileDialog(true)
-  })
+    setIsOpenFileDialog(true);
+  });
 
-  return { isOpenFileDialog, closeFileDialog, refetch, filePaths }
-}
+  return { isOpenFileDialog, closeFileDialog, refetch, filePaths };
+};
 
-export default useDrop
+export default useDrop;

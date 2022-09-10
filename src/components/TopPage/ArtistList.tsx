@@ -3,6 +3,7 @@ import { useStore } from "../../lib/store";
 import { commandSearchArtist } from "../../lib/commands";
 import Artist from "../UI/Artist";
 import InfiniteScroll from "../UI/InfiniteScrollWrapper";
+import { commandWrapper } from "../../lib/toast";
 
 const ArtistList: Component = () => {
   const store = useStore();
@@ -12,7 +13,7 @@ const ArtistList: Component = () => {
 
   const [artists, { mutate, refetch }] = createResource(
     store.searchRequest,
-    commandSearchArtist,
+    commandWrapper(commandSearchArtist),
     {
       initialValue: [],
     }
@@ -24,7 +25,7 @@ const ArtistList: Component = () => {
 
   return (
     <InfiniteScroll
-      command={commandSearchArtist}
+      command={commandWrapper(commandSearchArtist)}
       mutate={mutate}
       req={store.searchRequest()}
       isInitialEmpty={artists().length === 0}

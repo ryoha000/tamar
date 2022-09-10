@@ -3,6 +3,7 @@ import {
   commandSearchAroundTitleWork,
   commandSearchAroundUpdatedAtWork,
 } from "../../../lib/commands";
+import { commandWrapper } from "../../../lib/toast";
 
 interface AroundWorkRequest {
   limit: number;
@@ -23,10 +24,13 @@ const useWorkIdsCache = () => {
     let res: string[];
     switch (req.col) {
       case "title":
-        res = await commandSearchAroundTitleWork({ ...req, title: req.value });
+        res = await commandWrapper(commandSearchAroundTitleWork)({
+          ...req,
+          title: req.value,
+        });
         break;
       case "updated_at":
-        res = await commandSearchAroundUpdatedAtWork({
+        res = await commandWrapper(commandSearchAroundUpdatedAtWork)({
           ...req,
           updated_at: req.value,
         });

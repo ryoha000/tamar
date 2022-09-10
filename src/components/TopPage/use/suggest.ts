@@ -1,12 +1,17 @@
 import { useNavigate } from "@solidjs/router";
 import { createResource, createSignal, Setter } from "solid-js";
-import { commandGetInitialSuggest, commandGetSuggest, commandUseSuggest } from "../../../lib/commands";
+import {
+  commandGetInitialSuggest,
+  commandGetSuggest,
+  commandUseSuggest,
+} from "../../../lib/commands";
 import useInputList from "../../../lib/inputList";
+import { commandWrapper } from "../../../lib/toast";
 import { Suggest, Tag } from "../../../lib/types";
 
 const INITIAL_SUGGEST: Suggest = { tags: [], artists: [] };
-const ARTIST_SUGGEST_TYPE = 0
-const TAG_SUGGEST_TYPE = 1
+const ARTIST_SUGGEST_TYPE = 0;
+const TAG_SUGGEST_TYPE = 1;
 
 export interface UseSuggestProps {
   setText: Setter<string>;
@@ -14,14 +19,14 @@ export interface UseSuggestProps {
 }
 
 const useSuggest = (props: UseSuggestProps) => {
-  const navigator = useNavigate()
+  const navigator = useNavigate();
   const [tempText, setTempText] = createSignal("");
 
   const fetchOption = async (text: string) => {
     if (text.length === 0) {
-      return await commandGetInitialSuggest(15)
+      return await commandWrapper(commandGetInitialSuggest)(15);
     }
-    return await commandGetSuggest(text);
+    return await commandWrapper(commandGetSuggest)(text);
   };
   const [suggest] = createResource(tempText, fetchOption, {
     initialValue: INITIAL_SUGGEST,
@@ -56,12 +61,18 @@ const useSuggest = (props: UseSuggestProps) => {
     ele.value = "";
 
     if (option.type === "artist") {
-      commandUseSuggest({ valueId: option.id, valueType: ARTIST_SUGGEST_TYPE })
-      navigator(`/artist/${option.id}`)
+      commandWrapper(commandUseSuggest)({
+        valueId: option.id,
+        valueType: ARTIST_SUGGEST_TYPE,
+      });
+      navigator(`/artist/${option.id}`);
     }
 
     if (option.type === "tag") {
-      commandUseSuggest({ valueId: option.id, valueType: TAG_SUGGEST_TYPE })
+      commandWrapper(commandUseSuggest)({
+        valueId: option.id,
+        valueType: TAG_SUGGEST_TYPE,
+      });
       props.setTags((prev) => [
         ...prev,
         { id: option.id, name: option.value, updatedAt: "" },

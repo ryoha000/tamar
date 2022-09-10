@@ -3,6 +3,7 @@ import {
   commandImportFile,
   commandSelectArtistByName,
 } from "../../lib/commands";
+import { commandWrapper } from "../../lib/toast";
 import { UNKNOWN_ARTIST_NAME } from "../../lib/types";
 import Dialog from "../UI/Dialog";
 import { MenuDialogSection } from "../UI/MenuDialogWrapper";
@@ -25,15 +26,19 @@ const FileImportDialog: Component<Props> = (props) => {
     }
   };
 
-  const [artistOptions] = createResource(artist, commandSelectArtistByName, {
-    initialValue: [],
-  });
+  const [artistOptions] = createResource(
+    artist,
+    commandWrapper(commandSelectArtistByName),
+    {
+      initialValue: [],
+    }
+  );
   const options = () => artistOptions().map((v) => v.name);
 
   const [isFocusInput, setIsFocusInput] = createSignal(false);
 
   const confirm = async () => {
-    await commandImportFile({
+    await commandWrapper(commandImportFile)({
       artistName: artist(),
       filePaths: props.filePaths,
     });

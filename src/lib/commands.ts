@@ -11,11 +11,11 @@ import {
   WorkSummary,
 } from "./types";
 
-export const commandImportDirectory = async (
-  dirPathInfos: DirPathInfo[],
-  usages: Usages
-) => {
-  await invoke<null>("import_directory", { dirPathInfos, usages });
+export const commandImportDirectory = async (payload: {
+  dirPathInfos: DirPathInfo[];
+  usages: Usages;
+}) => {
+  await invoke<null>("import_directory", payload);
 };
 
 export const commandSearchWork = async (payload: SearchWorkRequest) => {
@@ -89,7 +89,10 @@ export const commandGetTagSuggest = async (text: string) => {
   return await invoke<Tag[]>("get_tag_suggest", { text });
 };
 
-export const commandUseSuggest = async (payload: { valueId: string, valueType: number }) => {
+export const commandUseSuggest = async (payload: {
+  valueId: string;
+  valueType: number;
+}) => {
   return await invoke<null>("use_suggest", { ...payload });
 };
 
@@ -97,24 +100,39 @@ export const commandSelectTag = async (limit: number) => {
   return await invoke<Tag[]>("select_tag", { limit });
 };
 
-export const commandAttachTag = async (workId: string, tagId: string) => {
-  return await invoke<void>("attach_tag", { workId, tagId });
+export const commandAttachTag = async (payload: {
+  workId: string;
+  tagId: string;
+}) => {
+  return await invoke<void>("attach_tag", payload);
 };
 
-export const commandDetachTag = async (workId: string, tagId: string) => {
-  return await invoke<void>("detach_tag", { workId, tagId });
+export const commandDetachTag = async (payload: {
+  workId: string;
+  tagId: string;
+}) => {
+  return await invoke<void>("detach_tag", payload);
 };
 
-export const commandAttachTagByName = async (workId: string, name: string) => {
-  return await invoke<void>("attach_tag_by_name", { workId, name });
+export const commandAttachTagByName = async (payload: {
+  workId: string;
+  name: string;
+}) => {
+  return await invoke<void>("attach_tag_by_name", payload);
 };
 
-export const commandUpdateWorkTitle = async (id: string, title: string) => {
-  return await invoke<void>("update_work_title", { id, title });
+export const commandUpdateWorkTitle = async (payload: {
+  id: string;
+  title: string;
+}) => {
+  return await invoke<void>("update_work_title", payload);
 };
 
-export const commandUpdateWorkArtist = async (id: string, name: string) => {
-  return await invoke<void>("update_work_artist", { id, name });
+export const commandUpdateWorkArtist = async (payload: {
+  id: string;
+  name: string;
+}) => {
+  return await invoke<void>("update_work_artist", payload);
 };
 
 export const commandDeleteWork = async (id: string) => {
@@ -133,18 +151,27 @@ export const commandDeleteWorkFile = async (file: string) => {
   return await invoke<void>("delete_work_file", { file });
 };
 
-export const commandUpdateArtistName = async (payload: { id: string, name: string }) => {
-  return await invoke<void>("update_artist_name", { id: payload.id, name: payload.name });
+export const commandUpdateArtistName = async (payload: {
+  id: string;
+  name: string;
+}) => {
+  return await invoke<void>("update_artist_name", {
+    id: payload.id,
+    name: payload.name,
+  });
 };
 
-export const commandImportFile = async (payload: { artistName: string, filePaths: string[]}) => {
-  return await invoke<void>('import_file', payload)
-}
+export const commandImportFile = async (payload: {
+  artistName: string;
+  filePaths: string[];
+}) => {
+  return await invoke<void>("import_file", payload);
+};
 
 export const commandViewWork = async (workId: string) => {
-  return await invoke<void>('view_work', { workId })
-}
+  return await invoke<void>("view_work", { workId });
+};
 
 export const commandDeleteAllData = async () => {
-  return await invoke<void>('delete_all_data', {})
-}
+  return await invoke<void>("delete_all_data", {});
+};

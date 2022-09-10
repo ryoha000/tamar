@@ -21,13 +21,14 @@ import { commandGetWork, commandViewWork } from "../lib/commands";
 import { useStore } from "../lib/store";
 import useImage from "../components/WorkPage/use/image";
 import { Work } from "../lib/types";
+import { commandWrapper } from "../lib/toast";
 
 const WorkPage: Component = () => {
   const params = useParams();
 
   const [work, { refetch }] = createResource(
     () => params["id"],
-    commandGetWork,
+    commandWrapper(commandGetWork),
     {
       initialValue: null,
     }

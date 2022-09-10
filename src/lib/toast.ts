@@ -7,3 +7,15 @@ export const successToast = (message: string) => {
 export const errorToast = (message: string) => {
   toast.error(message, { position: "bottom-right" });
 };
+
+export const commandWrapper = <T, U>(command: (arg: T) => Promise<U>) => async (arg: T) => {
+  try {
+    const res = await command(arg);
+    return res
+  } catch (e) {
+    if (e instanceof Error) {
+      errorToast(e.message)
+    }
+    throw e
+  }
+}

@@ -2,6 +2,7 @@ import { fs, path } from "@tauri-apps/api";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
 import { Accessor, createEffect, createSignal } from "solid-js";
 import { commandImportDirectory } from "../../../lib/commands";
+import { commandWrapper } from "../../../lib/toast";
 import { Tag, UNKNOWN_ARTIST_NAME } from "../../../lib/types";
 import { DirPathInfo } from "./exploreDir";
 
@@ -72,26 +73,27 @@ const useDirUsage = (
   };
 
   const [ignoreDeps, setIgnoreDeps] = createSignal<{ [key: number]: boolean }>(
-    {}, { equals: false }
+    {},
+    { equals: false }
   );
   const getIgnoreDeps = () => {
     const deps = targetMaxDeps();
-    return ignoreDeps()[deps]
-  }
+    return ignoreDeps()[deps];
+  };
   const toggleIgnoreDeps = () => {
     setIgnoreDeps((prev) => {
       const deps = targetMaxDeps();
-      prev[deps] = !prev[deps]
-      return prev
+      prev[deps] = !prev[deps];
+      return prev;
     });
   };
 
   createEffect(() => {
     const initialUsage: Usages = {};
-    const initialIgnore: { [key: number]: boolean } = {}
+    const initialIgnore: { [key: number]: boolean } = {};
     dirDepsLengthKind().forEach((v) => {
       initialUsage[v.deps] = {};
-      initialIgnore[v.deps] = false
+      initialIgnore[v.deps] = false;
       paths()[v.index].dirDeps.forEach((dep) => {
         let usage: DepsUsageKind = "無視する";
         // when >= 3. 1 => ignore, 2 => artist, ... , last => title
@@ -111,7 +113,7 @@ const useDirUsage = (
     });
 
     setUsages(initialUsage);
-    setIgnoreDeps(initialIgnore)
+    setIgnoreDeps(initialIgnore);
   });
 
   const eachDepsSample = () => {
@@ -139,33 +141,36 @@ const useDirUsage = (
   };
 
   const confirm = async () => {
-    const ignore = ignoreDeps()
-    const targetPaths = paths().filter(v => !ignore[v.dirDeps.length])
-    await commandImportDirectory(targetPaths, usages());
+    const ignore = ignoreDeps();
+    const targetPaths = paths().filter((v) => !ignore[v.dirDeps.length]);
+    await commandWrapper(commandImportDirectory)({
+      dirPathInfos: targetPaths,
+      usages: usages(),
+    });
   };
 
   const preview = () => {
-    const maxDeps = targetMaxDeps()
-    const usage = usages()[maxDeps]
-    let artist = UNKNOWN_ARTIST_NAME
-    let title = ""
-    const tags: Tag[]  = []
-    const deps = eachDepsSample()
+    const maxDeps = targetMaxDeps();
+    const usage = usages()[maxDeps];
+    let artist = UNKNOWN_ARTIST_NAME;
+    let title = "";
+    const tags: Tag[] = [];
+    const deps = eachDepsSample();
     for (let i = 1; i < maxDeps + 1; i++) {
-      const u = usage[i]
-      const name = deps[i - 1].name
+      const u = usage[i];
+      const name = deps[i - 1].name;
       if (u === "作品名") {
-        title = name
+        title = name;
       }
       if (u === "作者名") {
-        artist = name
+        artist = name;
       }
       if (u === "タグ") {
-        tags.push({name: name, id: "", updatedAt: ""})
+        tags.push({ name: name, id: "", updatedAt: "" });
       }
     }
-    return { title, artist, tags }
-  }
+    return { title, artist, tags };
+  };
 
   return {
     eachDepsSample,

@@ -9,6 +9,8 @@ import { RiEditorNodeTree } from "solid-icons/ri";
 import FolderImportDialog from "./FolderImportDialog";
 import { dialog } from "@tauri-apps/api";
 import FileImportDialog from "./FileImportDialog";
+import { commandDeleteAllData } from "../../lib/commands";
+import { confirm } from "@tauri-apps/api/dialog";
 
 interface Props {
   isOpen: boolean;
@@ -65,6 +67,17 @@ const MenuDialog: Component<Props> = (props) => {
     }
   };
 
+  const deleteAllData = async () => {
+    const res = await confirm(
+      "ほんとうにすべてのデータを削除しますか？(この操作は取り消せません)",
+      { type: "warning" }
+    );
+    if (res) {
+      await commandDeleteAllData();
+      location.href = "/";
+    }
+  };
+
   return (
     <>
       <MenuDialogWrapper isOpen={props.isOpen} close={props.close}>
@@ -86,7 +99,7 @@ const MenuDialog: Component<Props> = (props) => {
         <MenuDialogDeleteIconButton
           label="全ての登録作品を消す"
           icon={TbDatabaseOff}
-          click={() => {}}
+          click={deleteAllData}
         />
       </MenuDialogWrapper>
       <FolderImportDialog

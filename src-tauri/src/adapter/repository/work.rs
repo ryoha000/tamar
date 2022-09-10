@@ -2,7 +2,7 @@ use crate::adapter::model::work::WorkTable;
 use crate::kernel::model::artist::Artist;
 use crate::kernel::model::work::{
     NewImportWork, NewerArtistIdWork, NewerTitleWork, SearchAroundTitleWork,
-    SearchAroundUpdatedAtWork, SearchWork,
+    SearchAroundUpdatedAtWork, SearchAroundViewTimeWork, SearchWork,
 };
 use crate::kernel::{
     model::{
@@ -200,6 +200,45 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
             .collect())
     }
 
+    /// warning!: updated_at は history のもの
+    async fn search_around_view_time(
+        &self,
+        source: SearchAroundViewTimeWork,
+    ) -> anyhow::Result<Vec<Work>> {
+        let mut builder = sqlx::QueryBuilder::new("");
+
+        let compare;
+        if source.is_before {
+            compare = " < ";
+        } else {
+            compare = " > ";
+        }
+
+        let sort_direction;
+        if source.is_before {
+            sort_direction = " DESC ";
+        } else {
+            sort_direction = " ASC ";
+        }
+
+        let main_sql = format!("
+        SELECT `work`.`id` AS `id`, `work`.`title` AS `title`, `work`.`artist_id` AS `artist_id`, `work`.`created_at` AS `created_at`, `work`.`updated_at` AS `updated_at`, view_time FROM work 
+        INNER JOIN (SELECT MAX(work_history.updated_at) AS view_time, work_id FROM work_history GROUP BY work_id) AS history ON `work`.`id` = `history`.`work_id` 
+        WHERE `history`.`view_time` {} \"{}\" ORDER BY view_time {} LIMIT \"{}\" 
+        ", compare, source.view_time, sort_direction, source.limit);
+
+        let sql = format!("SELECT `work`.`id` AS `id`, `work`.`title` AS `title`, `work`.`artist_id` AS `artist_id`, `work`.`created_at` AS `created_at`, `work`.`updated_at` AS `updated_at` FROM ({}) AS work ", main_sql);
+        builder.push(sql);
+
+        let pool = self.pool.0.clone();
+        let work_table = builder.build().fetch_all(&*pool).await?;
+
+        Ok(work_table
+            .into_iter()
+            .filter_map(|v| WorkTable::from_row(&v).ok()?.try_into().ok())
+            .collect())
+    }
+
     async fn insert(&self, source: NewWork) -> anyhow::Result<()> {
         if source.title.len() == 0 {
             anyhow::bail!("title is required")
@@ -280,7 +319,7 @@ mod test {
     use crate::kernel::model::artist::{Artist, NewArtist};
     use crate::kernel::model::work::{
         NewWork, NewerArtistIdWork, NewerTitleWork, SearchAroundTitleWork,
-        SearchAroundUpdatedAtWork, SearchWork, Work,
+        SearchAroundUpdatedAtWork, SearchAroundViewTimeWork, SearchWork, Work,
     };
     use crate::kernel::model::work_history::{NewWorkHistory, WorkHistory};
     use crate::kernel::model::Id;
@@ -728,6 +767,63 @@ mod test {
         assert_eq!(found.len(), 0);
     }
 
+    #[test]
+    fn test_search_work_around_view_time() {
+        let db = get_test_db();
+
+        let artist_id = Ulid::new();
+        {
+            let artist_name = random_string();
+            insert_artist(db.clone(), NewArtist::new(Id::new(artist_id), artist_name));
+        }
+
+        let insert_work_and_history = |db: Db, work_id: Ulid| {
+            insert_work(
+                db.clone(),
+                NewWork::new(Id::new(work_id), random_string(), Id::new(artist_id)),
+            );
+            let h_id = Ulid::new();
+            insert_work_history(
+                db.clone(),
+                NewWorkHistory::new(Id::new(h_id), Id::new(work_id)),
+            );
+            return find_work_history(db, Id::new(h_id)).updated_at;
+        };
+
+        let work_id1 = Ulid::new();
+        let updated_at1 = insert_work_and_history(db.clone(), work_id1);
+        let work_id2 = Ulid::new();
+        let _ = insert_work_and_history(db.clone(), work_id2);
+        let work_id3 = Ulid::new();
+        let updated_at3 = insert_work_and_history(db.clone(), work_id3);
+
+        // 2 だけもう一回見る
+        let h_id = Ulid::new();
+        insert_work_history(
+            db.clone(),
+            NewWorkHistory::new(Id::new(h_id), Id::new(work_id2)),
+        );
+        let updated_at2 = find_work_history(db.clone(), Id::new(h_id)).updated_at;
+
+        let source = SearchAroundViewTimeWork::new(10, true, updated_at1);
+        let found = search_around_view_time(db.clone(), source).unwrap();
+        assert_eq!(found.len(), 0);
+
+        let source = SearchAroundViewTimeWork::new(10, true, updated_at3);
+        let found = search_around_view_time(db.clone(), source).unwrap();
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0].id.value, work_id1);
+
+        let source = SearchAroundViewTimeWork::new(10, false, updated_at3.clone());
+        let found = search_around_view_time(db.clone(), source).unwrap();
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0].id.value, work_id2);
+
+        let source = SearchAroundViewTimeWork::new(10, false, updated_at2.clone());
+        let found = search_around_view_time(db, source).unwrap();
+        assert_eq!(found.len(), 0);
+    }
+
     fn insert_artist(db: Db, new_artist: NewArtist) {
         let repository = DatabaseRepositoryImpl::<Artist>::new(db);
         block_on(repository.insert(new_artist)).unwrap()
@@ -756,6 +852,11 @@ mod test {
     fn find_work(db: Db, id: Id<Work>) -> Option<Work> {
         let repository = DatabaseRepositoryImpl::<Work>::new(db);
         block_on(repository.find(&id)).unwrap()
+    }
+
+    fn find_work_history(db: Db, id: Id<WorkHistory>) -> WorkHistory {
+        let repository = DatabaseRepositoryImpl::<WorkHistory>::new(db);
+        block_on(repository.find(&id)).unwrap().unwrap()
     }
 
     fn find_work_by_title_and_artist(
@@ -788,5 +889,13 @@ mod test {
     ) -> anyhow::Result<Vec<Work>> {
         let repository = DatabaseRepositoryImpl::<Work>::new(db);
         block_on(repository.search_around_updated_at(source))
+    }
+
+    fn search_around_view_time(
+        db: Db,
+        source: SearchAroundViewTimeWork,
+    ) -> anyhow::Result<Vec<Work>> {
+        let repository = DatabaseRepositoryImpl::<Work>::new(db);
+        block_on(repository.search_around_view_time(source))
     }
 }

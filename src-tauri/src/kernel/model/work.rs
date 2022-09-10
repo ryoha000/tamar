@@ -61,3 +61,10 @@ pub struct SearchAroundUpdatedAtWork {
     pub is_before: bool,
     pub updated_at: NaiveDateTime,
 }
+
+#[derive(new, Debug)]
+pub struct SearchAroundViewTimeWork {
+    pub limit: u16,
+    pub is_before: bool,
+    pub view_time: NaiveDateTime,
+}

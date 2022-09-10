@@ -2,6 +2,7 @@ import { useParams } from "@solidjs/router";
 import {
   Accessor,
   Component,
+  createEffect,
   createResource,
   createSignal,
   onMount,
@@ -74,14 +75,17 @@ const WorkPageContent: Component<ContentProps> = (props) => {
     return <div>loading</div>;
   }
 
-  onMount(async () => {
-    const workId = props.work()?.id;
-    if (workId) {
-      await commandViewWork(workId);
-    }
+  onMount(() => {
     if (imgEle) {
       imgEle.click();
       imgEle.focus();
+    }
+  });
+
+  createEffect(async () => {
+    const workId = props.work()?.id;
+    if (workId) {
+      await commandViewWork(workId);
     }
   });
 

@@ -17,7 +17,7 @@ import {
 } from "../components/WorkPage/NavigationOverlay";
 import usePage from "../components/WorkPage/use/page";
 import MenuDialog from "../components/WorkPage/MenuDialog";
-import { commandGetWork } from "../lib/commands";
+import { commandGetWork, commandViewWork } from "../lib/commands";
 import { useStore } from "../lib/store";
 import useImage from "../components/WorkPage/use/image";
 import { Work } from "../lib/types";
@@ -73,8 +73,11 @@ const WorkPageContent: Component<ContentProps> = (props) => {
     return <div>loading</div>;
   }
 
-  onMount(() => {
-    // TODO: 閲覧履歴を insert する
+  onMount(async () => {
+    const workId = props.work()?.id;
+    if (workId) {
+      await commandViewWork(workId);
+    }
     if (imgEle) {
       imgEle.click();
       imgEle.focus();

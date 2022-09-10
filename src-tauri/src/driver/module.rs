@@ -5,6 +5,7 @@ use crate::app::usecase::artist_view::ArtistViewUseCase;
 use crate::app::usecase::file::FileUseCase;
 use crate::app::usecase::search_history::SearchHistoryUseCase;
 use crate::app::usecase::tag::TagUseCase;
+use crate::app::usecase::work_history::WorkHistoryUseCase;
 use crate::app::usecase::work_tag_map::WorkTagMapUseCase;
 use crate::app::usecase::work_view::WorkViewUseCase;
 use crate::{
@@ -24,6 +25,7 @@ pub struct Modules {
     artist_view_use_case: ArtistViewUseCase<RepositoriesModule>,
     file_use_case: FileUseCase<RepositoriesModule>,
     search_history_use_case: SearchHistoryUseCase<RepositoriesModule>,
+    work_history_use_case: WorkHistoryUseCase<RepositoriesModule>,
 }
 
 pub trait ModulesExt {
@@ -37,6 +39,7 @@ pub trait ModulesExt {
     fn artist_view_use_case(&self) -> &ArtistViewUseCase<Self::RepositoriesModule>;
     fn file_use_case(&self) -> &FileUseCase<Self::RepositoriesModule>;
     fn search_history_use_case(&self) -> &SearchHistoryUseCase<Self::RepositoriesModule>;
+    fn work_history_use_case(&self) -> &WorkHistoryUseCase<Self::RepositoriesModule>;
 }
 
 impl ModulesExt for Modules {
@@ -66,6 +69,9 @@ impl ModulesExt for Modules {
     fn search_history_use_case(&self) -> &SearchHistoryUseCase<Self::RepositoriesModule> {
         &self.search_history_use_case
     }
+    fn work_history_use_case(&self) -> &WorkHistoryUseCase<Self::RepositoriesModule> {
+        &self.work_history_use_case
+    }
 }
 
 impl Modules {
@@ -82,6 +88,7 @@ impl Modules {
         let artist_view_use_case = ArtistViewUseCase::new(repositories_module.clone());
         let file_use_case = FileUseCase::new(repositories_module.clone());
         let search_history_use_case = SearchHistoryUseCase::new(repositories_module.clone());
+        let work_history_use_case = WorkHistoryUseCase::new(repositories_module.clone());
 
         Self {
             artist_use_case,
@@ -92,6 +99,7 @@ impl Modules {
             artist_view_use_case,
             file_use_case,
             search_history_use_case,
+            work_history_use_case,
         }
     }
 }

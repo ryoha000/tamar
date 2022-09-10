@@ -57,6 +57,7 @@ fn main() {
             driver::command::suggest::use_suggest,
             driver::command::file::rotate_work_file,
             driver::command::file::delete_work_file,
+            driver::command::work_history::view_work,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

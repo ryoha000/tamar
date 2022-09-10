@@ -140,3 +140,7 @@ export const commandUpdateArtistName = async (payload: { id: string, name: strin
 export const commandImportFile = async (payload: { artistName: string, filePaths: string[]}) => {
   return await invoke<void>('import_file', payload)
 }
+
+export const commandViewWork = async (workId: string) => {
+  return await invoke<void>('view_work', { workId })
+}

@@ -53,6 +53,18 @@ export const commandSearchAroundUpdatedAtWork = async (payload: {
   });
 };
 
+export const commandSearchAroundViewTimeWork = async (payload: {
+  limit: number;
+  isBefore: boolean;
+  workId: string;
+}) => {
+  return await invoke<string[]>("search_around_view_time_work", {
+    limit: payload.limit,
+    isBefore: payload.isBefore,
+    workId: payload.workId,
+  });
+};
+
 export const commandGetWork = async (id: String) => {
   return await invoke<Work>("get_work", { id });
 };

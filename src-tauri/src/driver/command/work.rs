@@ -6,7 +6,7 @@ use crate::{
         artist::{CreateArtist, GetByNameArtist},
         work::{
             DeleteWork, SearchAroundTitleWorkView, SearchAroundUpdatedAtWorkView,
-            UpdateArtistIdWork, UpdateTitleWork,
+            SearchAroundViewTimeWorkView, UpdateArtistIdWork, UpdateTitleWork,
         },
     },
     driver::{
@@ -45,6 +45,24 @@ pub async fn search_around_updated_at_work(
         .search_around_updated_at(SearchAroundUpdatedAtWorkView::new(
             limit, is_before, updated_at,
         ))
+        .await?
+        .into_iter()
+        .map(|v| v.value.to_string())
+        .collect();
+
+    Ok(works)
+}
+
+#[tauri::command]
+pub async fn search_around_view_time_work(
+    modules: State<'_, Arc<Modules>>,
+    limit: u16,
+    is_before: bool,
+    work_id: String,
+) -> anyhow::Result<Vec<String>, CommandError> {
+    let works = modules
+        .work_use_case()
+        .search_around_view_time(SearchAroundViewTimeWorkView::new(limit, is_before, work_id))
         .await?
         .into_iter()
         .map(|v| v.value.to_string())

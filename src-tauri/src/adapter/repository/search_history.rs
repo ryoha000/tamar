@@ -5,7 +5,7 @@ use crate::kernel::model::{
 };
 use crate::kernel::repository::search_history::SearchHistoryRepository;
 use async_trait::async_trait;
-use sqlx::{query_as, FromRow};
+use sqlx::query_as;
 
 use super::DatabaseRepositoryImpl;
 

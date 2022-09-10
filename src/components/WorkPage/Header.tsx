@@ -27,14 +27,14 @@ const Header: Component<Props> = (props) => {
 
   return (
     <div
-      class="bg-opacity-50 bg-neutral-50 fixed z-header w-full transition-all duration-300 h-header"
+      class="bg-white-opacity-50 fixed z-header w-full transition-all duration-300 h-header"
       tabIndex={-1}
       classList={{ "opacity-0": hidden(), "opacity-100": !hidden() }}
       onMouseEnter={actionStart}
       onMouseLeave={actionEnd}
       data-fixed
     >
-      <div class="w-full flex items-center gap-2 px-4 py-2">
+      <div class="w-full flex items-center gap-2 px-4 py-2 h-full">
         <div onclick={goTopPage} class="cursor-pointer">
           <AiOutlineHome size="1.2rem" />
         </div>

@@ -92,6 +92,7 @@ const WorkPageContent: Component<ContentProps> = (props) => {
   const { next, prev, keyDown, wheel } = usePage(
     props.work,
     workPageMap,
+    store.isFilterArtist,
     isSortDesc,
     sortCol,
     imageSrcArray

@@ -1,7 +1,10 @@
-import { createSignal } from "solid-js";
+import { useParams } from "@solidjs/router";
+import { Accessor, createSignal } from "solid-js";
 import {
+  commandGetWork,
   commandSearchAroundTitleWork,
   commandSearchAroundUpdatedAtWork,
+  commandSelectWorkByArtist,
 } from "../../../lib/commands";
 import { commandWrapper } from "../../../lib/toast";
 
@@ -13,10 +16,12 @@ interface AroundWorkRequest {
   value: string;
 }
 
-const useWorkIdsCache = () => {
+const useWorkIdsCache = (isFilterArtist: Accessor<boolean>) => {
   const [loading, setLoading] = createSignal(false);
   const [workIds, setWorkIds] = createSignal<string[]>([]); // 並び順は isSortDesc に関係なく DESC
-  const fetchWorkIds = async (req: AroundWorkRequest) => {
+  const params = useParams();
+
+  const fetchWorkListWorkIds = async (req: AroundWorkRequest) => {
     if (loading()) {
       return;
     }
@@ -55,6 +60,28 @@ const useWorkIdsCache = () => {
       return newWorkIds;
     });
     setLoading(false);
+  };
+
+  const fetchArtistListWorkIds = async (req: AroundWorkRequest) => {
+    if (loading()) {
+      return;
+    }
+    setLoading(true);
+    const work = await commandWrapper(commandGetWork)(req.currentWorkId);
+    const works = await commandWrapper(commandSelectWorkByArtist)(
+      work.artist.id
+    );
+
+    setWorkIds(works.map((v) => v.id));
+    setLoading(false);
+  };
+
+  const fetchWorkIds = async (req: AroundWorkRequest) => {
+    if (isFilterArtist()) {
+      await fetchArtistListWorkIds(req);
+    } else {
+      await fetchWorkListWorkIds(req);
+    }
   };
   return { workIds, fetchWorkIds, loading };
 };

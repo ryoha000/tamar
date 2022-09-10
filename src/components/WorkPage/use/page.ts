@@ -7,6 +7,7 @@ const LIMIT = 20;
 const usePage = (
   work: Accessor<Work | null>,
   workPageMap: Map<string, number>,
+  isFilterArtist: Accessor<boolean>,
   isSortDesc: Accessor<boolean>,
   sortCol: Accessor<SortColumnKind>,
   imageSrcArray: Accessor<string[]>
@@ -22,7 +23,7 @@ const usePage = (
     return page;
   };
 
-  const { workIds, fetchWorkIds, loading } = useWorkIdsCache();
+  const { workIds, fetchWorkIds, loading } = useWorkIdsCache(isFilterArtist);
 
   const setWorkPage = (nextPage: number) => {
     const workId = work()?.id;
@@ -61,7 +62,6 @@ const usePage = (
     if (currentIndex === -1 || nextIndex < 0 || nextIndex >= workIds().length) {
       const value = sortCol() === "title" ? _work.title : _work.updatedAt;
 
-      // TODO: artist filter
       await fetchWorkIds({
         currentWorkId: workId,
         isBefore: step > 0,
@@ -130,7 +130,14 @@ const usePage = (
           }
         } else {
           // 垂直スクロールのとき
-          // TODO
+          if (Math.abs(state.y) > 80) {
+            // 閾値は適当
+            if (state.y < 0) {
+              down();
+            } else {
+              up();
+            }
+          }
         }
         setWheelState(INITIAL_WHEEL_STATE);
       }, 50)

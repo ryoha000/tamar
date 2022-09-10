@@ -77,6 +77,10 @@ export const commandGetArtist = async (artist_id: string) => {
   });
 };
 
+export const commandGetInitialSuggest = async (limit: number) => {
+  return await invoke<Suggest>("get_initial_suggest", { limit });
+};
+
 export const commandGetSuggest = async (text: string) => {
   return await invoke<Suggest>("get_suggest", { text });
 };

@@ -1,4 +1,4 @@
-use crate::adapter::model::artist::ArtistTable;
+use crate::adapter::model::artist::{ArtistTable, ArtistTableWithViewTime};
 use crate::kernel::model::artist::{SearchAlsoUsingWorkArtist, UpdateNameArtist};
 use crate::kernel::{
     model::{
@@ -58,7 +58,7 @@ impl ArtistRepository for DatabaseRepositoryImpl<Artist> {
     ) -> anyhow::Result<Vec<Artist>> {
         // validation sort_col
         match &*source.sort_col {
-            "name" | "updated_at" => {} // valid sort_col
+            "name" | "updated_at" | "view_time" => {} // valid sort_col
             _ => anyhow::bail!("sort_col is invalid. sort_col: {}", source.sort_col),
         }
 
@@ -72,24 +72,42 @@ impl ArtistRepository for DatabaseRepositoryImpl<Artist> {
 
         let mut builder = sqlx::QueryBuilder::new("");
         // sort は `work`.$sort_col でやるため JOIN は必要
-        builder.push("SELECT `artist`.`id` AS `id`, `artist`.`name` AS `name`, `artist`.`created_at` AS `created_at`, `artist`.`updated_at` AS `updated_at` FROM artist");
 
-        let updated_at_sort;
         match &*source.sort_col {
-            "name" => updated_at_sort = "", // valid sort_col
-            "updated_at" => updated_at_sort = ", MAX(updated_at) AS latest",
-            _ => anyhow::bail!("sort_col is invalid. sort_col: {}", source.sort_col),
-        }
-        // JOIN 先のテーブル
-        let join_table = format!(
-            "SELECT artist_id, title {} FROM work GROUP BY artist_id",
-            updated_at_sort
-        );
-        let join_sql = format!(
-            " INNER JOIN ({}) AS work ON `work`.`artist_id` = `artist`.`id` ",
-            join_table
-        );
-        builder.push(join_sql);
+            "name" => {
+                builder.push("SELECT `artist`.`id` AS `id`, `artist`.`name` AS `name`, `artist`.`created_at` AS `created_at`, `artist`.`updated_at` AS `updated_at` FROM artist");
+                // JOIN 先のテーブル
+                let join_table = " SELECT artist_id, title FROM work GROUP BY artist_id ";
+                let join_sql = format!(
+                    " INNER JOIN ({}) AS work ON `work`.`artist_id` = `artist`.`id` ",
+                    join_table
+                );
+                builder.push(join_sql);
+            }
+            "updated_at" => {
+                builder.push("SELECT `artist`.`id` AS `id`, `artist`.`name` AS `name`, `artist`.`created_at` AS `created_at`, `artist`.`updated_at` AS `updated_at` FROM artist");
+                // JOIN 先のテーブル
+                let join_table =
+                " SELECT artist_id, title, MAX(updated_at) AS latest FROM work GROUP BY artist_id ";
+                let join_sql = format!(
+                    " INNER JOIN ({}) AS work ON `work`.`artist_id` = `artist`.`id` ",
+                    join_table
+                );
+                builder.push(join_sql);
+            }
+            "view_time" => {
+                builder.push("SELECT `artist`.`id` AS `id`, `artist`.`name` AS `name`, `artist`.`created_at` AS `created_at`, `artist`.`updated_at` AS `updated_at`, `view_time` FROM artist");
+                // JOIN 先のテーブル
+                let history_join_table = " SELECT MAX(updated_at) AS view_time_per_work, work_id FROM work_history GROUP BY work_id ";
+                let join_table = format!(" SELECT `work`.`id`, artist_id, title, MAX(view_time_per_work) AS view_time FROM work INNER JOIN ({}) AS history ON `history`.`work_id` = `work`.`id` GROUP BY artist_id ", history_join_table);
+                let join_sql = format!(
+                    " INNER JOIN ({}) AS work ON `work`.`artist_id` = `artist`.`id` ",
+                    join_table
+                );
+                builder.push(join_sql);
+            }
+            _ => {}
+        };
 
         if is_search {
             builder.push(" WHERE `work`.`title` LIKE ");
@@ -102,6 +120,7 @@ impl ArtistRepository for DatabaseRepositoryImpl<Artist> {
         match &*source.sort_col {
             "name" => builder.push(format!(" ORDER BY `artist`.`name` {} ", sort_order_sql)),
             "updated_at" => builder.push(format!(" ORDER BY `work`.`latest` {} ", sort_order_sql)),
+            "view_time" => builder.push(format!(" ORDER BY view_time {} ", sort_order_sql)),
             _ => anyhow::bail!("sort_col is invalid. sort_col: {}", source.sort_col),
         };
 
@@ -115,10 +134,17 @@ impl ArtistRepository for DatabaseRepositoryImpl<Artist> {
         let pool = self.pool.0.clone();
         let artist_table = query.fetch_all(&*pool).await?;
 
-        Ok(artist_table
-            .into_iter()
-            .filter_map(|v| ArtistTable::from_row(&v).ok()?.try_into().ok())
-            .collect())
+        match &*source.sort_col {
+            "name" | "updated_at" => Ok(artist_table
+                .into_iter()
+                .filter_map(|v| ArtistTable::from_row(&v).ok()?.try_into().ok())
+                .collect()),
+            "view_time" => Ok(artist_table
+                .into_iter()
+                .filter_map(|v| ArtistTableWithViewTime::from_row(&v).ok()?.try_into().ok())
+                .collect()),
+            _ => anyhow::bail!("sort_col is invalid. sort_col: {}", source.sort_col),
+        }
     }
 
     async fn insert(&self, source: NewArtist) -> anyhow::Result<()> {
@@ -164,9 +190,11 @@ mod test {
         Artist, NewArtist, SearchAlsoUsingWorkArtist, UpdateNameArtist,
     };
     use crate::kernel::model::work::{NewWork, Work};
+    use crate::kernel::model::work_history::{NewWorkHistory, WorkHistory};
     use crate::kernel::model::Id;
     use crate::kernel::repository::artist::ArtistRepository;
     use crate::kernel::repository::work::WorkRepository;
+    use crate::kernel::repository::work_history::WorkHistoryRepository;
     use crate::test_util::{get_test_db, random_string};
     use tauri::async_runtime::block_on;
     use ulid::Ulid;
@@ -262,6 +290,54 @@ mod test {
 
         let found = search_artist_also_using_work(db, source);
         assert!(found.is_empty());
+    }
+
+    #[test]
+    fn test_search_artist_sort_by_history() {
+        let db = get_test_db();
+        let artist_id1 = Ulid::new();
+        let artist_id2 = Ulid::new();
+        let artist_id3 = Ulid::new();
+
+        let insert_work_and_history = |artist_id: Ulid| {
+            let id = Ulid::new();
+            insert_work(
+                db.clone(),
+                NewWork::new(Id::new(id), random_string(), Id::new(artist_id)),
+            );
+            insert_work_history(
+                db.clone(),
+                NewWorkHistory::new(Id::new(Ulid::new()), Id::new(id)),
+            );
+        };
+
+        // artist * 3
+        insert_artist(
+            db.clone(),
+            NewArtist::new(Id::new(artist_id1), random_string()),
+        );
+        insert_artist(
+            db.clone(),
+            NewArtist::new(Id::new(artist_id2), random_string()),
+        );
+        insert_artist(
+            db.clone(),
+            NewArtist::new(Id::new(artist_id3), random_string()),
+        );
+
+        insert_work_and_history(artist_id1);
+        insert_work_and_history(artist_id2);
+        insert_work_and_history(artist_id3);
+        insert_work_and_history(artist_id2);
+
+        let source =
+            SearchAlsoUsingWorkArtist::new(10, 0, "view_time".to_string(), true, "".to_string());
+
+        let found = search_artist_also_using_work(db, source);
+        assert_eq!(found.len(), 3);
+        assert_eq!(found[0].id.value, artist_id2);
+        assert_eq!(found[1].id.value, artist_id3);
+        assert_eq!(found[2].id.value, artist_id1);
     }
 
     #[test]
@@ -394,6 +470,11 @@ mod test {
 
     fn insert_work(db: Db, source: NewWork) {
         let repository = DatabaseRepositoryImpl::<Work>::new(db);
+        block_on(repository.insert(source)).unwrap()
+    }
+
+    fn insert_work_history(db: Db, source: NewWorkHistory) {
+        let repository = DatabaseRepositoryImpl::<WorkHistory>::new(db);
         block_on(repository.insert(source)).unwrap()
     }
 

@@ -29,7 +29,28 @@ impl TryFrom<NewArtist> for ArtistTable {
             id: s.id.value.to_string(),
             name: s.name,
             created_at: Utc::now().naive_utc(),
-            updated_at: Utc::now().naive_utc()
+            updated_at: Utc::now().naive_utc(),
         })
+    }
+}
+
+#[derive(FromRow)]
+pub struct ArtistTableWithViewTime {
+    pub id: String,
+    pub name: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+    pub view_time: NaiveDateTime,
+}
+
+impl TryFrom<ArtistTableWithViewTime> for Artist {
+    type Error = anyhow::Error;
+    fn try_from(st: ArtistTableWithViewTime) -> Result<Self, Self::Error> {
+        Ok(Artist::new(
+            st.id.try_into()?,
+            st.name,
+            st.created_at,
+            st.updated_at,
+        ))
     }
 }

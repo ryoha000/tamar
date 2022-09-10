@@ -46,6 +46,7 @@ pub struct SearchWork {
     pub sort_col: String,
     pub sort_desc: bool,
     pub text: String,
+    pub work_ids: Vec<Id<Work>>,
 }
 
 #[derive(new, Debug)]

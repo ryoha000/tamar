@@ -120,11 +120,23 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
                 );
                 builder.push(join_sql);
             }
-            builder.push(" WHERE `work`.`title` LIKE ");
+            builder.push(" WHERE (`work`.`title` LIKE ");
             builder.push_bind(format!("%{}%", source.text));
 
             builder.push(" OR `artist`.`name` LIKE ");
             builder.push_bind(format!("%{}%", source.text));
+            builder.push(" ) ");
+
+            if source.work_ids.len() != 0 {
+                builder.push(" AND `work`.`id` IN (");
+                for (i, work_id) in source.work_ids.iter().enumerate() {
+                    builder.push_bind(work_id.value.to_string());
+                    if i != source.work_ids.len() - 1 {
+                        builder.push(",");
+                    }
+                }
+                builder.push(" ) ");
+            }
         } else {
             builder.push("SELECT * FROM work");
             if sort_col == "view_time" {
@@ -136,6 +148,16 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
                     join_table
                 );
                 builder.push(join_sql);
+            }
+            if source.work_ids.len() != 0 {
+                builder.push(" WHERE `work`.`id` IN (");
+                for (i, work_id) in source.work_ids.iter().enumerate() {
+                    builder.push_bind(work_id.value.to_string());
+                    if i != source.work_ids.len() - 1 {
+                        builder.push(",");
+                    }
+                }
+                builder.push(" ) ");
             }
         }
 
@@ -500,7 +522,14 @@ mod test {
     #[test]
     fn test_search_work_not_found() {
         let db = get_test_db();
-        let source = SearchWork::new(10, 0, "updated_at".to_string(), true, random_string());
+        let source = SearchWork::new(
+            10,
+            0,
+            "updated_at".to_string(),
+            true,
+            random_string(),
+            vec![],
+        );
 
         let found = search(db, source).unwrap();
         assert!(found.is_empty());
@@ -509,7 +538,14 @@ mod test {
     #[test]
     fn test_search_work_with_no_title() {
         let db = get_test_db();
-        let source = SearchWork::new(10, 0, "updated_at".to_string(), true, "".to_string());
+        let source = SearchWork::new(
+            10,
+            0,
+            "updated_at".to_string(),
+            true,
+            "".to_string(),
+            vec![],
+        );
 
         let artist_id = Ulid::new();
 
@@ -538,7 +574,7 @@ mod test {
             .enumerate()
             .filter(|&(i, _)| i > 0) // unique
             .fold("".to_string(), |s, (_, c)| format!("{}{}", s, c));
-        let source = SearchWork::new(10, 0, "updated_at".to_string(), true, search_title);
+        let source = SearchWork::new(10, 0, "updated_at".to_string(), true, search_title, vec![]);
 
         let artist_id = Ulid::new();
 
@@ -568,7 +604,7 @@ mod test {
             .enumerate()
             .filter(|&(i, _)| i > 0) // unique
             .fold("".to_string(), |s, (_, c)| format!("{}{}", s, c));
-        let source = SearchWork::new(10, 0, "updated_at".to_string(), true, search_name);
+        let source = SearchWork::new(10, 0, "updated_at".to_string(), true, search_name, vec![]);
 
         let artist_id = Ulid::new();
         insert_artist(db.clone(), NewArtist::new(Id::new(artist_id), artist_name));
@@ -585,6 +621,42 @@ mod test {
     }
 
     #[test]
+    fn test_search_work_with_ids() {
+        let db = get_test_db();
+
+        let artist_id = Ulid::new();
+        insert_artist(
+            db.clone(),
+            NewArtist::new(Id::new(artist_id), random_string()),
+        );
+
+        let work_id = Ulid::new();
+        insert_work(
+            db.clone(),
+            NewWork::new(Id::new(work_id), random_string(), Id::new(artist_id)),
+        );
+
+        let work_id = Ulid::new();
+        insert_work(
+            db.clone(),
+            NewWork::new(Id::new(work_id), random_string(), Id::new(artist_id)),
+        );
+
+        let source = SearchWork::new(
+            10,
+            0,
+            "updated_at".to_string(),
+            true,
+            "".to_string(),
+            vec![Id::new(work_id)],
+        );
+
+        let found = search(db, source).unwrap();
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0].id.value, work_id);
+    }
+
+    #[test]
     fn test_search_work_with_title_name() {
         let db = get_test_db();
         let base = random_string();
@@ -593,7 +665,7 @@ mod test {
 
         let mut expected_ids = vec![];
 
-        let source = SearchWork::new(10, 0, "updated_at".to_string(), true, base);
+        let source = SearchWork::new(10, 0, "updated_at".to_string(), true, base, vec![]);
 
         // 検索に引っかかる artist_id
         let artist_id = Ulid::new();
@@ -642,7 +714,7 @@ mod test {
 
         let mut expected_ids = vec![];
 
-        let source = SearchWork::new(10, 0, "view_time".to_string(), true, "".to_string());
+        let source = SearchWork::new(10, 0, "view_time".to_string(), true, "".to_string(), vec![]);
 
         let artist_id = Ulid::new();
         insert_artist(

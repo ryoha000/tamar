@@ -10,7 +10,7 @@ use crate::kernel::{
     repository::work_tag_map::WorkTagMapRepository,
 };
 use async_trait::async_trait;
-use sqlx::query_as;
+use sqlx::{query_as, FromRow};
 
 use super::DatabaseRepositoryImpl;
 
@@ -49,6 +49,24 @@ impl WorkTagMapRepository for DatabaseRepositoryImpl<WorkTagMap> {
             Some(st) => Ok(st.into_iter().filter_map(|v| v.try_into().ok()).collect()),
             None => Ok(vec![]),
         }
+    }
+
+    async fn find_by_tag_ids(&self, tag_ids: Vec<Id<Tag>>) -> anyhow::Result<Vec<WorkTagMap>> {
+        let pool = self.pool.0.clone();
+        let mut builder =
+            sqlx::query_builder::QueryBuilder::new("SELECT * FROM work_tag_map WHERE tag_id IN (");
+        let mut separated = builder.separated(", ");
+        for id in tag_ids.iter() {
+            separated.push_bind(id.value.to_string());
+        }
+        separated.push_unseparated(")");
+        let query = builder.build();
+        let rows = query.fetch_all(&*pool).await?;
+        Ok(rows
+            .iter()
+            .filter_map(|v| WorkTagMapTable::from_row(v).ok())
+            .filter_map(|v| v.try_into().ok())
+            .collect())
     }
 
     async fn insert(&self, source: NewWorkTagMap) -> anyhow::Result<()> {

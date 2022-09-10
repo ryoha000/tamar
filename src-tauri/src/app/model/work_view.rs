@@ -31,6 +31,7 @@ pub struct SearchWorkView {
     pub sort_col: String,
     pub sort_desc: bool,
     pub text: String,
+    pub work_ids: Vec<Id<Work>>,
 }
 
 impl TryFrom<SearchWorkView> for SearchWork {
@@ -43,6 +44,7 @@ impl TryFrom<SearchWorkView> for SearchWork {
             c.sort_col,
             c.sort_desc,
             c.text,
+            c.work_ids,
         ))
     }
 }

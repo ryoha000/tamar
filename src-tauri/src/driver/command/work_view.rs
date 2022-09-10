@@ -2,7 +2,10 @@ use std::sync::Arc;
 use tauri::State;
 
 use crate::{
-    app::model::work_view::{GetWorkView, SearchWorkView, SelectByArtistView},
+    app::model::{
+        work_tag_map::GetWorkAttachedTags,
+        work_view::{GetWorkView, SearchWorkView, SelectByArtistView},
+    },
     driver::{
         context::errors::CommandError,
         model::work_view::{JsonWorkView, JsonWorkViewSummary},
@@ -24,6 +27,13 @@ pub async fn search_work(
     //! tags の指定は AND 検索になる ( tags を指定するとその tag を持たない work は表示されない) /
 
     // TODO: タグを用いた検索(SearchWorkView に `work`.`id` IN (?) 用のプロパティを生やす)
+    let target_work_ids = modules
+        .work_tag_map_use_case()
+        .get_work_attached_tags(GetWorkAttachedTags::new(tags)?)
+        .await?
+        .into_iter()
+        .map(|v| v.work_id)
+        .collect();
 
     let works = modules
         .work_view_use_case()
@@ -33,6 +43,7 @@ pub async fn search_work(
             sort_col,
             sort_desc,
             search.clone(),
+            target_work_ids,
         ))
         .await?
         .into_iter()

@@ -1,8 +1,9 @@
 pub mod artist;
-pub mod work;
-pub mod tag;
-pub mod work_tag_map;
 pub mod file;
+pub mod search_history;
+pub mod tag;
+pub mod work;
+pub mod work_tag_map;
 
 use anyhow::anyhow;
 use derive_new::new;

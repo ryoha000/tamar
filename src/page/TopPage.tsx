@@ -12,7 +12,7 @@ const TopPage: Component = () => {
 
   return (
     <Show when={store}>
-      <div class="flex p-4 pt-14">
+      <div class="flex p-4 pt-14 bg-background">
         <Header />
         <Switch>
           <Match when={!store!.isFilterArtist()}>

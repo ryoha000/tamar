@@ -32,7 +32,7 @@ const ArtistPage: Component = () => {
 
   return (
     <Show when={artist()}>
-      <div class="flex p-4 pt-14">
+      <div class="flex p-4 pt-14 bg-background">
         <Header />
         <Artist artist={artist()!} refetch={refetch} />
         <FileImportDialog

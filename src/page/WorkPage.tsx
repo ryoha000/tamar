@@ -38,7 +38,7 @@ const WorkPage: Component = () => {
   const [isOpenMenuDialog, setIsOpenMenuDialog] = createSignal(false);
 
   return (
-    <div class="flex">
+    <div class="flex bg-background">
       <Header
         openListDialog={() => setIsListOpen(true)}
         openMenuDialog={() => setIsOpenMenuDialog(true)}

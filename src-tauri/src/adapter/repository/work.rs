@@ -94,6 +94,7 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
         match &*source.sort_col {
             "name" => sort_col = "title", // valid sort_col
             "updated_at" => sort_col = "updated_at",
+            "view_time" => sort_col = "view_time",
             _ => anyhow::bail!("sort_col is invalid. sort_col: {}", source.sort_col),
         };
 
@@ -109,6 +110,16 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
         if is_search {
             builder.push("SELECT `work`.`id` AS `id`, `work`.`title` AS `title`, `work`.`artist_id` AS `artist_id`, `work`.`created_at` AS `created_at`, `work`.`updated_at` AS `updated_at` FROM work");
             builder.push(" INNER JOIN artist ON `work`.`artist_id` = `artist`.`id` ");
+            if sort_col == "view_time" {
+                // JOIN 先のテーブル
+                let join_table =
+                    " SELECT MAX(updated_at) AS view_time, work_id FROM work_history GROUP BY work_id ";
+                let join_sql = format!(
+                    " INNER JOIN ({}) AS history ON `work`.`id` = `history`.`work_id` ",
+                    join_table
+                );
+                builder.push(join_sql);
+            }
             builder.push(" WHERE `work`.`title` LIKE ");
             builder.push_bind(format!("%{}%", source.text));
 
@@ -116,6 +127,16 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
             builder.push_bind(format!("%{}%", source.text));
         } else {
             builder.push("SELECT * FROM work");
+            if sort_col == "view_time" {
+                // JOIN 先のテーブル
+                let join_table =
+                    " SELECT MAX(updated_at) AS view_time, work_id FROM work_history GROUP BY work_id ";
+                let join_sql = format!(
+                    " INNER JOIN ({}) AS history ON `work`.`id` = `history`.`work_id` ",
+                    join_table
+                );
+                builder.push(join_sql);
+            }
         }
 
         builder.push(format!(" ORDER BY {} {} ", sort_col, sort_order_sql));
@@ -261,9 +282,11 @@ mod test {
         NewWork, NewerArtistIdWork, NewerTitleWork, SearchAroundTitleWork,
         SearchAroundUpdatedAtWork, SearchWork, Work,
     };
+    use crate::kernel::model::work_history::{NewWorkHistory, WorkHistory};
     use crate::kernel::model::Id;
     use crate::kernel::repository::artist::ArtistRepository;
     use crate::kernel::repository::work::WorkRepository;
+    use crate::kernel::repository::work_history::WorkHistoryRepository;
     use crate::test_util::{get_test_db, random_string};
     use tauri::async_runtime::block_on;
     use ulid::Ulid;
@@ -575,6 +598,55 @@ mod test {
     }
 
     #[test]
+    fn test_search_work_sort_by_history() {
+        let db = get_test_db();
+
+        let mut expected_ids = vec![];
+
+        let source = SearchWork::new(10, 0, "view_time".to_string(), true, "".to_string());
+
+        let artist_id = Ulid::new();
+        insert_artist(
+            db.clone(),
+            NewArtist::new(Id::new(artist_id), random_string()),
+        );
+
+        let work_id = Ulid::new();
+        expected_ids.push(work_id.clone());
+        insert_work(
+            db.clone(),
+            NewWork::new(Id::new(work_id), random_string(), Id::new(artist_id)),
+        );
+        insert_work_history(
+            db.clone(),
+            NewWorkHistory {
+                id: Id::new(Ulid::new()),
+                work_id: Id::new(work_id),
+            },
+        );
+
+        let work_id = Ulid::new();
+        expected_ids.push(work_id.clone());
+        insert_work(
+            db.clone(),
+            NewWork::new(Id::new(work_id), random_string(), Id::new(artist_id)),
+        );
+        insert_work_history(
+            db.clone(),
+            NewWorkHistory {
+                id: Id::new(Ulid::new()),
+                work_id: Id::new(work_id),
+            },
+        );
+
+        let found = search(db, source).unwrap();
+        assert_eq!(found.len(), 2);
+        // sort_desc -> true なので逆順
+        assert_eq!(found[0].id.value, expected_ids[1]);
+        assert_eq!(found[1].id.value, expected_ids[0]);
+    }
+
+    #[test]
     fn test_search_work_around_title() {
         let db = get_test_db();
         let title_base = random_string();
@@ -663,6 +735,11 @@ mod test {
 
     fn insert_work(db: Db, new_work: NewWork) {
         let repository = DatabaseRepositoryImpl::<Work>::new(db);
+        block_on(repository.insert(new_work)).unwrap()
+    }
+
+    fn insert_work_history(db: Db, new_work: NewWorkHistory) {
+        let repository = DatabaseRepositoryImpl::<WorkHistory>::new(db);
         block_on(repository.insert(new_work)).unwrap()
     }
 

@@ -9,7 +9,7 @@ const usePage = (
   workPageMap: Map<string, number>,
   isSortDesc: Accessor<boolean>,
   sortCol: Accessor<SortColumnKind>,
-  imageSrcArray: Accessor<string[]>,
+  imageSrcArray: Accessor<string[]>
 ) => {
   const params = useParams();
   const navigator = useNavigate();
@@ -60,7 +60,7 @@ const usePage = (
 
     if (currentIndex === -1 || nextIndex < 0 || nextIndex >= workIds().length) {
       const value = sortCol() === "title" ? _work.title : _work.updatedAt;
-      
+
       // TODO: artist filter
       await fetchWorkIds({
         currentWorkId: workId,
@@ -132,7 +132,6 @@ const usePage = (
           // 垂直スクロールのとき
           // TODO
         }
-        console.log(state);
         setWheelState(INITIAL_WHEEL_STATE);
       }, 50)
     );

@@ -22,8 +22,6 @@ const MasonryItem: ParentComponent<Props> = (props) => {
         (props.rowHeight + props.rowGap)
     );
     container.style.gridRowEnd = `span ${rowSpan}`;
-
-    console.log("Size changed");
   });
 
   onMount(() => {

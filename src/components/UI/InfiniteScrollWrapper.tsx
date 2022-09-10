@@ -30,7 +30,6 @@ const InfiniteScrollBase: Component<TypedBaseProps> = (props) => {
     const req = { ...props.req, offset: offset() };
     const more = await props.command(req);
     if (more.length === 0) {
-      console.log("全部見た");
       setEnableScroll(false);
     }
     if (props.step < 0) {

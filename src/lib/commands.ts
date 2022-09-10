@@ -89,7 +89,7 @@ export const commandGetTagSuggest = async (text: string) => {
   return await invoke<Tag[]>("get_tag_suggest", { text });
 };
 
-export const commandUseSuggest = async (payload: { value_id: string, value_type: number }) => {
+export const commandUseSuggest = async (payload: { valueId: string, valueType: number }) => {
   return await invoke<null>("use_suggest", { ...payload });
 };
 

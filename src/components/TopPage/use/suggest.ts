@@ -56,12 +56,12 @@ const useSuggest = (props: UseSuggestProps) => {
     ele.value = "";
 
     if (option.type === "artist") {
-      commandUseSuggest({ value_id: option.id, value_type: ARTIST_SUGGEST_TYPE })
+      commandUseSuggest({ valueId: option.id, valueType: ARTIST_SUGGEST_TYPE })
       navigator(`/artist/${option.id}`)
     }
 
     if (option.type === "tag") {
-      commandUseSuggest({ value_id: option.id, value_type: TAG_SUGGEST_TYPE })
+      commandUseSuggest({ valueId: option.id, valueType: TAG_SUGGEST_TYPE })
       props.setTags((prev) => [
         ...prev,
         { id: option.id, name: option.value, updatedAt: "" },

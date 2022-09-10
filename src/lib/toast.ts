@@ -8,14 +8,16 @@ export const errorToast = (message: string) => {
   toast.error(message, { position: "bottom-right" });
 };
 
-export const commandWrapper = <T, U>(command: (arg: T) => Promise<U>) => async (arg: T) => {
-  try {
-    const res = await command(arg);
-    return res
-  } catch (e) {
-    if (e instanceof Error) {
-      errorToast(e.message)
+export const commandWrapper =
+  <T, U>(command: (arg: T) => Promise<U>) =>
+  async (arg: T) => {
+    try {
+      const res = await command(arg);
+      return res;
+    } catch (e) {
+      if (typeof e === "string") {
+        errorToast(e);
+      }
+      throw e;
     }
-    throw e
-  }
-}
+  };

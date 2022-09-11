@@ -1,3 +1,4 @@
+import { useLocation } from "@solidjs/router";
 import { FaSolidEllipsis } from "solid-icons/fa";
 import { Component, createSignal, Show } from "solid-js";
 import { useStore } from "../../lib/store";
@@ -11,6 +12,8 @@ import SortSelect from "./SortSelect";
 const Header: Component = () => {
   const store = useStore();
   const [isOpenMenuDialog, setIsOpenMenuDialog] = createSignal(false);
+  const location = useLocation();
+  const isArtistPage = () => location.pathname.startsWith("/artist");
 
   const setSortKind = (v: SortKind) => {
     if (!store) {
@@ -29,7 +32,7 @@ const Header: Component = () => {
   };
 
   const setIsFilterArtist = () => {
-    if (!store) {
+    if (!store || isArtistPage()) {
       return;
     }
     store.setOffset(0);

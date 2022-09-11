@@ -26,7 +26,6 @@ pub async fn search_work(
     //! まぎらわしい仕様についてのメモ /
     //! tags の指定は AND 検索になる ( tags を指定するとその tag を持たない work は表示されない) /
 
-    // TODO: タグを用いた検索(SearchWorkView に `work`.`id` IN (?) 用のプロパティを生やす)
     let target_work_ids = modules
         .work_tag_map_use_case()
         .get_work_attached_tags(GetWorkAttachedTags::new(tags)?)

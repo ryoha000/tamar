@@ -1,34 +1,25 @@
-## Usage
+# tamar
 
-Those templates dependencies are maintained via [pnpm](https://pnpm.io) via `pnpm up -Lri`.
+Software for zapping H picture
 
-This is the reason you see a `pnpm-lock.yaml`. That being said, any package manager will work. This file can be safely be removed once you clone a template.
-
-```bash
-$ npm install # or pnpm install or yarn install
+## development
+```
+$ npm install
+$ npm run tauri dev
 ```
 
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
+## build
+```
+$ npm run tauri build
+```
 
-## Available Scripts
+## privacy policy
+### Japanese
+tamarはユーザーやユーザーに関係する情報の収集をしません。\
+tamarはユーザーのキー入力の収集をしません。\
+tamarは自身で開いたファイルの情報を収集しません。
 
-In the project directory, you can run:
-
-### `npm dev` or `npm start`
-
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.<br>
-
-### `npm run build`
-
-Builds the app for production to the `dist` folder.<br>
-It correctly bundles Solid in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
-
-## Deployment
-
-You can deploy the `dist` folder to any static host provider (netlify, surge, now, etc.)
+### English
+tamar do not collect any personal information or privacy-related information about user.\
+tamar do not collect information of keyboard typing by user.\
+tamar do not collect the information of files opened by tamar.

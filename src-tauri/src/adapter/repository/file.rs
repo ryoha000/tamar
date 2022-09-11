@@ -13,6 +13,7 @@ use crate::kernel::{
 };
 use async_trait::async_trait;
 use sqlx::types::chrono::{DateTime, NaiveDateTime, Utc};
+use tauri::{api::path::app_dir, Config};
 
 use std::io::BufWriter;
 use std::num::NonZeroU32;
@@ -29,20 +30,39 @@ const IMAGE_EXTENTION: [&'static str; 7] = ["gif", "jpg", "jpeg", "jpe", "jfif",
 
 #[async_trait]
 impl FileRepository for RepositoryImpl<File> {
-    fn get_data_root_dir_path(&self) -> &str {
-        // TODO: `${appDir}/data` とかにする
-        "../tamar_content"
+    fn get_data_root_dir_path(&self) -> String {
+        let root = app_dir(&Config::default());
+        match root {
+            Some(root) => root
+                .join(Path::new("tamar"))
+                .join(Path::new("tamar_content"))
+                .as_path()
+                .to_str()
+                .unwrap()
+                .to_string(),
+            None => "../tamar_content".to_string(),
+        }
     }
 
-    fn get_thumbnail_root_dir_path(&self) -> &str {
-        // TODO: `${appDir}/data` とかにする
-        "../tamar_content/thumbnail"
+    fn get_thumbnail_root_dir_path(&self) -> String {
+        let root = app_dir(&Config::default());
+        match root {
+            Some(root) => root
+                .join(Path::new("tamar"))
+                .join(Path::new("tamar_content"))
+                .join(Path::new("thumbnail"))
+                .as_path()
+                .to_str()
+                .unwrap()
+                .to_string(),
+            None => "../tamar_content/thumbnail".to_string(),
+        }
     }
 
     fn get_work_dir_path(&self, id: &Id<Work>) -> anyhow::Result<String> {
         let root_dir = self.get_data_root_dir_path();
 
-        let dir_path = Path::new(root_dir);
+        let dir_path = Path::new(&root_dir);
         let work_dir_path_buf = dir_path.join(Path::new(&id.value.to_string()));
         let work_dir_path = work_dir_path_buf
             .as_path()
@@ -62,7 +82,8 @@ impl FileRepository for RepositoryImpl<File> {
     }
 
     fn get_work_paths(&self, id: &Id<Work>) -> anyhow::Result<Vec<String>> {
-        let dir_path = path::Path::new(self.get_data_root_dir_path());
+        let root = self.get_data_root_dir_path();
+        let dir_path = path::Path::new(&root);
         let dir_path = dir_path.join(path::Path::new(&id.value.to_string()));
 
         let paths = fs::read_dir(dir_path)?;
@@ -92,7 +113,7 @@ impl FileRepository for RepositoryImpl<File> {
     fn save_work_files(&self, source: SaveWorkFiles) -> anyhow::Result<()> {
         let copy_root_dir = self.get_data_root_dir_path();
 
-        let dir_path = path::Path::new(copy_root_dir);
+        let dir_path = path::Path::new(&copy_root_dir);
         let dst_work_dir_path_buf = dir_path.join(path::Path::new(&source.id.value.to_string()));
         let dst_work_dir_path = dst_work_dir_path_buf.as_path();
         // コピー先のディレクトリをつくる
@@ -105,7 +126,8 @@ impl FileRepository for RepositoryImpl<File> {
     }
 
     fn save_thumbnail(&self, source: SaveThumbnail) -> anyhow::Result<()> {
-        let dir_path = path::Path::new(self.get_thumbnail_root_dir_path());
+        let root = self.get_thumbnail_root_dir_path();
+        let dir_path = path::Path::new(&root);
         let dst_work_dir_path_buf = dir_path.join(path::Path::new(&source.id.value.to_string()));
         let dst_work_dir_path = dst_work_dir_path_buf.as_path();
         // コピー先のディレクトリをつくる
@@ -219,7 +241,8 @@ impl FileRepository for RepositoryImpl<File> {
     }
 
     fn delete_work_files(&self, id: &Id<Work>) -> anyhow::Result<()> {
-        let dir_path = path::Path::new(self.get_data_root_dir_path());
+        let root = self.get_data_root_dir_path();
+        let dir_path = path::Path::new(&root);
         let dir_path = dir_path.join(path::Path::new(&id.value.to_string()));
 
         fs::remove_dir_all(dir_path)?;
@@ -311,7 +334,8 @@ impl FileRepository for RepositoryImpl<File> {
     }
 
     fn get_work_list_thumbnail(&self, id: &Id<Work>) -> anyhow::Result<String> {
-        let dir_path = Path::new(self.get_thumbnail_root_dir_path());
+        let root = self.get_thumbnail_root_dir_path();
+        let dir_path = Path::new(&root);
         let work_dir_path_buf = dir_path.join(Path::new(&id.value.to_string()));
         let work_dir_path_buf = work_dir_path_buf.join(Path::new("work_list.png"));
         let work_dir_path = work_dir_path_buf
@@ -323,7 +347,8 @@ impl FileRepository for RepositoryImpl<File> {
     }
 
     fn get_work_list_thumbnail_abs(&self, id: &Id<Work>) -> anyhow::Result<String> {
-        let dir_path = Path::new(self.get_thumbnail_root_dir_path());
+        let root = self.get_thumbnail_root_dir_path();
+        let dir_path = Path::new(&root);
         let work_dir_path_buf = dir_path.join(Path::new(&id.value.to_string()));
         let work_dir_path_buf = work_dir_path_buf.join(Path::new("work_list.png"));
         let work_dir_path = work_dir_path_buf
@@ -338,7 +363,8 @@ impl FileRepository for RepositoryImpl<File> {
     }
 
     fn get_artist_list_thumbnail(&self, id: &Id<Work>) -> anyhow::Result<String> {
-        let work_dir_path_buf = Path::new(self.get_thumbnail_root_dir_path());
+        let root = self.get_thumbnail_root_dir_path();
+        let work_dir_path_buf = Path::new(&root);
         let work_dir_path_buf = work_dir_path_buf.join(Path::new(&id.value.to_string()));
         let work_dir_path_buf = work_dir_path_buf.join(Path::new("artist_list.png"));
         let work_dir_path = work_dir_path_buf
@@ -350,7 +376,8 @@ impl FileRepository for RepositoryImpl<File> {
     }
 
     fn get_artist_list_thumbnail_abs(&self, id: &Id<Work>) -> anyhow::Result<String> {
-        let work_dir_path_buf = Path::new(self.get_thumbnail_root_dir_path());
+        let root = self.get_thumbnail_root_dir_path();
+        let work_dir_path_buf = Path::new(&root);
         let work_dir_path_buf = work_dir_path_buf.join(Path::new(&id.value.to_string()));
         let work_dir_path_buf = work_dir_path_buf.join(Path::new("artist_list.png"));
         let work_dir_path = work_dir_path_buf

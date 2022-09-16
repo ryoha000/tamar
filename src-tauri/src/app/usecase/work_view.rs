@@ -52,7 +52,8 @@ impl<R: RepositoriesModuleExt> WorkViewUseCase<R> {
         let image_paths = self
             .repositories
             .file_repository()
-            .get_work_paths(&work.id)?;
+            .get_work_paths(&work.id)
+            .unwrap_or_default();
 
         Ok(WorkView::new(
             work,

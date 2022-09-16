@@ -154,7 +154,7 @@ impl FileRepository for RepositoryImpl<File> {
             for v in file_names.iter() {
                 let mut is_target_extension = false;
                 for ext in IMAGE_EXTENTION {
-                    if v.ends_with(ext) {
+                    if v.to_lowercase().ends_with(ext) {
                         is_target_extension = true;
                     }
                 }

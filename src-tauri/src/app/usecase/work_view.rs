@@ -107,7 +107,9 @@ impl<R: RepositoriesModuleExt> WorkViewUseCase<R> {
             .await?;
         let mut work_views = Vec::new();
         for work in works.into_iter() {
-            work_views.push(self.get_work_view_summary_from_work(work).await?);
+            if let Ok(work_view) = self.get_work_view_summary_from_work(work).await {
+                work_views.push(work_view);
+            }
         }
         Ok(work_views)
     }
@@ -125,7 +127,9 @@ impl<R: RepositoriesModuleExt> WorkViewUseCase<R> {
             .await?;
         let mut work_views = Vec::new();
         for work in works.into_iter() {
-            work_views.push(self.get_work_view_summary_from_work(work).await?);
+            if let Ok(work_view) = self.get_work_view_summary_from_work(work).await {
+                work_views.push(work_view);
+            }
         }
         Ok(work_views)
     }

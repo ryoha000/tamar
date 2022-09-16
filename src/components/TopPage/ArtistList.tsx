@@ -20,7 +20,10 @@ const ArtistList: Component = () => {
   );
 
   onMount(() => {
-    store.refetch = refetch;
+    store.refetch = () => {
+      mutate([]);
+      refetch();
+    };
   });
 
   return (

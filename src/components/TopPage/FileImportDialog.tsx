@@ -42,8 +42,8 @@ const FileImportDialog: Component<Props> = (props) => {
       artistName: artist(),
       filePaths: props.filePaths,
     });
-    props.close();
     props.refetch();
+    props.close();
   };
 
   return (

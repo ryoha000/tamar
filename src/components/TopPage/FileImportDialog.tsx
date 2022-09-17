@@ -6,6 +6,7 @@ import {
 import { commandWrapper } from "../../lib/toast";
 import { UNKNOWN_ARTIST_NAME } from "../../lib/types";
 import Dialog from "../UI/Dialog";
+import Loading from "../UI/Loading";
 import { MenuDialogSection } from "../UI/MenuDialogWrapper";
 
 interface Props {
@@ -38,12 +39,20 @@ const FileImportDialog: Component<Props> = (props) => {
   const [isFocusInput, setIsFocusInput] = createSignal(false);
 
   const confirm = async () => {
+    setLoading(true);
     await commandWrapper(commandImportFile)({
       artistName: artist(),
       filePaths: props.filePaths,
     });
+    setLoading(false);
     props.refetch();
     props.close();
+  };
+
+  const [loading, setLoading] = createSignal(false);
+
+  const loadingOverlayClick = (e: MouseEvent) => {
+    e.stopPropagation();
   };
 
   return (
@@ -92,6 +101,16 @@ const FileImportDialog: Component<Props> = (props) => {
           </div>
         </div>
       </Dialog>
+      <Show when={loading()}>
+        <div
+          class="absolute left-0 top-0 w-full h-full z-dialog-loading flex items-center justify-center"
+          onclick={loadingOverlayClick}
+        >
+          <div class="flex flex-col items-center justify-center rounded p-8">
+            <Loading />
+          </div>
+        </div>
+      </Show>
     </Show>
   );
 };

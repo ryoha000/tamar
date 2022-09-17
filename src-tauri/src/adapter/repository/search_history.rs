@@ -28,7 +28,7 @@ impl SearchHistoryRepository for DatabaseRepositoryImpl<SearchHistory> {
     async fn select_recent(&self, limit: u32) -> anyhow::Result<Vec<SearchHistory>> {
         let pool = self.pool.0.clone();
         let search_history_table = query_as::<_, SearchHistoryTable>(
-            "select * from search_history ORDER BY updated_at DESC LIMIT ?",
+            "select id, value_id, value_type, created_at, MAX(updated_at) AS updated_at from search_history GROUP BY value_id, value_type ORDER BY updated_at DESC LIMIT ?",
         )
         .bind(limit)
         .fetch_all(&*pool)
@@ -131,7 +131,7 @@ mod test {
                 value_type: SearchHistoryTypeEnum::artist,
             },
         );
-        let found = select_recent_search_history(db, 1);
+        let found = select_recent_search_history(db, 10);
 
         assert_eq!(found.len(), 1);
         assert_eq!(found[0].id.value, id);

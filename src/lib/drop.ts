@@ -3,7 +3,7 @@ import { appWindow } from "@tauri-apps/api/window";
 import { createSignal } from "solid-js";
 import { commandGetArtist, commandImportFile } from "./commands";
 import { useStore } from "./store";
-import { commandWrapper } from "./toast";
+import { commandNullWrapper } from "./toast";
 
 const useDrop = () => {
   const [isOpenFileDialog, setIsOpenFileDialog] = createSignal(false);
@@ -35,12 +35,14 @@ const useDrop = () => {
     setFilePaths(ev.payload.paths);
     if (isArtistPage()) {
       setLoading(true);
-      const artist = await commandWrapper(commandGetArtist)(params["id"]);
-      await commandWrapper(commandImportFile)({
-        artistName: artist.name,
-        filePaths: filePaths(),
-      });
-      refetch();
+      const artist = await commandNullWrapper(commandGetArtist)(params["id"]);
+      if (artist) {
+        await commandNullWrapper(commandImportFile)({
+          artistName: artist.name,
+          filePaths: filePaths(),
+        });
+        refetch();
+      }
       setLoading(false);
       return;
     }

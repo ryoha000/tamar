@@ -4,7 +4,7 @@ import MasonryWrapper from "../UI/MasonryWrapper";
 import { useStore } from "../../lib/store";
 import { commandSearchWork } from "../../lib/commands";
 import InfiniteScroll from "../UI/InfiniteScrollWrapper";
-import { commandWrapper } from "../../lib/toast";
+import { commandArrayWrapper } from "../../lib/toast";
 
 const WorkList: Component = () => {
   const store = useStore();
@@ -14,7 +14,7 @@ const WorkList: Component = () => {
 
   const [works, { mutate, refetch }] = createResource(
     store.searchRequest,
-    commandWrapper(commandSearchWork),
+    commandArrayWrapper(commandSearchWork),
     {
       initialValue: [],
     }
@@ -26,7 +26,7 @@ const WorkList: Component = () => {
 
   return (
     <InfiniteScroll
-      command={commandWrapper(commandSearchWork)}
+      command={commandArrayWrapper(commandSearchWork)}
       mutate={mutate}
       req={store.searchRequest()}
       isInitialEmpty={works().length === 0}

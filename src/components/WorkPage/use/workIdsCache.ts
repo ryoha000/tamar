@@ -6,7 +6,7 @@ import {
   commandSearchAroundViewTimeWork,
   commandSelectWorkByArtist,
 } from "../../../lib/commands";
-import { commandWrapper } from "../../../lib/toast";
+import { commandArrayWrapper, commandNullWrapper } from "../../../lib/toast";
 
 interface AroundWorkRequest {
   limit: number;
@@ -28,19 +28,19 @@ const useWorkIdsCache = (isFilterArtist: Accessor<boolean>) => {
     let res: string[];
     switch (req.col) {
       case "title":
-        res = await commandWrapper(commandSearchAroundTitleWork)({
+        res = await commandArrayWrapper(commandSearchAroundTitleWork)({
           ...req,
           title: req.value,
         });
         break;
       case "updated_at":
-        res = await commandWrapper(commandSearchAroundUpdatedAtWork)({
+        res = await commandArrayWrapper(commandSearchAroundUpdatedAtWork)({
           ...req,
           updated_at: req.value,
         });
         break;
       case "view_time":
-        res = await commandWrapper(commandSearchAroundViewTimeWork)({
+        res = await commandArrayWrapper(commandSearchAroundViewTimeWork)({
           ...req,
           workId: req.currentWorkId,
         });
@@ -72,12 +72,14 @@ const useWorkIdsCache = (isFilterArtist: Accessor<boolean>) => {
       return;
     }
     setLoading(true);
-    const work = await commandWrapper(commandGetWork)(req.currentWorkId);
-    const works = await commandWrapper(commandSelectWorkByArtist)(
-      work.artist.id
-    );
+    const work = await commandNullWrapper(commandGetWork)(req.currentWorkId);
+    if (work) {
+      const works = await commandArrayWrapper(commandSelectWorkByArtist)(
+        work.artist.id
+      );
 
-    setWorkIds(works.map((v) => v.id));
+      setWorkIds(works.map((v) => v.id));
+    }
     setLoading(false);
   };
 

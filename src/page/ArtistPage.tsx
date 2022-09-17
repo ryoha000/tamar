@@ -6,13 +6,13 @@ import Artist from "../components/UI/Artist";
 import { commandGetArtist } from "../lib/commands";
 import useDrop from "../lib/drop";
 import { useStore } from "../lib/store";
-import { commandWrapper } from "../lib/toast";
+import { commandNullWrapper } from "../lib/toast";
 
 const ArtistPage: Component = () => {
   const params = useParams();
   const [artist, { refetch, mutate }] = createResource(
     () => params["id"],
-    commandWrapper(commandGetArtist),
+    commandNullWrapper(commandGetArtist),
     {
       initialValue: null,
     }

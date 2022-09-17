@@ -11,7 +11,7 @@ import { dialog } from "@tauri-apps/api";
 import FileImportDialog from "./FileImportDialog";
 import { commandDeleteAllData } from "../../lib/commands";
 import { confirm } from "@tauri-apps/api/dialog";
-import { commandWrapper } from "../../lib/toast";
+import { commandNullWrapper } from "../../lib/toast";
 
 interface Props {
   isOpen: boolean;
@@ -74,7 +74,7 @@ const MenuDialog: Component<Props> = (props) => {
       { type: "warning" }
     );
     if (res) {
-      await commandWrapper(commandDeleteAllData)({});
+      await commandNullWrapper(commandDeleteAllData)({});
       location.href = "/";
     }
   };

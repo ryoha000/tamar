@@ -3,7 +3,7 @@ import {
   commandImportFile,
   commandSelectArtistByName,
 } from "../../lib/commands";
-import { commandWrapper } from "../../lib/toast";
+import { commandArrayWrapper, commandNullWrapper } from "../../lib/toast";
 import { UNKNOWN_ARTIST_NAME } from "../../lib/types";
 import Dialog from "../UI/Dialog";
 import Loading from "../UI/Loading";
@@ -29,7 +29,7 @@ const FileImportDialog: Component<Props> = (props) => {
 
   const [artistOptions] = createResource(
     artist,
-    commandWrapper(commandSelectArtistByName),
+    commandArrayWrapper(commandSelectArtistByName),
     {
       initialValue: [],
     }
@@ -40,7 +40,7 @@ const FileImportDialog: Component<Props> = (props) => {
 
   const confirm = async () => {
     setLoading(true);
-    await commandWrapper(commandImportFile)({
+    await commandNullWrapper(commandImportFile)({
       artistName: artist(),
       filePaths: props.filePaths,
     });

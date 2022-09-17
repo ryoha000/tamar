@@ -6,7 +6,7 @@ import {
   commandGetTagSuggest,
 } from "../../lib/commands";
 import useInputList from "../../lib/inputList";
-import { commandWrapper } from "../../lib/toast";
+import { commandArrayWrapper, commandNullWrapper } from "../../lib/toast";
 import { Tag as TagI } from "../../lib/types";
 import Tag from "../UI/Tag";
 
@@ -18,7 +18,10 @@ interface Props {
 
 const MenuDialogTagList: Component<Props> = (props) => {
   const removeTag = async (id: string) => {
-    await commandWrapper(commandDetachTag)({ workId: props.workId, tagId: id });
+    await commandNullWrapper(commandDetachTag)({
+      workId: props.workId,
+      tagId: id,
+    });
     props.refetch();
   };
 
@@ -35,7 +38,7 @@ const MenuDialogTagList: Component<Props> = (props) => {
 
   const [suggests] = createResource(
     newTagText,
-    commandWrapper(commandGetTagSuggest),
+    commandArrayWrapper(commandGetTagSuggest),
     {
       initialValue: [],
     }
@@ -43,7 +46,7 @@ const MenuDialogTagList: Component<Props> = (props) => {
 
   const attachTag = async (e: Event | null) => {
     e?.preventDefault();
-    await commandWrapper(commandAttachTagByName)({
+    await commandNullWrapper(commandAttachTagByName)({
       workId: props.workId,
       name: newTagText(),
     });

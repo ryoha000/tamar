@@ -2,7 +2,7 @@ import { fs, path } from "@tauri-apps/api";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
 import { Accessor, createEffect, createSignal } from "solid-js";
 import { commandImportDirectory } from "../../../lib/commands";
-import { commandWrapper } from "../../../lib/toast";
+import { commandNullWrapper } from "../../../lib/toast";
 import { Tag, UNKNOWN_ARTIST_NAME } from "../../../lib/types";
 import { DirPathInfo } from "./exploreDir";
 
@@ -143,7 +143,7 @@ const useDirUsage = (
   const confirm = async () => {
     const ignore = ignoreDeps();
     const targetPaths = paths().filter((v) => !ignore[v.dirDeps.length]);
-    await commandWrapper(commandImportDirectory)({
+    await commandNullWrapper(commandImportDirectory)({
       dirPathInfos: targetPaths,
       usages: usages(),
     });

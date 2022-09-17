@@ -6,7 +6,7 @@ import SearchTagList from "./SearchTagList";
 import { useLocation, useNavigate, useParams } from "@solidjs/router";
 import { commandGetArtist } from "../../lib/commands";
 import Tag from "../UI/Tag";
-import { commandWrapper } from "../../lib/toast";
+import { commandNullWrapper } from "../../lib/toast";
 
 type Props = {
   tags: TagI[];
@@ -27,7 +27,7 @@ const SearchInput: Component<Props> = (props) => {
     if (id === "") {
       return null;
     }
-    return await commandWrapper(commandGetArtist)(id);
+    return await commandNullWrapper(commandGetArtist)(id);
   };
   const [artist] = createResource(
     () => (isArtistPage() ? params["id"] : ""),

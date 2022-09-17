@@ -6,7 +6,10 @@ import {
   commandUseSuggest,
 } from "../../../lib/commands";
 import useInputList from "../../../lib/inputList";
-import { commandWrapper } from "../../../lib/toast";
+import {
+  commandInitialValueWrapper,
+  commandNullWrapper,
+} from "../../../lib/toast";
 import { Suggest, Tag } from "../../../lib/types";
 
 const INITIAL_SUGGEST: Suggest = { tags: [], artists: [] };
@@ -24,9 +27,15 @@ const useSuggest = (props: UseSuggestProps) => {
 
   const fetchOption = async (text: string) => {
     if (text.length === 0) {
-      return await commandWrapper(commandGetInitialSuggest)(15);
+      return await commandInitialValueWrapper(
+        commandGetInitialSuggest,
+        INITIAL_SUGGEST
+      )(15);
     }
-    return await commandWrapper(commandGetSuggest)(text);
+    return await commandInitialValueWrapper(
+      commandGetSuggest,
+      INITIAL_SUGGEST
+    )(text);
   };
   const [suggest] = createResource(tempText, fetchOption, {
     initialValue: INITIAL_SUGGEST,
@@ -61,7 +70,7 @@ const useSuggest = (props: UseSuggestProps) => {
     ele.value = "";
 
     if (option.type === "artist") {
-      commandWrapper(commandUseSuggest)({
+      commandNullWrapper(commandUseSuggest)({
         valueId: option.id,
         valueType: ARTIST_SUGGEST_TYPE,
       });
@@ -69,7 +78,7 @@ const useSuggest = (props: UseSuggestProps) => {
     }
 
     if (option.type === "tag") {
-      commandWrapper(commandUseSuggest)({
+      commandNullWrapper(commandUseSuggest)({
         valueId: option.id,
         valueType: TAG_SUGGEST_TYPE,
       });

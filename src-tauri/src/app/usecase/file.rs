@@ -17,6 +17,11 @@ impl<R: RepositoriesModuleExt> FileUseCase<R> {
     pub fn get_work_paths(&self, id: &Id<Work>) -> anyhow::Result<Vec<String>> {
         self.repositories.file_repository().get_work_paths(id)
     }
+    pub fn get_zip_exclude_dir_path(&self, title: &str) -> String {
+        self.repositories
+            .file_repository()
+            .get_exclude_dir_path(title)
+    }
     pub fn get_file_name(&self, path_str: &str) -> anyhow::Result<String> {
         self.repositories.file_repository().get_file_name(path_str)
     }

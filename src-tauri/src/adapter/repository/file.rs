@@ -44,6 +44,20 @@ impl FileRepository for RepositoryImpl<File> {
         }
     }
 
+    fn get_exclude_dir_path(&self, title: &str) -> String {
+        let root = app_dir(&Config::default());
+        match root {
+            Some(root) => root
+                .join(Path::new("tamar"))
+                .join(Path::new(title))
+                .as_path()
+                .to_str()
+                .unwrap()
+                .to_string(),
+            None => format!("../tmp/{}", title).to_string(),
+        }
+    }
+
     fn get_thumbnail_root_dir_path(&self) -> String {
         let root = app_dir(&Config::default());
         match root {

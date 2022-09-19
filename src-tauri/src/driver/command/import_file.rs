@@ -112,7 +112,7 @@ fn import_individual(
     let dir_path_str;
     if is_zip_file {
         // zip ファイルを解凍
-        let zip_dir_path = format!("../tmp/{}", work_title);
+        let zip_dir_path = m.file_use_case().get_zip_exclude_dir_path(&work_title);
         m.file_use_case()
             .extract_zip_file(&file_path_str, &zip_dir_path)?;
 

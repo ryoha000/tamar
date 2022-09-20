@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "build-x86": "tauri build --target i686-pc-windows-msvc"
   },
   "license": "MIT",
   "devDependencies": {

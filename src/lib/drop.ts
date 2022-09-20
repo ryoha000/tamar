@@ -27,26 +27,30 @@ const useDrop = () => {
 
   const [loading, setLoading] = createSignal(false);
 
+  let timer = 0;
+
   appWindow.onFileDropEvent(async (ev) => {
-    const isLoading = loading();
-    if (ev.payload.type !== "drop" || isLoading) {
-      return;
-    }
-    setFilePaths(ev.payload.paths);
-    if (isArtistPage()) {
+    clearTimeout(timer);
+    timer = setTimeout(async () => {
+      if (ev.payload.type !== "drop" || loading()) {
+        return;
+      }
       setLoading(true);
-      const artist = await commandNullWrapper(commandGetArtist)(params["id"]);
-      if (artist) {
-        await commandNullWrapper(commandImportFile)({
-          artistName: artist.name,
-          filePaths: filePaths(),
-        });
-        refetch();
+      setFilePaths(ev.payload.paths);
+      if (isArtistPage()) {
+        const artist = await commandNullWrapper(commandGetArtist)(params["id"]);
+        if (artist) {
+          await commandNullWrapper(commandImportFile)({
+            artistName: artist.name,
+            filePaths: filePaths(),
+          });
+          refetch();
+        }
+      } else {
+        setIsOpenFileDialog(true);
       }
       setLoading(false);
-      return;
-    }
-    setIsOpenFileDialog(true);
+    }, 500);
   });
 
   return { isOpenFileDialog, closeFileDialog, refetch, filePaths };

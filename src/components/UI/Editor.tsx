@@ -1,11 +1,20 @@
 import { useNavigate } from "@solidjs/router";
 import { AiOutlineCheck, AiOutlineClose, AiOutlineEdit } from "solid-icons/ai";
-import { Component, createSignal, For, Match, Show, Switch } from "solid-js";
+import {
+  Component,
+  createSignal,
+  For,
+  JSX,
+  Match,
+  Show,
+  Switch,
+} from "solid-js";
 import useEdit, { EditProps } from "./use/edit";
 
 type Props = {
   inputClass?: string;
   link?: string; // editable === false のときに input をクリックするとジャンプする先
+  beforeEditButton?: JSX.Element;
 };
 
 const Editor: Component<Props & EditProps> = (props) => {
@@ -87,6 +96,7 @@ const Editor: Component<Props & EditProps> = (props) => {
           </For>
         </datalist>
       </Show>
+      {props.beforeEditButton}
       <Switch>
         <Match when={editable()}>
           <button

@@ -23,7 +23,7 @@ const ArtistWork: Component<Props> = (props) => {
 
   const navigator = useNavigate();
   const goWorkPage = () => {
-    if (props.index) {
+    if (props.index !== undefined) {
       store.setOffset(Math.floor(props.index / SEARCH_LIMIT) * SEARCH_LIMIT);
     }
     navigator(`/work/${props.work.id}/${workPageMap.get(props.work.id) ?? 0}`);
@@ -37,12 +37,13 @@ const ArtistWork: Component<Props> = (props) => {
   return (
     <div class="w-full h-full hover:scale-110 hover:shadow-md focus-within:scale-110 focus-within:shadow-md transition-all cursor-pointer">
       <Show when={imageSrc()}>
-        <div tabIndex={0} onclick={goWorkPage} onkeydown={keydown}>
+        <div class="w-full h-full" tabIndex={0} onclick={goWorkPage} onkeydown={keydown}>
           <img
             loading="lazy"
             decoding="async"
-            class="object-cover rounded-lg w-40 h-40"
+            class="object-cover rounded-lg w-full h-full"
             src={imageSrc()}
+            alt={props.work.title}
           />
         </div>
       </Show>

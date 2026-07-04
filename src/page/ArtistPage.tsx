@@ -34,7 +34,7 @@ const ArtistPage: Component = () => {
     <Show when={artist()}>
       <div class="flex p-4 pt-14 bg-background">
         <Header />
-        <Artist artist={artist()!} refetch={refetch} />
+        <Artist artist={artist()!} refetch={refetch} displayMode="grid" />
         <FileImportDialog
           isOpen={isOpenFileDialog()}
           close={closeFileDialog}

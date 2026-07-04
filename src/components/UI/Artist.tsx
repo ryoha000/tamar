@@ -11,6 +11,7 @@ import ArtistWork from "./ArtistWork";
 import Editor from "./Editor";
 import HorizontalScroller from "./HorizontalScroller";
 import TooltipWrapper from "./TooltipWrapper";
+import { useStore } from "../../lib/store";
 
 interface Props {
   artist: ArtistI;
@@ -19,8 +20,17 @@ interface Props {
   displayMode?: "carousel" | "grid";
 }
 const Artist: Component<Props> = (props) => {
+  const store = useStore();
+  if (!store) {
+    return <div>loading</div>;
+  }
+
   const [works] = createResource(
-    () => props.artist.id,
+    () => ({
+      artistId: props.artist.id,
+      sortCol: store.sortCol(),
+      sortDesc: store.isSortDesc(),
+    }),
     commandArrayWrapper(commandSelectWorkByArtist),
     {
       initialValue: [],

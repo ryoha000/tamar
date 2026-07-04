@@ -69,11 +69,13 @@ pub async fn get_work(
 pub async fn select_work_by_artist(
     modules: State<'_, Arc<Modules>>,
     artist_id: String,
+    sort_col: String,
+    sort_desc: bool,
 ) -> anyhow::Result<Vec<JsonWorkViewSummary>, CommandError> {
     // TODO: limit が必要か考える
     let works = modules
         .work_view_use_case()
-        .select_by_artist(SelectByArtistView::new(artist_id))
+        .select_by_artist(SelectByArtistView::new(artist_id, sort_col, sort_desc))
         .await?
         .into_iter()
         .map(|v| JsonWorkViewSummary::from(v))

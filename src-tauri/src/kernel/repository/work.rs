@@ -2,7 +2,7 @@ use crate::kernel::model::{
     artist::Artist,
     work::{
         NewImportWork, NewWork, NewerArtistIdWork, NewerTitleWork, SearchAroundTitleWork,
-        SearchAroundUpdatedAtWork, SearchWork, Work, SearchAroundViewTimeWork,
+        SearchAroundUpdatedAtWork, SearchAroundViewTimeWork, SearchWork, Work,
     },
     Id,
 };
@@ -22,7 +22,12 @@ pub trait WorkRepository {
         source: SearchAroundViewTimeWork,
     ) -> anyhow::Result<Vec<Work>>;
     async fn find(&self, id: &Id<Work>) -> anyhow::Result<Option<Work>>;
-    async fn find_by_artist(&self, id: &Id<Artist>) -> anyhow::Result<Vec<Work>>;
+    async fn find_by_artist(
+        &self,
+        id: &Id<Artist>,
+        sort_col: String,
+        sort_desc: bool,
+    ) -> anyhow::Result<Vec<Work>>;
     async fn find_by_title_and_artist(
         &self,
         title: String,

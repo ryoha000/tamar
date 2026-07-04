@@ -12,6 +12,7 @@ interface AroundWorkRequest {
   limit: number;
   isBefore: boolean;
   col: "updated_at" | "title" | "view_time";
+  sortDesc: boolean;
   currentWorkId: string;
   value: string;
 }
@@ -75,10 +76,15 @@ const useWorkIdsCache = (isFilterArtist: Accessor<boolean>) => {
     const work = await commandNullWrapper(commandGetWork)(req.currentWorkId);
     if (work) {
       const works = await commandArrayWrapper(commandSelectWorkByArtist)(
-        work.artist.id
+        {
+          artistId: work.artist.id,
+          sortCol: req.col === "title" ? "name" : req.col,
+          sortDesc: req.sortDesc,
+        }
       );
 
-      setWorkIds(works.map((v) => v.id));
+      const ids = works.map((v) => v.id);
+      setWorkIds(req.sortDesc ? ids : ids.reverse());
     }
     setLoading(false);
   };

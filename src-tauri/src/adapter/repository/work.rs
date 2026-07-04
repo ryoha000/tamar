@@ -57,15 +57,49 @@ impl WorkRepository for DatabaseRepositoryImpl<Work> {
         }
     }
 
-    async fn find_by_artist(&self, artist_id: &Id<Artist>) -> anyhow::Result<Vec<Work>> {
+    async fn find_by_artist(
+        &self,
+        artist_id: &Id<Artist>,
+        source_sort_col: String,
+        sort_desc: bool,
+    ) -> anyhow::Result<Vec<Work>> {
+        let sort_col;
+        match &*source_sort_col {
+            "name" => sort_col = "`work`.`title`",
+            "updated_at" => sort_col = "`work`.`updated_at`",
+            "view_time" => sort_col = "view_time",
+            _ => anyhow::bail!("sort_col is invalid. sort_col: {}", source_sort_col),
+        };
+
+        let sort_order_sql;
+        match sort_desc {
+            true => sort_order_sql = "DESC",
+            false => sort_order_sql = "ASC",
+        }
+
+        let mut builder = sqlx::QueryBuilder::new(
+            "SELECT `work`.`id` AS `id`, `work`.`title` AS `title`, `work`.`artist_id` AS `artist_id`, `work`.`created_at` AS `created_at`, `work`.`updated_at` AS `updated_at` FROM work",
+        );
+
+        if source_sort_col == "view_time" {
+            let join_table =
+                " SELECT MAX(updated_at) AS view_time, work_id FROM work_history GROUP BY work_id ";
+            let join_sql = format!(
+                " INNER JOIN ({}) AS history ON `work`.`id` = `history`.`work_id` ",
+                join_table
+            );
+            builder.push(join_sql);
+        }
+
+        builder.push(" WHERE `work`.`artist_id` = ");
+        builder.push_bind(artist_id.value.to_string());
+        builder.push(format!(" ORDER BY {} {} ", sort_col, sort_order_sql));
+
         let pool = self.pool.0.clone();
-        let work_table = query_as::<_, WorkTable>("select * from work where artist_id = ?")
-            .bind(artist_id.value.to_string())
-            .fetch_all(&*pool)
-            .await?;
+        let work_table = builder.build().fetch_all(&*pool).await?;
         Ok(work_table
             .into_iter()
-            .filter_map(|st| st.try_into().ok())
+            .filter_map(|v| WorkTable::from_row(&v).ok()?.try_into().ok())
             .collect())
     }
 
@@ -520,6 +554,53 @@ mod test {
     }
 
     #[test]
+    fn test_find_work_by_artist_with_sort() {
+        let db = get_test_db();
+
+        let artist_id = Ulid::new();
+        insert_artist(
+            db.clone(),
+            NewArtist::new(Id::new(artist_id), random_string()),
+        );
+
+        let work_id_a = Ulid::new();
+        insert_work(
+            db.clone(),
+            NewWork::new(
+                Id::new(work_id_a),
+                "artist-sort-a".to_string(),
+                Id::new(artist_id),
+            ),
+        );
+
+        let work_id_b = Ulid::new();
+        insert_work(
+            db.clone(),
+            NewWork::new(
+                Id::new(work_id_b),
+                "artist-sort-b".to_string(),
+                Id::new(artist_id),
+            ),
+        );
+
+        let found = find_work_by_artist_with_sort(
+            db.clone(),
+            &Id::new(artist_id),
+            "name".to_string(),
+            false,
+        );
+        assert_eq!(found.len(), 2);
+        assert_eq!(found[0].id.value, work_id_a);
+        assert_eq!(found[1].id.value, work_id_b);
+
+        let found =
+            find_work_by_artist_with_sort(db, &Id::new(artist_id), "name".to_string(), true);
+        assert_eq!(found.len(), 2);
+        assert_eq!(found[0].id.value, work_id_b);
+        assert_eq!(found[1].id.value, work_id_a);
+    }
+
+    #[test]
     fn test_search_work_not_found() {
         let db = get_test_db();
         let source = SearchWork::new(
@@ -941,8 +1022,17 @@ mod test {
     }
 
     fn find_work_by_artist(db: Db, artist_id: &Id<Artist>) -> Vec<Work> {
+        find_work_by_artist_with_sort(db, artist_id, "updated_at".to_string(), true)
+    }
+
+    fn find_work_by_artist_with_sort(
+        db: Db,
+        artist_id: &Id<Artist>,
+        sort_col: String,
+        sort_desc: bool,
+    ) -> Vec<Work> {
         let repository = DatabaseRepositoryImpl::<Work>::new(db);
-        block_on(repository.find_by_artist(artist_id)).unwrap()
+        block_on(repository.find_by_artist(artist_id, sort_col, sort_desc)).unwrap()
     }
 
     fn search(db: Db, source: SearchWork) -> anyhow::Result<Vec<Work>> {

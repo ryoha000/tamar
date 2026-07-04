@@ -56,6 +56,8 @@ pub struct GetWorkView {
 #[derive(new)]
 pub struct SelectByArtistView {
     pub id: String,
+    pub sort_col: String,
+    pub sort_desc: bool,
 }
 
 impl GetWorkView {

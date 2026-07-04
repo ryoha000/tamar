@@ -68,6 +68,7 @@ const usePage = (
         currentWorkId: workId,
         isBefore: step > 0,
         col: col,
+        sortDesc: isSortDesc(),
         limit: 20,
         value,
       });

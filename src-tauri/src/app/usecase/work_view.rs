@@ -123,7 +123,7 @@ impl<R: RepositoriesModuleExt> WorkViewUseCase<R> {
         let works = self
             .repositories
             .work_repository()
-            .find_by_artist(&id)
+            .find_by_artist(&id, source.sort_col, source.sort_desc)
             .await?;
         let mut work_views = Vec::new();
         for work in works.into_iter() {
